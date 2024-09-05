@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { headerStyles as styles } from '@/assets/styles/css';
@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
 
   // Handle input changes for the customer form
   const handleInputChange = (field: string, value: string) => {
-    setCustomerData({ ...customerData, [field]: value });
+    setCustomerData({ ...customerData, [field]: value.trim() });
   };
 
   // Handle the form submission for adding a customer
@@ -48,8 +48,18 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
 
   // Close modal and reset form fields
   const closeModal = () => {
-    setModalVisible(false);
-    resetCustomerForm();
+    if (isFormDirty()) {
+      Alert.alert(
+        'Unsaved Changes',
+        'You have unsaved changes. Are you sure you want to discard them?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Discard', style: 'destructive', onPress: resetCustomerForm }
+        ]
+      );
+    } else {
+      setModalVisible(false);
+    }
   };
 
   // Reset the customer form fields
@@ -63,11 +73,17 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
       roi: '',
       address: '',
     });
+    setModalVisible(false);
+  };
+
+  // Check if the form is dirty
+  const isFormDirty = () => {
+    return Object.values(customerData).some(value => value !== '');
   };
 
   // Form validation: Check if all required fields are filled
   const isFormValid = () => {
-    return customerData.name && customerData.phone && customerData.email && customerData.amount && customerData.tenure && customerData.roi && customerData.address;
+    return customerData.name && customerData.phone && customerData.email && customerData.amount && customerData.tenure && customerData.roi && customerData.address ? true : false;
   };
 
   const handleFilterSelect = (selectedFilter: string) => {
@@ -75,69 +91,113 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View>
+    <SafeAreaView>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View>
 
-        {/* Custom Modal for Adding Customers */}
-        <CustomModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          onSubmit={handleAddCustomer}
-          isFormValid={isFormValid() ? true : false}
-          submitButtonText="Add Customer"
-        >
-          <TextInput style={styles.input} placeholder="Name" value={customerData.name} onChangeText={(text) => handleInputChange('name', text)} />
-          <TextInput style={styles.input} placeholder="Phone" value={customerData.phone} onChangeText={(text) => handleInputChange('phone', text)} />
-          <TextInput style={styles.input} placeholder="Email" value={customerData.email} onChangeText={(text) => handleInputChange('email', text)} />
-          <TextInput style={styles.input} placeholder="Amount" value={customerData.amount} onChangeText={(text) => handleInputChange('amount', text)} />
-          <TextInput style={styles.input} placeholder="Tenure" value={customerData.tenure} onChangeText={(text) => handleInputChange('tenure', text)} />
-          <TextInput style={styles.input} placeholder="ROI" value={customerData.roi} onChangeText={(text) => handleInputChange('roi', text)} />
-          <TextInput style={styles.input} placeholder="Address" value={customerData.address} onChangeText={(text) => handleInputChange('address', text)} />
-        </CustomModal>
-
-        <Text style={styles.textHeading}>All Customers</Text>
-        <View style={styles.headerContainer}>
-          <Menu>
-            <MenuTrigger>
-              <View style={styles.filterContainer}>
-                <FontAwesome name="filter" size={18} color="rgb(182, 180, 180)" />
-                <Text style={styles.filterText}>Filter</Text>
-                <FontAwesome name="chevron-down" size={18} color="rgb(182, 180, 180)" />
-              </View>
-            </MenuTrigger>
-            <MenuOptions>
-              <MenuOption onSelect={() => handleFilterSelect('active')}>
-                <Text style={styles.menuOptionText}>Active</Text>
-              </MenuOption>
-              <MenuOption onSelect={() => handleFilterSelect('inactive')}>
-                <Text style={styles.menuOptionText}>Inactive</Text>
-              </MenuOption>
-            </MenuOptions>
-          </Menu>
-
-          {/* Search Input */}
-          <View style={styles.inputContainer}>
-            <View style={styles.searchContainer}>
-              <FontAwesome name="search" size={18} color="rgb(182, 180, 180)" />
+          {/* Custom Modal for Adding Customers */}
+          <CustomModal
+            visible={modalVisible}
+            onClose={closeModal}
+            onSubmit={handleAddCustomer}
+            isFormValid={isFormValid()}
+            submitButtonText="Add Customer"
+          >
+            <View style={styles.formContainer}>
+              {/* Full-width Inputs */}
               <TextInput
-                style={styles.searchInput}
-                placeholder="Search here..."
-                placeholderTextColor="rgb(182, 180, 180)"
-                value={localSearchText}
-                onChangeText={handleSearchChange}
-                underlineColorAndroid="transparent"
-                selectionColor="rgb(100,120,189)"
+                style={styles.fullWidthInput}
+                placeholder="Name"
+                value={customerData.name}
+                onChangeText={(text) => handleInputChange('name', text)}
+              />
+              <TextInput
+                style={styles.fullWidthInput}
+                placeholder="Phone"
+                value={customerData.phone}
+                onChangeText={(text) => handleInputChange('phone', text)}
+              />
+              <TextInput
+                style={styles.fullWidthInput}
+                placeholder="Email"
+                value={customerData.email}
+                onChangeText={(text) => handleInputChange('email', text)}
+              />
+
+              {/* Row Layout for Related Fields */}
+              <View style={styles.row}>
+                <TextInput
+                  style={[styles.halfWidthInput, styles.marginRight]}
+                  placeholder="Amount"
+                  value={customerData.amount}
+                  onChangeText={(text) => handleInputChange('amount', text)}
+                />
+                <TextInput
+                  style={[styles.quarterWidthInput, styles.marginRight]}
+                  placeholder="Tenure"
+                  value={customerData.tenure}
+                  onChangeText={(text) => handleInputChange('tenure', text)}
+                />
+                <TextInput
+                  style={styles.quarterWidthInput}
+                  placeholder="ROI"
+                  value={customerData.roi}
+                  onChangeText={(text) => handleInputChange('roi', text)}
+                />
+              </View>
+
+              <TextInput
+                style={styles.fullWidthInput}
+                placeholder="Address"
+                value={customerData.address}
+                onChangeText={(text) => handleInputChange('address', text)}
               />
             </View>
+          </CustomModal>
 
-            {/* Add Customer Button */}
-            <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-              <Text style={styles.addButtonText}>+</Text>
-            </TouchableOpacity>
+          <View style={styles.headerContainer}>
+            <Menu>
+              <MenuTrigger>
+                <View style={styles.filterContainer}>
+                  <FontAwesome name="filter" size={18} color="rgb(182, 180, 180)" />
+                  <Text style={styles.filterText}>Filter</Text>
+                  <FontAwesome name="chevron-down" size={18} color="rgb(182, 180, 180)" />
+                </View>
+              </MenuTrigger>
+              <MenuOptions>
+                <MenuOption onSelect={() => handleFilterSelect('active')}>
+                  <Text style={styles.menuOptionText}>Active</Text>
+                </MenuOption>
+                <MenuOption onSelect={() => handleFilterSelect('inactive')}>
+                  <Text style={styles.menuOptionText}>Inactive</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+
+            {/* Search Input */}
+            <View style={styles.inputContainer}>
+              <View style={styles.searchContainer}>
+                <FontAwesome name="search" size={18} color="rgb(182, 180, 180)" />
+                {/* <TextInput
+                  style={[styles.quarterWidthInput, styles.marginRight]}
+                  placeholder="Search"
+                  placeholderTextColor="rgb(182, 180, 180)"
+                  value={localSearchText}
+                  onChangeText={(text) => handleSearchChange(text)}
+                  // underlineColorAndroid="transparent"
+                  // selectionColor="rgb(100,120,189)"
+                /> */}
+              </View>
+
+              {/* Add Customer Button */}
+              <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+                <Text style={styles.addButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
-
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };

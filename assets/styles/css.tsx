@@ -221,6 +221,43 @@ export const customerDetailStyles = StyleSheet.create({
 
 
 export const headerStyles = StyleSheet.create({
+    formContainer: {
+        padding: 20,
+    },
+    fullWidthInput: {
+        width: '100%',
+        padding: 10,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 5,
+        fontSize: 16,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    halfWidthInput: {
+        width: '48%',
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 5,
+        marginBottom: 15,
+        fontSize: 16,
+    },
+    quarterWidthInput: {
+        width: '24%',
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 5,
+        marginBottom: 15,
+        fontSize: 16,
+    },
+    marginRight: {
+        marginRight: 10,
+    },
     headerContainer: {
         padding: 10,
         display: 'flex',
@@ -455,7 +492,7 @@ export const indexStyles = StyleSheet.create({
 });
 
 export const modalStyles = StyleSheet.create({
-   modalContainer: {
+    modalContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
