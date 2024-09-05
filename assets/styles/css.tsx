@@ -221,6 +221,9 @@ export const customerDetailStyles = StyleSheet.create({
 
 
 export const headerStyles = StyleSheet.create({
+    errorText: {
+        color: 'red',
+    },
     formContainer: {
         padding: 20,
     },

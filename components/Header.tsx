@@ -25,15 +25,51 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     address: '',
   });
 
+  const [errors, setErrors] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    amount: '',
+    tenure: '',
+    roi: '',
+  });
+
+  // Regex patterns
+  const regexPatterns = {
+    name: /^[a-zA-Z\s]+$/, // Only letters and spaces
+    phone: /^[0-9]{10}$/, // 10 digits
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Valid email
+    amount: /^[0-9]*\.?[0-9]+$/, // Positive number
+    tenure: /^[0-9]+$/, // Positive integer
+    roi: /^([0-9]{1,2})(\.[0-9]{1,2})?$/, // Percentage (e.g., 5, 7.5)
+  };
+
   // Handle text changes in the search bar
   const handleSearchChange = (text: string) => {
     setLocalSearchText(text);
     onSearch(text);
   };
 
+  // Validate input based on the field and value
+  const validateInput = (field: string, value: string) => {
+    const regex = regexPatterns[field as keyof typeof regexPatterns];
+    if (regex && !regex.test(value)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [field]: `Invalid ${field}`,
+      }));
+    } else {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [field]: '',
+      }));
+    }
+  };
+
   // Handle input changes for the customer form
   const handleInputChange = (field: string, value: string) => {
     setCustomerData({ ...customerData, [field]: value.trim() });
+    validateInput(field, value);
   };
 
   // Handle the form submission for adding a customer
@@ -42,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
       await addCustomer(customerData);
       closeModal();
     } else {
-      Alert.alert('Validation Error', 'Please fill in all fields before submitting.');
+      Alert.alert('Validation Error', 'Please correct the errors before submitting.');
     }
   };
 
@@ -54,8 +90,8 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
         'You have unsaved changes. Are you sure you want to discard them?',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Discard', style: 'destructive', onPress: resetCustomerForm }
-        ]
+          { text: 'Discard', style: 'destructive', onPress: resetCustomerForm },
+        ],
       );
     } else {
       setModalVisible(false);
@@ -78,12 +114,22 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
 
   // Check if the form is dirty
   const isFormDirty = () => {
-    return Object.values(customerData).some(value => value !== '');
+    return Object.values(customerData).some((value) => value !== '');
   };
 
-  // Form validation: Check if all required fields are filled
+  // Form validation: Check if all required fields are filled and valid
   const isFormValid = () => {
-    return customerData.name && customerData.phone && customerData.email && customerData.amount && customerData.tenure && customerData.roi && customerData.address ? true : false;
+    return (
+      Object.values(errors).every((error) => error === '') &&
+      customerData.name &&
+      customerData.phone &&
+      customerData.email &&
+      customerData.amount &&
+      customerData.tenure &&
+      customerData.roi &&
+      customerData.address
+      ? true : false
+    );
   };
 
   const handleFilterSelect = (selectedFilter: string) => {
@@ -92,9 +138,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
 
   return (
     <SafeAreaView>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
-
           {/* Custom Modal for Adding Customers */}
           <CustomModal
             visible={modalVisible}
@@ -111,18 +155,23 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
                 value={customerData.name}
                 onChangeText={(text) => handleInputChange('name', text)}
               />
+              {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
+
               <TextInput
                 style={styles.fullWidthInput}
                 placeholder="Phone"
                 value={customerData.phone}
                 onChangeText={(text) => handleInputChange('phone', text)}
               />
+              {errors.phone ? <Text style={styles.errorText}>{errors.phone}</Text> : null}
+
               <TextInput
                 style={styles.fullWidthInput}
                 placeholder="Email"
                 value={customerData.email}
                 onChangeText={(text) => handleInputChange('email', text)}
               />
+              {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
 
               {/* Row Layout for Related Fields */}
               <View style={styles.row}>
@@ -132,18 +181,23 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
                   value={customerData.amount}
                   onChangeText={(text) => handleInputChange('amount', text)}
                 />
+                {errors.amount ? <Text style={styles.errorText}>{errors.amount}</Text> : null}
+
                 <TextInput
                   style={[styles.quarterWidthInput, styles.marginRight]}
                   placeholder="Tenure"
                   value={customerData.tenure}
                   onChangeText={(text) => handleInputChange('tenure', text)}
                 />
+                {errors.tenure ? <Text style={styles.errorText}>{errors.tenure}</Text> : null}
+
                 <TextInput
                   style={styles.quarterWidthInput}
                   placeholder="ROI"
                   value={customerData.roi}
                   onChangeText={(text) => handleInputChange('roi', text)}
                 />
+                {errors.roi ? <Text style={styles.errorText}>{errors.roi}</Text> : null}
               </View>
 
               <TextInput
@@ -155,6 +209,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
             </View>
           </CustomModal>
 
+          {/* Rest of the Header component */}
           <View style={styles.headerContainer}>
             <Menu>
               <MenuTrigger>
@@ -194,10 +249,8 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
                 <Text style={styles.addButtonText}>+</Text>
               </TouchableOpacity>
             </View>
-
           </View>
         </View>
-      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
