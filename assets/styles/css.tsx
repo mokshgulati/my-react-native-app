@@ -9,8 +9,8 @@ export const loginStyles = StyleSheet.create({
         backgroundColor: '#F5F5F5'
     },
     logo: {
-        width: 250,
-        height: 150,
+        width: 240,
+        height: 240,
         marginBottom: 40,
     },
     heading: {
@@ -33,7 +33,6 @@ export const loginStyles = StyleSheet.create({
     },
     inputFocused: {
         borderColor: 'rgb(23,43,109)',
-        // boxShadow: '0px 0px 10px rgba(100,120,189,0.3)'
     },
     button: {
         backgroundColor: 'rgb(23,43,109)',

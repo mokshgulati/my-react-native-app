@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Image, Pressable, StyleSheet, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { indexStyles as styles } from '@/assets/styles/css'
@@ -9,9 +9,10 @@ export default function Index() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
+      <StatusBar barStyle="dark-content" />
       {/* Welcome Message */}
       <View style={styles.overlay}>
-        <Image source={require('@/assets/images/DKMainLogo.png')} resizeMode="contain" style={{ height: 240, width: 240 }} />
+        <Image source={require('@/assets/images/DKMainLogo.png')} resizeMode="contain" style={{ height: 360, width: 360 }} />
         <View style={styles.buttonWrapper}>
           <Pressable onPress={() => router.push("/Login?entry=login")}
             style={({ pressed }) => [

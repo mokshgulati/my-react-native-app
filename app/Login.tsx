@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, StatusBar, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { loginStyles as styles } from '@/assets/styles/css';
@@ -30,7 +30,7 @@ const Login: React.FC = () => {
       return;
     }
     if (!passwordRegex.test(password)) {
-      showToast('Password must be at least 8 characters long and contain one letter, and one number.','error');
+      showToast('Password must be at least 8 characters long and contain one letter, and one number.', 'error');
       return;
     }
     if (isSignup && !nameRegex.test(name)) {
@@ -76,7 +76,7 @@ const Login: React.FC = () => {
   };
 
   // API Call to handle sign-in
-    const handleSignin = () => {
+  const handleSignin = () => {
     // Simulate an API call to sign in
     return new Promise<{ success: boolean; type: string }>((resolve) => {
       setTimeout(() => {
@@ -88,68 +88,71 @@ const Login: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
-      <View style={styles.container}>
-        <Image source={require('../assets/images/DKLogo.png')} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.heading}>{isSignup ? 'Sign Up to create account' : 'Login now'}</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.container}>
+          <Image source={require('../assets/images/DKMainLogo.png')} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.heading}>{isSignup ? 'Sign Up to create account' : 'Login now'}</Text>
 
-        {isSignup && (
+          {isSignup && (
+            <TextInput
+              style={[styles.input, focusedInput === 'name' && styles.inputFocused]}
+              placeholder="Name"
+              onChangeText={setName}
+              value={name}
+              onFocus={() => setFocusedInput('name')}
+              onBlur={() => setFocusedInput("")}
+            />
+          )}
           <TextInput
-            style={[styles.input, focusedInput === 'name' && styles.inputFocused]}
-            placeholder="Name"
-            onChangeText={setName}
-            value={name}
-            onFocus={() => setFocusedInput('name')}
+            style={[styles.input, focusedInput === 'email' && styles.inputFocused]}
+            placeholder="Email"
+            onChangeText={setEmail}
+            value={email}
+            onFocus={() => setFocusedInput('email')}
             onBlur={() => setFocusedInput("")}
           />
-        )}
-        <TextInput
-          style={[styles.input, focusedInput === 'email' && styles.inputFocused]}
-          placeholder="Email"
-          onChangeText={setEmail}
-          value={email}
-          onFocus={() => setFocusedInput('email')}
-          onBlur={() => setFocusedInput("")}
-        />
-        <TextInput
-          style={[styles.input, focusedInput === 'password' && styles.inputFocused]}
-          placeholder="Password"
-          secureTextEntry
-          onChangeText={setPassword}
-          value={password}
-          onFocus={() => setFocusedInput('password')}
-          onBlur={() => setFocusedInput("")}
-        />
+          <TextInput
+            style={[styles.input, focusedInput === 'password' && styles.inputFocused]}
+            placeholder="Password"
+            secureTextEntry
+            onChangeText={setPassword}
+            value={password}
+            onFocus={() => setFocusedInput('password')}
+            onBlur={() => setFocusedInput("")}
+          />
 
-        {!isSignup && (
-          <View style={styles.forgotPasswordContainer}>
-            <TouchableOpacity onPress={handleForgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {!isSignup && (
+            <View style={styles.forgotPasswordContainer}>
+              <TouchableOpacity onPress={handleForgotPassword}>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>{isSignup ? 'Signup' : 'Login'}</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>{isSignup ? 'Signup' : 'Login'}</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
-          <Text style={styles.switchText}>
-            {isSignup ? (
-              <>
-                <Text>Already have an account?{' '}</Text>
-                <Text style={styles.linkText}>Login</Text>
-              </>
-            ) : (
-              <>
-                <Text>Don't have an account?{' '}</Text>
-                <Text style={styles.linkText}>Sign up</Text>
-              </>
-            )}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+          <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
+            <Text style={styles.switchText}>
+              {isSignup ? (
+                <>
+                  <Text>Already have an account?{' '}</Text>
+                  <Text style={styles.linkText}>Login</Text>
+                </>
+              ) : (
+                <>
+                  <Text>Don't have an account?{' '}</Text>
+                  <Text style={styles.linkText}>Sign up</Text>
+                </>
+              )}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

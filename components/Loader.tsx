@@ -1,6 +1,6 @@
 import { loaderStyles as styles } from '@/assets/styles/css';
 import React from 'react';
-import { View, ActivityIndicator, Modal } from 'react-native';
+import { View, Modal, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Loader: React.FC<{ visible: boolean }> = ({ visible }) => {
@@ -12,11 +12,11 @@ const Loader: React.FC<{ visible: boolean }> = ({ visible }) => {
     <SafeAreaView>
       <Modal transparent={true} animationType="fade" visible={visible}>
         <View style={styles.loaderContainer}>
-          <ActivityIndicator
-            size="large"
-            color="black"
-            aria-label="Loading" // Accessibility attribute
-            role="progressbar" // Accessibility role
+          {/* GIF Loader */}
+          <Image
+            source={require('@/assets/images/gifLoader.gif')} // Update this with the path to your GIF
+            style={{ width: 70, height: 70 }} // Customize the size of the GIF
+            resizeMode="contain" // This ensures the GIF scales properly
           />
         </View>
       </Modal>

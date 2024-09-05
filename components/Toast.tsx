@@ -11,7 +11,7 @@ interface ToastProps {
   onHide?: () => void;
 }
 
-const Toast: React.FC<ToastProps> = ({ message, type, visible, duration = 3000, onHide }) => {
+const Toast: React.FC<ToastProps> = ({ message, type, visible, duration = 500, onHide }) => {
   const [fadeAnim] = useState(new Animated.Value(0));
   let hideTimeout: NodeJS.Timeout | null = null;
 
@@ -49,13 +49,9 @@ const Toast: React.FC<ToastProps> = ({ message, type, visible, duration = 3000, 
   if (!visible) return null;
 
   return (
-    <SafeAreaView>
-      <View>
-        <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }, styles[type]]}>
-          <Text style={styles.message}>{message}</Text>
-        </Animated.View>
-      </View>
-    </SafeAreaView>
+    <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }, styles[type]]}>
+      <Text style={styles.message}>{message}</Text>
+    </Animated.View>
   );
 };
 
