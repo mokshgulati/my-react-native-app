@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, Image } from 'react-native';
 import Header from '@/components/Header'; // Importing the Header component for search and filter
 import { useLoader } from '@/providers/LoaderProvider'; // Importing loader provider for showing/hiding loader
 import { useToast } from '@/providers/ToastProvider'; // Importing toast provider for showing toast messages
@@ -7,6 +7,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome'; // Importing ic
 import { customersStyles as styles } from '@/assets/styles/css'; // Importing styles from CSS
 import { useRouter } from 'expo-router'; // Using router for navigation
 import { SafeAreaView } from 'react-native-safe-area-context';
+import PageHeader from '@/components/PageHeader';
 
 export default function Customers() {
   const [customers, setCustomers] = useState([
@@ -107,6 +108,26 @@ export default function Customers() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
+        <PageHeader
+        leftNode={
+          <Image
+            source={require("@/assets/images/back-arrow-100.png")}
+            style={{ width: 20, height: 20 }}
+            resizeMode="contain"
+          />
+        }
+        headerText="Customer Details"
+        rightNode={
+          <Image
+            style={styles.profilePhoto}
+            source={{
+              uri: 'https://images.unsplash.com/photo-1528763380143-65b3ac89a3ff?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+            }}
+          />
+        }
+        handleOnPressLeftNode={() => router.back()}
+        handleOnPressRightNode={() => alert("This is a custom action!")}
+      />
         {/* Header component with search and filter functionality */}
         <Header onSearch={setSearchText} addCustomer={addCustomer} handleFilterChange={handleFilterChange} />
 

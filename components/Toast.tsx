@@ -49,7 +49,7 @@ const Toast: React.FC<ToastProps> = ({ message, type, visible, duration = 3000, 
   if (!visible) return null;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView>
       <View>
         <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }, styles[type]]}>
           <Text style={styles.message}>{message}</Text>

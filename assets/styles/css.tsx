@@ -1,21 +1,12 @@
 import { StyleSheet } from 'react-native';
 
-export const indexStyles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-    },
-});
-
 export const loginStyles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 16,
-        backgroundColor: 'F5F5F5'
+        backgroundColor: '#F5F5F5'
     },
     logo: {
         width: 250,
@@ -92,6 +83,12 @@ export const customerDetailStyles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20
+    },
+    profilePhoto: {
+        height: 36,
+        width: 36,
+        borderRadius: 36,
+        backgroundColor: '#f0f0f0',
     },
     card: {
         flexDirection: 'row',
@@ -374,6 +371,12 @@ export const toastStyles = StyleSheet.create({
 });
 
 export const customersStyles = StyleSheet.create({
+    profilePhoto: {
+        height: 36,
+        width: 36,
+        borderRadius: 36,
+        backgroundColor: '#f0f0f0',
+    },
     container: {
         flex: 1,
         backgroundColor: 'F5F5F5',
@@ -416,5 +419,76 @@ export const customersStyles = StyleSheet.create({
     amountText: {
         marginLeft: 10,
         fontSize: 16,
+    },
+});
+
+export const indexStyles = StyleSheet.create({
+    overlay: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#F5F5F5',
+        padding: 20,
+        paddingTop: 80,
+        width: '100%',
+    },
+    buttonWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        gap: 20,
+        alignItems: 'center',
+        width: '90%',
+        marginTop: -100
+    },
+    btnTxt: {
+        textAlign: 'center',
+        color: '#fff',
+        fontWeight: '600',
+        margin: 'auto',
+        fontSize: 15
+    },
+    footer: {
+        fontWeight: '600'
+    },
+});
+
+export const modalStyles = StyleSheet.create({
+   modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: '90%',
+        alignItems: 'center',
+    },
+    input: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        padding: 10,
+        fontSize: 16,
+        marginBottom: 10,
+        width: '100%',
+    },
+    closeButton: {
+        alignSelf: 'flex-end',
+        marginBottom: 10
+    },
+    popupAddBtn: {
+        backgroundColor: 'rgb(23,43,109)',
+        borderRadius: 5,
+        padding: 8,
+        paddingHorizontal: 20
+    },
+    popupAddButtonText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center',
     },
 });

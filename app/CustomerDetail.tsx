@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Switch, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -8,6 +8,7 @@ import { customerDetailStyles as styles } from '@/assets/styles/css';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import SomethingWentWrong from '@/components/SomethingWentWrong';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import PageHeader from '@/components/PageHeader';
 
 export default function CustomerDetails() {
   const router = useRouter(); // Using router for navigation
@@ -110,108 +111,107 @@ export default function CustomerDetails() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        {/* Show admin-specific controls (save button, back button) if the user is an admin */}
-        {type === 'admin' &&
-          <View style={styles.header}>
-            <Icon
-              name="arrow-left"
-              size={20}
-              color="#000"
-              style={styles.backButton}
-              onPress={() => router.back()} // Navigate back using router
-            />
-            <Text style={styles.headerTitle}>Customer Details</Text>
-            <TouchableOpacity
-              style={[styles.saveButton, { opacity: hasChanges ? 1 : 0.5 }]}
-              disabled={!hasChanges} // Disable save button if there are no unsaved changes
-              onPress={() => setHasChanges(false)} // Reset unsaved changes (implement actual save logic here)
-            >
-              <Text> Save </Text>
-            </TouchableOpacity>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <PageHeader
+        leftNode={
+          <Image
+            source={require("../assets/images/back-arrow-100.png")}
+            style={{ width: 20, height: 20 }}
+            resizeMode="contain"
+          />
         }
+        headerText="Customer Details"
+        rightNode={
+          <Image
+            style={styles.profilePhoto}
+            source={{
+              uri: 'https://images.unsplash.com/photo-1528763380143-65b3ac89a3ff?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+            }}
+          />
+        }
+        handleOnPressLeftNode={() => router.back()}
+        handleOnPressRightNode={() => alert("This is a custom action!")}
+      />
 
-        {/* Basic customer details (name, email, phone, amount) */}
-        <View style={styles.card}>
-          <View style={styles.leftContainer}>
-            <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>{details.basicDetails.name}</Text>
-            <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{details.basicDetails.email}</Text>
-            <Text style={styles.label}>Phone:</Text>
-            <Text style={styles.value}>{details.basicDetails.phone}</Text>
+      {/* Basic customer details (name, email, phone, amount) */}
+      <View style={styles.card}>
+        <View style={styles.leftContainer}>
+          <Text style={styles.label}>Name:</Text>
+          <Text style={styles.value}>{details.basicDetails.name}</Text>
+          <Text style={styles.label}>Email:</Text>
+          <Text style={styles.value}>{details.basicDetails.email}</Text>
+          <Text style={styles.label}>Phone:</Text>
+          <Text style={styles.value}>{details.basicDetails.phone}</Text>
+        </View>
+        <View style={styles.rightContainer}>
+          <View style={styles.amountContainer}>
+            <Text style={styles.label}>Amount:</Text>
+            <Text style={styles.value}>{details.basicDetails.amount}</Text>
           </View>
-          <View style={styles.rightContainer}>
-            <View style={styles.amountContainer}>
-              <Text style={styles.label}>Amount:</Text>
-              <Text style={styles.value}>{details.basicDetails.amount}</Text>
-            </View>
-            <View style={styles.switchContainer}>
-              <Text style={styles.label}>Active:</Text>
-              {/* Toggle switch to activate/deactivate customer status (only for admins) */}
-              <Switch
-                value={details.basicDetails.status}
-                onValueChange={handleStatusToggle}
-                disabled={type !== 'admin'} // Disable for non-admin users
-              />
-            </View>
+          <View style={styles.switchContainer}>
+            <Text style={styles.label}>Active:</Text>
+            {/* Toggle switch to activate/deactivate customer status (only for admins) */}
+            <Switch
+              value={details.basicDetails.status}
+              onValueChange={handleStatusToggle}
+              disabled={type !== 'admin'} // Disable for non-admin users
+            />
           </View>
         </View>
+      </View>
 
-        {/* Payment history list */}
-        <ScrollView>
-          {details.payments.map((payment, index) => (
-            <View key={index} style={styles.paymentCard}>
-              <View style={styles.paymentleftContainer}>
-                <Text style={styles.paymentlabel}>Amount:</Text>
-                <Text style={styles.paymentvalue}>{payment.amount}</Text>
+      {/* Payment history list */}
+      <ScrollView>
+        {details.payments.map((payment, index) => (
+          <View key={index} style={styles.paymentCard}>
+            <View style={styles.paymentleftContainer}>
+              <Text style={styles.paymentlabel}>Amount:</Text>
+              <Text style={styles.paymentvalue}>{payment.amount}</Text>
+            </View>
+            <View style={styles.paymentrightContainer}>
+              <View style={styles.dateContainer}>
+                <Text style={styles.dateLabel}>Due Date:</Text>
+                <Text style={styles.dateValue}>{payment.date}</Text>
               </View>
-              <View style={styles.paymentrightContainer}>
-                <View style={styles.dateContainer}>
-                  <Text style={styles.dateLabel}>Due Date:</Text>
-                  <Text style={styles.dateValue}>{payment.date}</Text>
-                </View>
-                <View style={styles.statusContainer}>
-                  {/* Display the payment status with icons (paid, delayed, pending) */}
-                  <View style={[
+              <View style={styles.statusContainer}>
+                {/* Display the payment status with icons (paid, delayed, pending) */}
+                <View
+                  style={[
                     styles.statusTag,
                     payment.paymentStatus === 'paid' ? styles.paid
                       : payment.paymentStatus === 'delayed' ? styles.delayed
                         : styles.pending
                   ]}>
-                    <Icon
-                      name={payment.paymentStatus === 'paid' ? 'check-circle'
-                        : payment.paymentStatus === 'delayed' ? 'times-circle'
-                          : 'clock-o'}
-                      size={14}
-                      color={payment.paymentStatus === 'paid' ? '#008000'
-                        : payment.paymentStatus === 'delayed' ? '#ff0000'
-                          : 'rgb(131, 131, 43)'}
-                    />
-                    <Text style={styles.statusText}>{payment.paymentStatus}</Text>
-                  </View>
-
-                  {/* Admin-only options to change payment status */}
-                  {type === 'admin' && (
-                    <Menu>
-                      <MenuTrigger>
-                        <Icon name="edit" size={20} color="#000" />
-                      </MenuTrigger>
-                      <MenuOptions>
-                        <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'paid')} text="Paid" />
-                        <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'delayed')} text="Delayed" />
-                        <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'pending')} text="Pending" />
-                      </MenuOptions>
-                    </Menu>
-                  )}
+                  <Icon
+                    name={payment.paymentStatus === 'paid' ? 'check-circle'
+                      : payment.paymentStatus === 'delayed' ? 'times-circle'
+                        : 'clock-o'}
+                    size={14}
+                    color={payment.paymentStatus === 'paid' ? '#008000'
+                      : payment.paymentStatus === 'delayed' ? '#ff0000'
+                        : 'rgb(131, 131, 43)'}
+                  />
+                  <Text style={styles.statusText}>{payment.paymentStatus}</Text>
                 </View>
+
+                {/* Admin-only options to change payment status */}
+                {type === 'admin' && (
+                  <Menu>
+                    <MenuTrigger>
+                      <Icon name="edit" size={20} color="#000" />
+                    </MenuTrigger>
+                    <MenuOptions>
+                      <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'paid')} text="Paid" />
+                      <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'delayed')} text="Delayed" />
+                      <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'pending')} text="Pending" />
+                    </MenuOptions>
+                  </Menu>
+                )}
               </View>
             </View>
-          ))}
-        </ScrollView>
-      </View>
+          </View>
+        ))}
+      </ScrollView>
     </SafeAreaView >
   );
 

@@ -9,7 +9,7 @@ const Loader: React.FC<{ visible: boolean }> = ({ visible }) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView>
       <Modal transparent={true} animationType="fade" visible={visible}>
         <View style={styles.loaderContainer}>
           <ActivityIndicator

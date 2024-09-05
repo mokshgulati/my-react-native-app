@@ -3,12 +3,14 @@ import { Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { loginStyles as styles } from '@/assets/styles/css';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Login: React.FC = () => {
-  const [isSignup, setIsSignup] = useState(false); // Toggle between login/signup mode
+  const { entry } = useLocalSearchParams(); // Retrieving route parameters
+  const [isSignup, setIsSignup] = useState(entry === 'signup'); // Toggle between login/signup mode
   const [focusedInput, setFocusedInput] = useState(""); // Track focused input field
+  const [name, setName] = useState(""); // Name input state (for signup)
   const [email, setEmail] = useState(""); // Email input state
   const [password, setPassword] = useState(""); // Password input state
 
@@ -16,24 +18,29 @@ const Login: React.FC = () => {
   const showToast = useToast(); // Show toast messages
   const router = useRouter(); // Expo Router for navigation
 
-  // Regex for validating email and password
+  // Regex for validating email, password, and name
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  const nameRegex = /^[a-zA-Z\s]+$/; // Allows letters and spaces
 
   // Handle login or signup
   const handleLogin = async () => {
-    // if (!emailRegex.test(email)) {
-    //   showToast('Please enter a valid email address', 'error');
-    //   return;
-    // }
-    // if (!passwordRegex.test(password)) {
-    //   showToast('Password must be at least 8 characters long and contain one uppercase letter, one lowercase letter, one number, and one special character.', 'error');
-    //   return;
-    // }
+    if (!emailRegex.test(email)) {
+      showToast('Please enter a valid email address', 'error');
+      return;
+    }
+    if (!passwordRegex.test(password)) {
+      showToast('Password must be at least 8 characters long and contain one letter, and one number.','error');
+      return;
+    }
+    if (isSignup && !nameRegex.test(name)) {
+      showToast('Please enter a valid name (only letters and spaces)', 'error');
+      return
+    }
 
     showLoader();
     try {
-      const response = await fakeApiCall(email, password);
+      const response = isSignup ? await handleSignup() : await handleSignin();
 
       if (response.success) {
         if (response.type === 'admin') {
@@ -51,11 +58,29 @@ const Login: React.FC = () => {
     }
   };
 
-  // Simulate an API call to login
-  const fakeApiCall = (email: string, password: string) => {
+  // API Call to handle forgot password
+  const handleForgotPassword = () => {
+    // Simulate an API call to sign up
+  }
+
+  // API Call to handle sign-up
+  const handleSignup = () => {
+    // Simulate an API call to sign up
     return new Promise<{ success: boolean; type: string }>((resolve) => {
       setTimeout(() => {
-        // Mock response: returns admin or user based on the email (for testing)
+        // Mock response: return success and assign user type based on email
+        const userType = email.includes("admin") ? 'admin' : 'user';
+        resolve({ success: true, type: userType });
+      }, 1000);
+    });
+  };
+
+  // API Call to handle sign-in
+    const handleSignin = () => {
+    // Simulate an API call to sign in
+    return new Promise<{ success: boolean; type: string }>((resolve) => {
+      setTimeout(() => {
+        // Mock response: return success and assign user type based on email
         const userType = email.includes("admin") ? 'admin' : 'user';
         resolve({ success: true, type: userType });
       }, 1000);
@@ -63,7 +88,6 @@ const Login: React.FC = () => {
   };
 
   return (
-
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <Image source={require('../assets/images/DKLogo.png')} style={styles.logo} resizeMode="contain" />
@@ -73,6 +97,8 @@ const Login: React.FC = () => {
           <TextInput
             style={[styles.input, focusedInput === 'name' && styles.inputFocused]}
             placeholder="Name"
+            onChangeText={setName}
+            value={name}
             onFocus={() => setFocusedInput('name')}
             onBlur={() => setFocusedInput("")}
           />
@@ -97,7 +123,7 @@ const Login: React.FC = () => {
 
         {!isSignup && (
           <View style={styles.forgotPasswordContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleForgotPassword}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
           </View>
