@@ -456,9 +456,11 @@ export const customersStyles = StyleSheet.create({
         alignItems: 'center',
     },
     amountText: {
-        marginLeft: 10,
         fontSize: 16,
     },
+    activeStatus: {
+        marginLeft: 10,
+    }    
 });
 
 export const indexStyles = StyleSheet.create({
