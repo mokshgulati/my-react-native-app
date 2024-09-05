@@ -3,6 +3,7 @@ import { View, TextInput, Modal, TouchableOpacity, Text, Alert } from 'react-nat
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { headerStyles as styles } from '@/assets/styles/css';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface HeaderProps {
   onSearch: (text: string) => void;
@@ -73,80 +74,82 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
   };
 
   return (
-    <View>
-      <Text style={styles.textHeading}>All Customers</Text>
-      <View style={styles.headerContainer}>
-        <Menu>
-          <MenuTrigger>
-            <View style={styles.filterContainer}>
-              <FontAwesome name="filter" size={18} color="rgb(182, 180, 180)" />
-              <Text style={styles.filterText}>Filter</Text>
-              <FontAwesome name="chevron-down" size={18} color="rgb(182, 180, 180)" />
-            </View>
-          </MenuTrigger>
-          <MenuOptions>
-            <MenuOption onSelect={() => handleFilterSelect('active')}>
-              <Text style={styles.menuOptionText}>Active</Text>
-            </MenuOption>
-            <MenuOption onSelect={() => handleFilterSelect('inactive')}>
-              <Text style={styles.menuOptionText}>Inactive</Text>
-            </MenuOption>
-          </MenuOptions>
-        </Menu>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View>
+        <Text style={styles.textHeading}>All Customers</Text>
+        <View style={styles.headerContainer}>
+          <Menu>
+            <MenuTrigger>
+              <View style={styles.filterContainer}>
+                <FontAwesome name="filter" size={18} color="rgb(182, 180, 180)" />
+                <Text style={styles.filterText}>Filter</Text>
+                <FontAwesome name="chevron-down" size={18} color="rgb(182, 180, 180)" />
+              </View>
+            </MenuTrigger>
+            <MenuOptions>
+              <MenuOption onSelect={() => handleFilterSelect('active')}>
+                <Text style={styles.menuOptionText}>Active</Text>
+              </MenuOption>
+              <MenuOption onSelect={() => handleFilterSelect('inactive')}>
+                <Text style={styles.menuOptionText}>Inactive</Text>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
 
-        {/* Search Input */}
-        <View style={styles.inputContainer}>
-          <View style={styles.searchContainer}>
-            <FontAwesome name="search" size={18} color="rgb(182, 180, 180)" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search here..."
-              placeholderTextColor="rgb(182, 180, 180)"
-              value={localSearchText}
-              onChangeText={handleSearchChange}
-              underlineColorAndroid="transparent"
-              selectionColor="rgb(100,120,189)"
-            />
+          {/* Search Input */}
+          <View style={styles.inputContainer}>
+            <View style={styles.searchContainer}>
+              <FontAwesome name="search" size={18} color="rgb(182, 180, 180)" />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search here..."
+                placeholderTextColor="rgb(182, 180, 180)"
+                value={localSearchText}
+                onChangeText={handleSearchChange}
+                underlineColorAndroid="transparent"
+                selectionColor="rgb(100,120,189)"
+              />
+            </View>
+
+            {/* Add Customer Button */}
+            <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
           </View>
-          
-          {/* Add Customer Button */}
-          <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
+
+          {/* Modal for Adding Customers */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={closeModal}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {/* Close Modal Button */}
+                <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                  <FontAwesome name="times" size={20} color="gray" />
+                </TouchableOpacity>
+
+                {/* Customer Form Inputs */}
+                <TextInput style={styles.input} placeholder="Name" value={customerData.name} onChangeText={(text) => handleInputChange('name', text)} />
+                <TextInput style={styles.input} placeholder="Phone" value={customerData.phone} onChangeText={(text) => handleInputChange('phone', text)} />
+                <TextInput style={styles.input} placeholder="Email" value={customerData.email} onChangeText={(text) => handleInputChange('email', text)} />
+                <TextInput style={styles.input} placeholder="Amount" value={customerData.amount} onChangeText={(text) => handleInputChange('amount', text)} />
+                <TextInput style={styles.input} placeholder="Tenure" value={customerData.tenure} onChangeText={(text) => handleInputChange('tenure', text)} />
+                <TextInput style={styles.input} placeholder="ROI" value={customerData.roi} onChangeText={(text) => handleInputChange('roi', text)} />
+                <TextInput style={styles.input} placeholder="Address" value={customerData.address} onChangeText={(text) => handleInputChange('address', text)} />
+
+                {/* Add Customer Button */}
+                <TouchableOpacity style={[styles.popupAddBtn, { opacity: isFormValid() ? 1 : 0.5 }]} disabled={!isFormValid()} onPress={handleAddCustomer}>
+                  <Text style={styles.popupAddButtonText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </View>
-
-        {/* Modal for Adding Customers */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={closeModal}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              {/* Close Modal Button */}
-              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-                <FontAwesome name="times" size={20} color="gray" />
-              </TouchableOpacity>
-
-              {/* Customer Form Inputs */}
-              <TextInput style={styles.input} placeholder="Name" value={customerData.name} onChangeText={(text) => handleInputChange('name', text)} />
-              <TextInput style={styles.input} placeholder="Phone" value={customerData.phone} onChangeText={(text) => handleInputChange('phone', text)} />
-              <TextInput style={styles.input} placeholder="Email" value={customerData.email} onChangeText={(text) => handleInputChange('email', text)} />
-              <TextInput style={styles.input} placeholder="Amount" value={customerData.amount} onChangeText={(text) => handleInputChange('amount', text)} />
-              <TextInput style={styles.input} placeholder="Tenure" value={customerData.tenure} onChangeText={(text) => handleInputChange('tenure', text)} />
-              <TextInput style={styles.input} placeholder="ROI" value={customerData.roi} onChangeText={(text) => handleInputChange('roi', text)} />
-              <TextInput style={styles.input} placeholder="Address" value={customerData.address} onChangeText={(text) => handleInputChange('address', text)} />
-
-              {/* Add Customer Button */}
-              <TouchableOpacity style={[styles.popupAddBtn, { opacity: isFormValid() ? 1 : 0.5 }]} disabled={!isFormValid()} onPress={handleAddCustomer}>
-                <Text style={styles.popupAddButtonText}>Add</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

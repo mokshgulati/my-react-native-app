@@ -1,6 +1,7 @@
 import { toastStyles as styles } from '@/assets/styles/css';
 import React, { useState, useEffect } from 'react';
-import { Text, Animated } from 'react-native';
+import { Text, Animated, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ToastProps {
   message: string;
@@ -48,9 +49,13 @@ const Toast: React.FC<ToastProps> = ({ message, type, visible, duration = 3000, 
   if (!visible) return null;
 
   return (
-    <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }, styles[type]]}>
-      <Text style={styles.message}>{message}</Text>
-    </Animated.View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View>
+        <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }, styles[type]]}>
+          <Text style={styles.message}>{message}</Text>
+        </Animated.View>
+      </View>
+    </SafeAreaView>
   );
 };
 

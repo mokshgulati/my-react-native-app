@@ -4,6 +4,7 @@ import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { loginStyles as styles } from '@/assets/styles/css';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Login: React.FC = () => {
   const [isSignup, setIsSignup] = useState(false); // Toggle between login/signup mode
@@ -62,64 +63,67 @@ const Login: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../assets/images/DKLogo.png')} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.heading}>{isSignup ? 'Sign Up to create account' : 'Login now'}</Text>
 
-      {isSignup && (
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <Image source={require('../assets/images/DKLogo.png')} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.heading}>{isSignup ? 'Sign Up to create account' : 'Login now'}</Text>
+
+        {isSignup && (
+          <TextInput
+            style={[styles.input, focusedInput === 'name' && styles.inputFocused]}
+            placeholder="Name"
+            onFocus={() => setFocusedInput('name')}
+            onBlur={() => setFocusedInput("")}
+          />
+        )}
         <TextInput
-          style={[styles.input, focusedInput === 'name' && styles.inputFocused]}
-          placeholder="Name"
-          onFocus={() => setFocusedInput('name')}
+          style={[styles.input, focusedInput === 'email' && styles.inputFocused]}
+          placeholder="Email"
+          onChangeText={setEmail}
+          value={email}
+          onFocus={() => setFocusedInput('email')}
           onBlur={() => setFocusedInput("")}
         />
-      )}
-      <TextInput
-        style={[styles.input, focusedInput === 'email' && styles.inputFocused]}
-        placeholder="Email"
-        onChangeText={setEmail}
-        value={email}
-        onFocus={() => setFocusedInput('email')}
-        onBlur={() => setFocusedInput("")}
-      />
-      <TextInput
-        style={[styles.input, focusedInput === 'password' && styles.inputFocused]}
-        placeholder="Password"
-        secureTextEntry
-        onChangeText={setPassword}
-        value={password}
-        onFocus={() => setFocusedInput('password')}
-        onBlur={() => setFocusedInput("")}
-      />
+        <TextInput
+          style={[styles.input, focusedInput === 'password' && styles.inputFocused]}
+          placeholder="Password"
+          secureTextEntry
+          onChangeText={setPassword}
+          value={password}
+          onFocus={() => setFocusedInput('password')}
+          onBlur={() => setFocusedInput("")}
+        />
 
-      {!isSignup && (
-        <View style={styles.forgotPasswordContainer}>
-          <TouchableOpacity>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+        {!isSignup && (
+          <View style={styles.forgotPasswordContainer}>
+            <TouchableOpacity>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>{isSignup ? 'Signup' : 'Login'}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>{isSignup ? 'Signup' : 'Login'}</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
-        <Text style={styles.switchText}>
-          {isSignup ? (
-            <>
-              <Text>Already have an account?{' '}</Text>
-              <Text style={styles.linkText}>Login</Text>
-            </>
-          ) : (
-            <>
-              <Text>Don't have an account?{' '}</Text>
-              <Text style={styles.linkText}>Sign up</Text>
-            </>
-          )}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
+          <Text style={styles.switchText}>
+            {isSignup ? (
+              <>
+                <Text>Already have an account?{' '}</Text>
+                <Text style={styles.linkText}>Login</Text>
+              </>
+            ) : (
+              <>
+                <Text>Don't have an account?{' '}</Text>
+                <Text style={styles.linkText}>Sign up</Text>
+              </>
+            )}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 

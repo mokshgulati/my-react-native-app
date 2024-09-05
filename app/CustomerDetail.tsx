@@ -7,6 +7,7 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { customerDetailStyles as styles } from '@/assets/styles/css';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import SomethingWentWrong from '@/components/SomethingWentWrong';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CustomerDetails() {
   const router = useRouter(); // Using router for navigation
@@ -65,7 +66,7 @@ export default function CustomerDetails() {
 
     try {
       const response = await fakeApiCall(id); // Simulate an API call
-      if (response.success) {
+      if (response.success && id === 2) {
         // Set customer details based on the API response
         setDetails({
           basicDetails: {
@@ -98,118 +99,120 @@ export default function CustomerDetails() {
   const fakeApiCall = (id: number) => {
     return new Promise<{ success: boolean }>((resolve) => {
       setTimeout(() => {
-        resolve({ success: false }); // Simulate a successful API response
+        resolve({ success: true }); // Simulate a successful API response
       }, 1000); // Simulate network delay
     });
   };
 
   if (error) {
     // Show "Something Went Wrong" page if there's an error
-    return <SomethingWentWrong onRetry={() => fetchCustomerDetails(Number(customerId))} />;
+    return <SomethingWentWrong onRetry={() => fetchCustomerDetails(Number(2))} />;
   }
 
   return (
-    <View style={styles.container}>
-      {/* Show admin-specific controls (save button, back button) if the user is an admin */}
-      {type === 'admin' &&
-        <View style={styles.header}>
-          <Icon
-            name="arrow-left"
-            size={20}
-            color="#000"
-            style={styles.backButton}
-            onPress={() => router.back()} // Navigate back using router
-          />
-          <Text style={styles.headerTitle}>Customer Details</Text>
-          <TouchableOpacity
-            style={[styles.saveButton, { opacity: hasChanges ? 1 : 0.5 }]}
-            disabled={!hasChanges} // Disable save button if there are no unsaved changes
-            onPress={() => setHasChanges(false)} // Reset unsaved changes (implement actual save logic here)
-          >
-            <Text> Save </Text>
-          </TouchableOpacity>
-        </View>
-      }
-
-      {/* Basic customer details (name, email, phone, amount) */}
-      <View style={styles.card}>
-        <View style={styles.leftContainer}>
-          <Text style={styles.label}>Name:</Text>
-          <Text style={styles.value}>{details.basicDetails.name}</Text>
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.value}>{details.basicDetails.email}</Text>
-          <Text style={styles.label}>Phone:</Text>
-          <Text style={styles.value}>{details.basicDetails.phone}</Text>
-        </View>
-        <View style={styles.rightContainer}>
-          <View style={styles.amountContainer}>
-            <Text style={styles.label}>Amount:</Text>
-            <Text style={styles.value}>{details.basicDetails.amount}</Text>
-          </View>
-          <View style={styles.switchContainer}>
-            <Text style={styles.label}>Active:</Text>
-            {/* Toggle switch to activate/deactivate customer status (only for admins) */}
-            <Switch
-              value={details.basicDetails.status}
-              onValueChange={handleStatusToggle}
-              disabled={type !== 'admin'} // Disable for non-admin users
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {/* Show admin-specific controls (save button, back button) if the user is an admin */}
+        {type === 'admin' &&
+          <View style={styles.header}>
+            <Icon
+              name="arrow-left"
+              size={20}
+              color="#000"
+              style={styles.backButton}
+              onPress={() => router.back()} // Navigate back using router
             />
+            <Text style={styles.headerTitle}>Customer Details</Text>
+            <TouchableOpacity
+              style={[styles.saveButton, { opacity: hasChanges ? 1 : 0.5 }]}
+              disabled={!hasChanges} // Disable save button if there are no unsaved changes
+              onPress={() => setHasChanges(false)} // Reset unsaved changes (implement actual save logic here)
+            >
+              <Text> Save </Text>
+            </TouchableOpacity>
+          </View>
+        }
+
+        {/* Basic customer details (name, email, phone, amount) */}
+        <View style={styles.card}>
+          <View style={styles.leftContainer}>
+            <Text style={styles.label}>Name:</Text>
+            <Text style={styles.value}>{details.basicDetails.name}</Text>
+            <Text style={styles.label}>Email:</Text>
+            <Text style={styles.value}>{details.basicDetails.email}</Text>
+            <Text style={styles.label}>Phone:</Text>
+            <Text style={styles.value}>{details.basicDetails.phone}</Text>
+          </View>
+          <View style={styles.rightContainer}>
+            <View style={styles.amountContainer}>
+              <Text style={styles.label}>Amount:</Text>
+              <Text style={styles.value}>{details.basicDetails.amount}</Text>
+            </View>
+            <View style={styles.switchContainer}>
+              <Text style={styles.label}>Active:</Text>
+              {/* Toggle switch to activate/deactivate customer status (only for admins) */}
+              <Switch
+                value={details.basicDetails.status}
+                onValueChange={handleStatusToggle}
+                disabled={type !== 'admin'} // Disable for non-admin users
+              />
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Payment history list */}
-      <ScrollView>
-        {details.payments.map((payment, index) => (
-          <View key={index} style={styles.paymentCard}>
-            <View style={styles.paymentleftContainer}>
-              <Text style={styles.paymentlabel}>Amount:</Text>
-              <Text style={styles.paymentvalue}>{payment.amount}</Text>
-            </View>
-            <View style={styles.paymentrightContainer}>
-              <View style={styles.dateContainer}>
-                <Text style={styles.dateLabel}>Due Date:</Text>
-                <Text style={styles.dateValue}>{payment.date}</Text>
+        {/* Payment history list */}
+        <ScrollView>
+          {details.payments.map((payment, index) => (
+            <View key={index} style={styles.paymentCard}>
+              <View style={styles.paymentleftContainer}>
+                <Text style={styles.paymentlabel}>Amount:</Text>
+                <Text style={styles.paymentvalue}>{payment.amount}</Text>
               </View>
-              <View style={styles.statusContainer}>
-                {/* Display the payment status with icons (paid, delayed, pending) */}
-                <View style={[
-                  styles.statusTag,
-                  payment.paymentStatus === 'paid' ? styles.paid
-                    : payment.paymentStatus === 'delayed' ? styles.delayed
-                      : styles.pending
-                ]}>
-                  <Icon
-                    name={payment.paymentStatus === 'paid' ? 'check-circle'
-                      : payment.paymentStatus === 'delayed' ? 'times-circle'
-                        : 'clock-o'}
-                    size={14}
-                    color={payment.paymentStatus === 'paid' ? '#008000'
-                      : payment.paymentStatus === 'delayed' ? '#ff0000'
-                        : 'rgb(131, 131, 43)'}
-                  />
-                  <Text style={styles.statusText}>{payment.paymentStatus}</Text>
+              <View style={styles.paymentrightContainer}>
+                <View style={styles.dateContainer}>
+                  <Text style={styles.dateLabel}>Due Date:</Text>
+                  <Text style={styles.dateValue}>{payment.date}</Text>
                 </View>
+                <View style={styles.statusContainer}>
+                  {/* Display the payment status with icons (paid, delayed, pending) */}
+                  <View style={[
+                    styles.statusTag,
+                    payment.paymentStatus === 'paid' ? styles.paid
+                      : payment.paymentStatus === 'delayed' ? styles.delayed
+                        : styles.pending
+                  ]}>
+                    <Icon
+                      name={payment.paymentStatus === 'paid' ? 'check-circle'
+                        : payment.paymentStatus === 'delayed' ? 'times-circle'
+                          : 'clock-o'}
+                      size={14}
+                      color={payment.paymentStatus === 'paid' ? '#008000'
+                        : payment.paymentStatus === 'delayed' ? '#ff0000'
+                          : 'rgb(131, 131, 43)'}
+                    />
+                    <Text style={styles.statusText}>{payment.paymentStatus}</Text>
+                  </View>
 
-                {/* Admin-only options to change payment status */}
-                {type === 'admin' && (
-                  <Menu>
-                    <MenuTrigger>
-                      <Icon name="edit" size={20} color="#000" />
-                    </MenuTrigger>
-                    <MenuOptions>
-                      <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'paid')} text="Paid" />
-                      <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'delayed')} text="Delayed" />
-                      <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'pending')} text="Pending" />
-                    </MenuOptions>
-                  </Menu>
-                )}
+                  {/* Admin-only options to change payment status */}
+                  {type === 'admin' && (
+                    <Menu>
+                      <MenuTrigger>
+                        <Icon name="edit" size={20} color="#000" />
+                      </MenuTrigger>
+                      <MenuOptions>
+                        <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'paid')} text="Paid" />
+                        <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'delayed')} text="Delayed" />
+                        <MenuOption onSelect={() => handlePaymentStatusToggle(payment.id, 'pending')} text="Pending" />
+                      </MenuOptions>
+                    </Menu>
+                  )}
+                </View>
               </View>
             </View>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+          ))}
+        </ScrollView>
+      </View>
+    </SafeAreaView >
   );
 
 }

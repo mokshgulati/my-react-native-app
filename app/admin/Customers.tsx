@@ -6,6 +6,7 @@ import { useToast } from '@/providers/ToastProvider'; // Importing toast provide
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // Importing icons from FontAwesome
 import { customersStyles as styles } from '@/assets/styles/css'; // Importing styles from CSS
 import { useRouter } from 'expo-router'; // Using router for navigation
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Customers() {
   const [customers, setCustomers] = useState([
@@ -32,7 +33,7 @@ export default function Customers() {
 
   // Handle row click to navigate to the customer details screen
   const handleRowClick = (customerId: number) => {
-    router.push(`/CustomerDetail`); // Navigate to the CustomerDetail screen
+    router.push(`/CustomerDetail?customerId=1`); // Navigate to the CustomerDetail screen
   };
 
   // Mock function to simulate an API call to get customers
@@ -104,35 +105,37 @@ export default function Customers() {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header component with search and filter functionality */}
-      <Header onSearch={setSearchText} addCustomer={addCustomer} handleFilterChange={handleFilterChange} />
-      
-      {/* Scrollable list of filtered customers */}
-      <ScrollView>
-        {filteredCustomers.map((customer, index) => (
-          <TouchableOpacity key={index} onPress={() => handleRowClick(customer.id)}>
-            <View style={styles.rowWrapper}>
-              <View style={styles.rowContainer}>
-                <View style={styles.leftColumn}>
-                  <Text style={styles.nameText}>{customer.name}</Text>
-                  <Text style={styles.phoneText}>{customer.phone}</Text>
-                </View>
-                <View style={styles.rightColumn}>
-                  <View style={styles.statusContainer}>
-                    <FontAwesome
-                      name={customer.isActive ? "dot-circle-o" : "dot-circle-o"}
-                      size={20}
-                      color={customer.isActive ? "green" : "red"}
-                    />
-                    <Text style={styles.amountText}>{customer.amount}</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {/* Header component with search and filter functionality */}
+        <Header onSearch={setSearchText} addCustomer={addCustomer} handleFilterChange={handleFilterChange} />
+
+        {/* Scrollable list of filtered customers */}
+        <ScrollView>
+          {filteredCustomers.map((customer, index) => (
+            <TouchableOpacity key={index} onPress={() => handleRowClick(customer.id)}>
+              <View style={styles.rowWrapper}>
+                <View style={styles.rowContainer}>
+                  <View style={styles.leftColumn}>
+                    <Text style={styles.nameText}>{customer.name}</Text>
+                    <Text style={styles.phoneText}>{customer.phone}</Text>
+                  </View>
+                  <View style={styles.rightColumn}>
+                    <View style={styles.statusContainer}>
+                      <FontAwesome
+                        name={customer.isActive ? "dot-circle-o" : "dot-circle-o"}
+                        size={20}
+                        color={customer.isActive ? "green" : "red"}
+                      />
+                      <Text style={styles.amountText}>{customer.amount}</Text>
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    </SafeAreaView >
   );
 }
