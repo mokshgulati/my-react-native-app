@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Modal, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, Modal, TouchableOpacity, Text, Alert } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { headerStyles as styles } from '@/assets/styles/css';
@@ -7,7 +7,7 @@ import { headerStyles as styles } from '@/assets/styles/css';
 interface HeaderProps {
   onSearch: (text: string) => void;
   addCustomer: (customerData: any) => Promise<void>;
-  handleFilterChange: (status: string) => void
+  handleFilterChange: (status: string) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChange }) => {
@@ -23,18 +23,35 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     address: '',
   });
 
+  // Handle text changes in the search bar
   const handleSearchChange = (text: string) => {
     setLocalSearchText(text);
     onSearch(text);
   };
 
+  // Handle input changes for the customer form
   const handleInputChange = (field: string, value: string) => {
     setCustomerData({ ...customerData, [field]: value });
   };
 
-  const handleAddCustomer = () => {
-    addCustomer(customerData);
+  // Handle the form submission for adding a customer
+  const handleAddCustomer = async () => {
+    if (isFormValid()) {
+      await addCustomer(customerData);
+      closeModal();
+    } else {
+      Alert.alert('Validation Error', 'Please fill in all fields before submitting.');
+    }
+  };
+
+  // Close modal and reset form fields
+  const closeModal = () => {
     setModalVisible(false);
+    resetCustomerForm();
+  };
+
+  // Reset the customer form fields
+  const resetCustomerForm = () => {
     setCustomerData({
       name: '',
       phone: '',
@@ -46,18 +63,11 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     });
   };
 
-  const handleCloseModal = () => {
-    setModalVisible(false);
-    setCustomerData({
-      name: '',
-      phone: '',
-      email: '',
-      amount: '',
-      tenure: '',
-      roi: '',
-      address: '',
-    });
+  // Form validation: Check if all required fields are filled
+  const isFormValid = () => {
+    return customerData.name && customerData.phone && customerData.email && customerData.amount && customerData.tenure && customerData.roi && customerData.address;
   };
+
   const handleFilterSelect = (selectedFilter: string) => {
     handleFilterChange(selectedFilter);
   };
@@ -83,21 +93,43 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
             </MenuOption>
           </MenuOptions>
         </Menu>
+
+        {/* Search Input */}
         <View style={styles.inputContainer}>
           <View style={styles.searchContainer}>
             <FontAwesome name="search" size={18} color="rgb(182, 180, 180)" />
-            <TextInput style={styles.searchInput} placeholder="Search here..." placeholderTextColor="rgb(182, 180, 180)" value={localSearchText} onChangeText={handleSearchChange} underlineColorAndroid="transparent" selectionColor="rgb(100,120,189)" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search here..."
+              placeholderTextColor="rgb(182, 180, 180)"
+              value={localSearchText}
+              onChangeText={handleSearchChange}
+              underlineColorAndroid="transparent"
+              selectionColor="rgb(100,120,189)"
+            />
           </View>
+          
+          {/* Add Customer Button */}
           <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
             <Text style={styles.addButtonText}>+</Text>
           </TouchableOpacity>
         </View>
-        <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={handleCloseModal} >
+
+        {/* Modal for Adding Customers */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={closeModal}
+        >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <TouchableOpacity onPress={handleCloseModal} style={styles.closeButton}>
+              {/* Close Modal Button */}
+              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
                 <FontAwesome name="times" size={20} color="gray" />
               </TouchableOpacity>
+
+              {/* Customer Form Inputs */}
               <TextInput style={styles.input} placeholder="Name" value={customerData.name} onChangeText={(text) => handleInputChange('name', text)} />
               <TextInput style={styles.input} placeholder="Phone" value={customerData.phone} onChangeText={(text) => handleInputChange('phone', text)} />
               <TextInput style={styles.input} placeholder="Email" value={customerData.email} onChangeText={(text) => handleInputChange('email', text)} />
@@ -105,7 +137,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
               <TextInput style={styles.input} placeholder="Tenure" value={customerData.tenure} onChangeText={(text) => handleInputChange('tenure', text)} />
               <TextInput style={styles.input} placeholder="ROI" value={customerData.roi} onChangeText={(text) => handleInputChange('roi', text)} />
               <TextInput style={styles.input} placeholder="Address" value={customerData.address} onChangeText={(text) => handleInputChange('address', text)} />
-              <TouchableOpacity style={styles.popupAddBtn} onPress={handleAddCustomer}>
+
+              {/* Add Customer Button */}
+              <TouchableOpacity style={[styles.popupAddBtn, { opacity: isFormValid() ? 1 : 0.5 }]} disabled={!isFormValid()} onPress={handleAddCustomer}>
                 <Text style={styles.popupAddButtonText}>Add</Text>
               </TouchableOpacity>
             </View>
@@ -115,6 +149,5 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     </View>
   );
 };
-
 
 export default Header;

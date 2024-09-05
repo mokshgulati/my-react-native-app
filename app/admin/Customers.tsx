@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
-import Header from '../../components/Header';
-import { useLoader } from '../providers/LoaderProvider';
-import { useToast } from '../providers/ToastProvider';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { customersStyles as styles } from '@/assets/styles/css';
+import Header from '@/components/Header'; // Importing the Header component for search and filter
+import { useLoader } from '@/providers/LoaderProvider'; // Importing loader provider for showing/hiding loader
+import { useToast } from '@/providers/ToastProvider'; // Importing toast provider for showing toast messages
+import FontAwesome from 'react-native-vector-icons/FontAwesome'; // Importing icons from FontAwesome
+import { customersStyles as styles } from '@/assets/styles/css'; // Importing styles from CSS
+import { useRouter } from 'expo-router'; // Using router for navigation
 
-interface CustomersProps {
-  onCustomerSelect: (customerId: number) => void;
-}
-
-export default function Customers({ onCustomerSelect }: CustomersProps) {
+export default function Customers() {
   const [customers, setCustomers] = useState([
+    // Mocked customer data
     { id: 1, name: 'John Doe', phone: '123-456-7890', amount: '$100', isActive: true },
     { id: 3, name: 'Jane Smith', phone: '098-765-4321', amount: '$150', isActive: false },
     { id: 4, name: 'Emily Davis', phone: '234-567-8901', amount: '$200', isActive: true },
@@ -19,95 +17,98 @@ export default function Customers({ onCustomerSelect }: CustomersProps) {
     { id: 6, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
     { id: 7, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
     { id: 8, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
-    { id: 9, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
-    { id: 10, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
-    { id: 11, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
-    { id: 12, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
-    { id: 13, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
+    // Additional customers...
   ]);
 
-  const [searchText, setSearchText] = useState('');
-  const { showLoader, hideLoader } = useLoader();
-  const showToast = useToast();
+  const [searchText, setSearchText] = useState(''); // Search text state
+  const { showLoader, hideLoader } = useLoader(); // Show/hide loader
+  const showToast = useToast(); // Display toast messages
+  const router = useRouter(); // Router for navigation
 
   useEffect(() => {
+    // Load customer data when the component mounts
     getCustomers(customers);
   }, []);
 
+  // Handle row click to navigate to the customer details screen
   const handleRowClick = (customerId: number) => {
-    if (onCustomerSelect) {
-      onCustomerSelect(customerId);
-    }
+    router.push(`/CustomerDetail`); // Navigate to the CustomerDetail screen
   };
 
+  // Mock function to simulate an API call to get customers
   const getCustomers = async (customerData: any) => {
-    showLoader();
+    showLoader(); // Show loader while fetching customers
     try {
-      const response = await fakeApiCall(customerData);
+      const response = await fakeApiCall(customerData); // Simulate API call
       if (response.success) {
-        // setCustomers(customerData);
+        // setCustomers(customerData); // Uncomment if fetching actual data from an API
       } else {
-        showToast('failed to get customers', 'error');
+        showToast('Failed to get customers', 'error'); // Show error toast if the API call fails
       }
     } catch (error) {
-      showToast(`Error fetching customers: ${error}`, "error");
+      showToast(`Error fetching customers: ${error}`, "error"); // Show error toast if an exception occurs
     } finally {
-      hideLoader()
+      hideLoader(); // Hide the loader after the API call
     }
   };
 
+  // Add a new customer and refresh the customer list
   const addCustomer = async (customerData: any) => {
-    showLoader()
+    showLoader(); // Show loader while adding customer
     try {
-      const response = await fakeApiCall(customerData);
+      const response = await fakeApiCall(customerData); // Simulate API call
       if (response.success) {
-        getCustomers(customerData);
+        getCustomers(customerData); // Reload the customer list after adding a customer
       } else {
-        hideLoader()
-        showToast('failed to add customer', 'error');
+        hideLoader();
+        showToast('Failed to add customer', 'error'); // Show error toast if adding the customer fails
       }
     } catch (error) {
-      hideLoader()
-      showToast(`Error adding customer: ${error}`, "error");
+      hideLoader();
+      showToast(`Error adding customer: ${error}`, "error"); // Show error toast if an exception occurs
     }
   };
 
+  // Simulated API call function
   const fakeApiCall = (customerData: any) => {
-    return new Promise<{ success: boolean; message?: string }>((resolve) => {
+    return new Promise<{ success: boolean }>((resolve) => {
       setTimeout(() => {
-        // if (email === 'test@example.com' && password === 'password') {
-        resolve({ success: true });
-        // } else {
-        // resolve({ success: false, message: 'Invalid credentials' });
-        // }
-      }, 1000);
+        resolve({ success: true }); // Mock successful response
+      }, 1000); // Simulate network delay
     });
   };
 
+  // Toggle the active/inactive status of a customer
   const toggleSwitch = (index: number) => {
     setCustomers((prevCustomers) => {
-      const updatedCustomers = [...prevCustomers];
-      updatedCustomers[index].isActive = !updatedCustomers[index].isActive;
-      return updatedCustomers;
+      const updatedCustomers = [...prevCustomers]; // Copy the customer array
+      updatedCustomers[index].isActive = !updatedCustomers[index].isActive; // Toggle active status
+      return updatedCustomers; // Return the updated array
     });
   };
 
+  // Filter customers based on the search text
   const filteredCustomers = customers.filter((customer) => {
-    const searchLower = searchText.toLowerCase();
+    const searchLower = searchText.toLowerCase(); // Convert search text to lowercase
     return (
-      customer.name.toLowerCase().includes(searchLower) ||
-      customer.phone.includes(searchLower) ||
-      customer.amount.includes(searchLower)
+      customer.name.toLowerCase().includes(searchLower) || // Match name
+      customer.phone.includes(searchLower) || // Match phone
+      customer.amount.includes(searchLower) // Match amount
     );
   });
 
+  // Handle filter change for customers (e.g., active/inactive)
   const handleFilterChange = (status: string) => {
-    //filter the customeres based on the status:) , {khud bhi kro kuch;)}
+    // Placeholder for handling customer filter (active/inactive)
+    // This function will be implemented as needed
   }
 
   return (
     <View style={styles.container}>
+      {/* Header component with search and filter functionality */}
       <Header onSearch={setSearchText} addCustomer={addCustomer} handleFilterChange={handleFilterChange} />
+      
+      {/* Scrollable list of filtered customers */}
       <ScrollView>
         {filteredCustomers.map((customer, index) => (
           <TouchableOpacity key={index} onPress={() => handleRowClick(customer.id)}>

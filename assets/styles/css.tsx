@@ -38,11 +38,8 @@ export const loginStyles = StyleSheet.create({
         fontSize: 16,
     },
     inputFocused: {
-        borderColor: 'rgb(23,43,109) !important',
-        shadowColor: 'rgb(100,120,189)',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
+        borderColor: 'rgb(23,43,109)',
+        // boxShadow: '0px 0px 10px rgba(100,120,189,0.3)'
     },
     button: {
         backgroundColor: 'rgb(23,43,109)',

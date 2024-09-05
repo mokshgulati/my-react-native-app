@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
-import Loader from '../../components/Loader';
+import Loader from '@/components/Loader';
 
 const LoaderContext = createContext<{ showLoader: () => void, hideLoader: () => void } | undefined>(undefined);
 
