@@ -88,7 +88,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
       <View style={styles.container}>
         <Image source={require('../assets/images/DKLogo.png')} style={styles.logo} resizeMode="contain" />
         <Text style={styles.heading}>{isSignup ? 'Sign Up to create account' : 'Login now'}</Text>

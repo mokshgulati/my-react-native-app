@@ -8,7 +8,7 @@ export default function Index() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
       {/* Welcome Message */}
       <View style={styles.overlay}>
         <Image source={require('@/assets/images/DKMainLogo.png')} resizeMode="contain" style={{ height: 240, width: 240 }} />
@@ -17,10 +17,10 @@ export default function Index() {
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'rgb(23,43,109)',
-                borderRadius: 4,
+                borderRadius: 8,
                 padding: 6,
                 width: '100%',
-                height: '70%',
+                height: 60,
               },
             ]}>
             <Text style={styles.btnTxt}>LOGIN</Text>
@@ -29,10 +29,10 @@ export default function Index() {
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'rgb(23,43,109)',
-                borderRadius: 4,
+                borderRadius: 8,
                 padding: 6,
                 width: '100%',
-                height: '70%',
+                height: 60,
               },
             ]}>
             <Text style={styles.btnTxt}>SIGN UP</Text>
