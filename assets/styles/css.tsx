@@ -220,6 +220,41 @@ export const customerDetailStyles = StyleSheet.create({
 
 
 export const headerStyles = StyleSheet.create({
+    formContainer: {
+        marginBottom: 15,
+    },
+    inputGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+    },
+    input: {
+        flex: 1,
+        height: 40,
+        paddingLeft: 10,
+    },
+    inputError: {
+        borderColor: '#FF6B6B',
+    },
+    inputIcon: {
+        marginRight: 10,
+    },
+    errorText: {
+        color: '#FF6B6B',
+        fontSize: 12,
+        marginBottom: 10,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    halfWidth: {
+        width: '48%',
+    },
     headerContainer: {
         padding: 15,
         backgroundColor: '#fff',
@@ -285,12 +320,6 @@ export const headerStyles = StyleSheet.create({
         position: 'relative',
         top: -2
     },
-    errorText: {
-        color: 'red',
-    },
-    formContainer: {
-        padding: 20,
-    },
     fullWidthInput: {
         width: '100%',
         padding: 10,
@@ -299,10 +328,6 @@ export const headerStyles = StyleSheet.create({
         borderColor: '#ddd',
         borderRadius: 5,
         fontSize: 16,
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
     },
     halfWidthInput: {
         width: '48%',
@@ -344,14 +369,6 @@ export const headerStyles = StyleSheet.create({
         borderRadius: 10,
         width: '90%',
         alignItems: 'center',
-    },
-    input: {
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5,
-        padding: 10,
-        fontSize: 16,
-        marginBottom: 10,
-        width: '100%',
     },
     closeButton: {
         alignSelf: 'flex-end',
@@ -536,18 +553,66 @@ export const indexStyles = StyleSheet.create({
 });
 
 export const modalStyles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        width: '90%',
+        maxHeight: '80%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    closeButton: {
+        padding: 5,
+    },
+    modalBody: {
+        padding: 15,
+    },
+    modalFooter: {
+        padding: 15,
+        borderTopWidth: 1,
+        borderTopColor: '#e0e0e0',
+    },
+    submitButton: {
+        backgroundColor: '#4CAF50',
+        padding: 12,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    submitButtonDisabled: {
+        backgroundColor: '#A5D6A7',
+    },
+    submitButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 10,
-        width: '90%',
-        alignItems: 'center',
     },
     input: {
         backgroundColor: '#f0f0f0',
@@ -556,10 +621,6 @@ export const modalStyles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 10,
         width: '100%',
-    },
-    closeButton: {
-        alignSelf: 'flex-end',
-        marginBottom: 10
     },
     popupAddBtn: {
         backgroundColor: 'rgb(23,43,109)',

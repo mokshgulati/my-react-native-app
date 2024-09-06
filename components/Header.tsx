@@ -3,7 +3,6 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'reac
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { headerStyles as styles } from '@/assets/styles/css';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomModal from '@/components/Modal';
 
 interface HeaderProps {
@@ -81,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
 
   // Handle input changes for the customer form
   const handleInputChange = (field: string, value: string) => {
-    setCustomerData({ ...customerData, [field]: value.trim() });
+    setCustomerData({ ...customerData, [field]: value });
     validateInput(field, value);
   };
 
@@ -89,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
   const handleAddCustomer = async () => {
     if (isFormValid()) {
       await addCustomer(customerData);
-      closeModal();
+      resetCustomerForm();
     } else {
       Alert.alert('Validation Error', 'Please correct the errors before submitting.');
     }
@@ -214,68 +213,92 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
         onSubmit={handleAddCustomer}
         isFormValid={isFormValid()}
         submitButtonText="Add Customer"
+        title="Add New Customer"
       >
-        {/* ... (keep the modal content) ... */}
-
         <View style={styles.formContainer}>
-          {/* Full-width Inputs */}
-          <TextInput
-            style={styles.fullWidthInput}
-            placeholder="Name"
-            value={customerData.name}
-            onChangeText={(text) => handleInputChange('name', text)}
-          />
-          {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
+          <View style={styles.inputGroup}>
+            <FontAwesome name="user" size={20} color="#555" style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, errors.name ? styles.inputError : null]}
+              placeholder="Full Name"
+              value={customerData.name}
+              onChangeText={(text) => handleInputChange('name', text)}
+            />
+          </View>
+          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
 
-          <TextInput
-            style={styles.fullWidthInput}
-            placeholder="Phone"
-            value={customerData.phone}
-            onChangeText={(text) => handleInputChange('phone', text)}
-          />
-          {errors.phone ? <Text style={styles.errorText}>{errors.phone}</Text> : null}
+          <View style={styles.inputGroup}>
+            <FontAwesome name="phone" size={20} color="#555" style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, errors.phone ? styles.inputError : null]}
+              placeholder="Phone Number"
+              value={customerData.phone}
+              onChangeText={(text) => handleInputChange('phone', text)}
+              keyboardType="phone-pad"
+            />
+          </View>
+          {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
 
-          <TextInput
-            style={styles.fullWidthInput}
-            placeholder="Email"
-            value={customerData.email}
-            onChangeText={(text) => handleInputChange('email', text)}
-          />
-          {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+          <View style={styles.inputGroup}>
+            <FontAwesome name="envelope" size={20} color="#555" style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, errors.email ? styles.inputError : null]}
+              placeholder="Email Address"
+              value={customerData.email}
+              onChangeText={(text) => handleInputChange('email', text)}
+              keyboardType="email-address"
+            />
+          </View>
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-          {/* Row Layout for Related Fields */}
           <View style={styles.row}>
-            <TextInput
-              style={[styles.halfWidthInput, styles.marginRight]}
-              placeholder="Amount"
-              value={customerData.amount}
-              onChangeText={(text) => handleInputChange('amount', text)}
-            />
-            {errors.amount ? <Text style={styles.errorText}>{errors.amount}</Text> : null}
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <FontAwesome name="dollar" size={20} color="#555" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, errors.amount ? styles.inputError : null]}
+                placeholder="Amount"
+                value={customerData.amount}
+                onChangeText={(text) => handleInputChange('amount', text)}
+                keyboardType="numeric"
+              />
+            </View>
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <FontAwesome name="calendar" size={20} color="#555" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, errors.tenure ? styles.inputError : null]}
+                placeholder="Tenure (months)"
+                value={customerData.tenure}
+                onChangeText={(text) => handleInputChange('tenure', text)}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
+          {(errors.amount || errors.tenure) && (
+            <Text style={styles.errorText}>{errors.amount || errors.tenure}</Text>
+          )}
 
+          <View style={styles.inputGroup}>
+            <FontAwesome name="percent" size={20} color="#555" style={styles.inputIcon} />
             <TextInput
-              style={[styles.quarterWidthInput, styles.marginRight]}
-              placeholder="Tenure"
-              value={customerData.tenure}
-              onChangeText={(text) => handleInputChange('tenure', text)}
-            />
-            {errors.tenure ? <Text style={styles.errorText}>{errors.tenure}</Text> : null}
-
-            <TextInput
-              style={styles.quarterWidthInput}
-              placeholder="ROI"
+              style={[styles.input, errors.roi ? styles.inputError : null]}
+              placeholder="ROI (%)"
               value={customerData.roi}
               onChangeText={(text) => handleInputChange('roi', text)}
+              keyboardType="numeric"
             />
-            {errors.roi ? <Text style={styles.errorText}>{errors.roi}</Text> : null}
           </View>
+          {errors.roi && <Text style={styles.errorText}>{errors.roi}</Text>}
 
-          <TextInput
-            style={styles.fullWidthInput}
-            placeholder="Address"
-            value={customerData.address}
-            onChangeText={(text) => handleInputChange('address', text)}
-          />
+          <View style={styles.inputGroup}>
+            <FontAwesome name="map-marker" size={20} color="#555" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Address"
+              value={customerData.address}
+              onChangeText={(text) => handleInputChange('address', text)}
+              multiline
+            />
+          </View>
         </View>
       </CustomModal>
     </View>
