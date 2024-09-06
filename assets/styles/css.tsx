@@ -220,6 +220,71 @@ export const customerDetailStyles = StyleSheet.create({
 
 
 export const headerStyles = StyleSheet.create({
+    headerContainer: {
+        padding: 15,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+        marginBottom: 10,
+    },
+    filterSortContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 15,
+    },
+    filterContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+    },
+    filterText: {
+        marginLeft: 8,
+        marginRight: 8,
+        color: '#555',
+        fontSize: 16,
+    },
+    menuOptionText: {
+        padding: 10,
+        fontSize: 16,
+    },
+    searchAddContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    searchContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginRight: 10,
+    },
+    searchInput: {
+        flex: 1,
+        paddingVertical: 8,
+        paddingLeft: 8,
+        fontSize: 16,
+        color: '#333',
+    },
+    addButton: {
+        backgroundColor: 'rgb(23,43,109)',
+        borderRadius: 5,
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    addButtonText: {
+        color: 'white',
+        fontSize: 24,
+        fontWeight: 'bold',
+        position: 'relative',
+        top: -2
+    },
     errorText: {
         color: 'red',
     },
@@ -260,35 +325,9 @@ export const headerStyles = StyleSheet.create({
     marginRight: {
         marginRight: 10,
     },
-    headerContainer: {
-        padding: 10,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: 10,
-        marginBottom: 20
-    },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgb(182, 180, 180)',
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        marginLeft: 5
-    },
-    searchInput: {
-        flex: 1,
-        marginLeft: 10,
-        fontSize: 16,
-        color: "black",
-        fontWeight: '500',
-        borderWidth: 0,
     },
     addCustomerBtn: {
         width: '30%'
@@ -322,20 +361,6 @@ export const headerStyles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    addButton: {
-        backgroundColor: 'rgb(23,43,109)',
-        borderRadius: 50,
-        padding: 8,
-        paddingLeft: 13,
-        paddingRight: 13,
-        marginLeft: 10,
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 18,
-        textAlign: 'center',
-        fontWeight: 'bold',
-    },
     popupAddBtn: {
         backgroundColor: 'rgb(23,43,109)',
         borderRadius: 5,
@@ -346,24 +371,6 @@ export const headerStyles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         textAlign: 'center',
-    },
-    filterContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgb(182, 180, 180)',
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-    },
-    filterText: {
-        marginLeft: 5,
-        color: 'rgb(182, 180, 180)',
-        fontSize: 16,
-    },
-    menuOptionText: {
-        padding: 10,
-        fontSize: 16,
     },
     textHeading: {
         fontSize: 18,
@@ -410,41 +417,46 @@ export const toastStyles = StyleSheet.create({
 });
 
 export const customersStyles = StyleSheet.create({
-    profilePhoto: {
-        height: 36,
-        width: 36,
-        borderRadius: 36,
-        backgroundColor: '#f0f0f0',
-    },
     container: {
         flex: 1,
         backgroundColor: '#F5F5F5',
-        justifyContent: 'center'
+    },
+    headerIcon: {
+        width: 20,
+        height: 20,
+    },
+    profilePhoto: {
+        height: 36,
+        width: 36,
+        borderRadius: 18,
+    },
+    scrollView: {
+        flex: 1,
     },
     rowWrapper: {
-        alignItems: 'center',
+        paddingHorizontal: 15,
+        marginBottom: 10,
     },
     rowContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 20,
+        padding: 15,
         borderWidth: 1,
-        borderColor: '#ccc',
-        marginBottom: 10,
-        width: '87%',
+        borderColor: '#e0e0e0',
         borderRadius: 10,
-        backgroundColor: '#E8E8E8', // Light grey background
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     leftColumn: {
-        flexDirection: 'column',
-        justifyContent: 'center',
-        width: '70%'
+        flex: 1,
     },
     rightColumn: {
-        flexDirection: 'column',
         alignItems: 'flex-end',
         justifyContent: 'space-between',
-        width: '30%'
     },
     nameContainer: {
         flexDirection: 'row',
@@ -462,32 +474,33 @@ export const customersStyles = StyleSheet.create({
     },
     nameText: {
         fontWeight: 'bold',
-        color: 'gray',
+        color: '#333',
         fontSize: 16,
         marginLeft: 5,
     },
     phoneText: {
-        color: 'gray',
+        color: '#666',
         fontSize: 14,
         marginLeft: 5,
     },
     dateText: {
-        color: 'gray',
+        color: '#666',
         fontSize: 14,
         marginLeft: 5,
     },
     amountLabel: {
         fontSize: 14,
-        color: 'gray',
+        color: '#666',
         marginBottom: 2,
     },
     amountText: {
         fontSize: 16,
         fontWeight: 'bold',
+        color: '#333',
     },
     activeStatus: {
         marginTop: 10,
-    }
+    },
 });
 
 export const indexStyles = StyleSheet.create({
