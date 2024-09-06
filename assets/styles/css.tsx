@@ -81,23 +81,101 @@ export const loginStyles = StyleSheet.create({
 export const customerDetailStyles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20
+        backgroundColor: '#F5F5F5',
+    },
+    scrollContent: {
+        padding: 16,
+    },
+    card: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        padding: 16,
+        marginBottom: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        elevation: 2,
+    },
+    avatarContainer: {
+        marginRight: 16,
+    },
+    detailsContainer: {
+        flex: 1,
+    },
+    detailItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    detailIcon: {
+        marginRight: 8,
+    },
+    detailLabel: {
+        fontSize: 14,
+        color: '#757575',
+    },
+    detailValue: {
+        fontSize: 16,
+        color: '#212121',
+        fontWeight: 'bold',
+    },
+    statusContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    statusText: {
+        marginLeft: 8,
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        color: '#212121',
+    },
+    paymentCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        padding: 16,
+        marginBottom: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        elevation: 1,
+    },
+    paymentDetails: {
+        flex: 1,
+    },
+    paymentAmount: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#212121',
+    },
+    paymentDate: {
+        fontSize: 14,
+        color: '#757575',
+    },
+    paymentStatus: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    statusTag: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 4,
+        marginRight: 8,
+    },
+    statusTagText: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontSize: 12,
     },
     profilePhoto: {
         height: 36,
         width: 36,
         borderRadius: 36,
         backgroundColor: '#f0f0f0',
-    },
-    card: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 20,
-        marginBottom: 20,
-        borderWidth: 1,
-        borderColor: 'rgb(204, 204, 204)',
-        backgroundColor: 'rgb(226, 223, 223)',
-        borderRadius: 10,
     },
     leftContainer: {
         flex: 1,
@@ -126,14 +204,6 @@ export const customerDetailStyles = StyleSheet.create({
         color: 'black',
         marginBottom: 10,
     },
-    paymentCard: {
-        padding: 15,
-        marginBottom: 5,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'rgb(204 204 204)',
-        flexDirection: 'row'
-    },
     paymentleftContainer: {
         flexDirection: 'column',
         flex: 1,
@@ -159,22 +229,6 @@ export const customerDetailStyles = StyleSheet.create({
     dateValue: {
         marginBottom: 5,
         fontSize: 12,
-    },
-    statusContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    statusTag: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 4,
-        paddingHorizontal: 8,
-        borderRadius: 5,
-        marginRight: 5,
-    },
-    statusText: {
-        fontWeight: 'bold',
-        marginLeft: 5,
     },
     paid: {
         backgroundColor: '#d4edda',
