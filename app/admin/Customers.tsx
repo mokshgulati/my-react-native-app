@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { Ionicons } from '@expo/vector-icons'; // Add this import
+
 import Header from '@/components/Header';
 import PageHeader from '@/components/PageHeader';
 import { useLoader } from '@/providers/LoaderProvider';
@@ -15,14 +17,20 @@ interface Customer {
   phone: string;
   amount: string;
   isActive: boolean;
+  loanDate: string; // Add this new field
 }
 
 const initialCustomers: Customer[] = [
-  { id: 1, name: 'John Doe', phone: '123-456-7890', amount: '$100', isActive: true },
-  { id: 3, name: 'Jane Smith', phone: '098-765-4321', amount: '$150', isActive: false },
-  { id: 4, name: 'Emily Davis', phone: '234-567-8901', amount: '$200', isActive: true },
-  { id: 5, name: 'Michael Brown', phone: '345-678-9012', amount: '$250000', isActive: false },
-  { id: 6, name: 'Sarah Wilson', phone: '456-789-0123', amount: '$300', isActive: true },
+  { id: 1, name: 'John Doe', phone: '123-456-7890', amount: '100', isActive: true, loanDate: '2023-05-15' },
+  { id: 3, name: 'Jane Smith', phone: '098-765-4321', amount: '1500', isActive: false, loanDate: '2023-06-20' },
+  { id: 4, name: 'Emily Davis', phone: '234-567-8901', amount: '200', isActive: true, loanDate: '2023-07-01' },
+  { id: 5, name: 'Michael Brown', phone: '345-678-9012', amount: '250000', isActive: false, loanDate: '2023-07-10' },
+  { id: 6, name: 'Sarah Wilson', phone: '456-789-0123', amount: '300', isActive: true, loanDate: '2023-07-15' },
+  { id: 1, name: 'John Doe', phone: '123-456-7890', amount: '100', isActive: true, loanDate: '2023-05-15' },
+  { id: 3, name: 'Jane Smith', phone: '098-765-4321', amount: '1500', isActive: false, loanDate: '2023-06-20' },
+  { id: 4, name: 'Emily Davis', phone: '234-567-8901', amount: '200', isActive: true, loanDate: '2023-07-01' },
+  { id: 5, name: 'Michael Brown', phone: '345-678-9012', amount: '250000', isActive: false, loanDate: '2023-07-10' },
+  { id: 6, name: 'Sarah Wilson', phone: '456-789-0123', amount: '300', isActive: true, loanDate: '2023-07-15' },
 ];
 
 const Customers = () => {
@@ -102,6 +110,21 @@ const Customers = () => {
     // Placeholder for filtering logic (active/inactive)
   };
 
+  const formatAmount = (amount: string) => {
+    const num = parseFloat(amount);
+    if (isNaN(num)) return '₹0';
+    
+    const [wholePart, decimalPart] = num.toFixed(2).split('.');
+    const lastThree = wholePart.substring(wholePart.length - 3);
+    const otherNumbers = wholePart.substring(0, wholePart.length - 3);
+    const formattedWholePart = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + 
+      (otherNumbers ? ',' : '') + lastThree;
+    
+    return decimalPart === '00' 
+      ? `₹${formattedWholePart}` 
+      : `₹${formattedWholePart}.${decimalPart}`;
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -124,26 +147,37 @@ const Customers = () => {
           handleOnPressLeftNode={router.back}
           handleOnPressRightNode={() => Alert.alert('Custom Action')}
         />
-        {/* <Header onSearch={setSearchText} addCustomer={addCustomer} handleFilterChange={handleFilterChange} /> */}
+        <Header onSearch={setSearchText} addCustomer={addCustomer} handleFilterChange={handleFilterChange} />
         <ScrollView>
           {filterCustomers().map((customer, index) => (
             <TouchableOpacity key={index} onPress={() => handleRowClick(customer.id)}>
               <View style={[styles.rowWrapper, index === 0 && { marginTop: 15 }]}>
-                <View style={styles.rowContainer}>
+                <View style={[styles.rowContainer, { backgroundColor: '#E8E8E8' }]}>
                   <View style={styles.leftColumn}>
-                    <Text style={styles.nameText}>{customer.name}</Text>
-                    <Text style={styles.phoneText}>{customer.phone}</Text>
+                    <View style={styles.nameContainer}>
+                      <Ionicons name="person" size={16} color="gray" />
+                      <Text style={styles.nameText}>{customer.name}</Text>
+                    </View>
+                    <View style={styles.phoneContainer}>
+                      <Ionicons name="call" size={16} color="gray" />
+                      <Text style={styles.phoneText}>+91 {customer.phone}</Text>
+                    </View>
+                    <View style={styles.dateContainer}>
+                      <Ionicons name="calendar" size={16} color="gray" />
+                      <Text style={styles.dateText}>Date-borrowed: {customer.loanDate}</Text>
+                    </View>
                   </View>
                   <View style={styles.rightColumn}>
-                    <View style={styles.statusContainer}>
-                      <Text style={styles.amountText}>{customer.amount}</Text>
-                      <FontAwesome
-                        style={styles.activeStatus}
-                        name="dot-circle-o"
-                        size={20}
-                        color={customer.isActive ? '#399918' : '#C7253E'}
-                      />
+                    <View>
+                      <Text style={styles.amountLabel}>Amount:</Text>
+                      <Text style={styles.amountText}>{formatAmount(customer.amount)}</Text>
                     </View>
+                    <FontAwesome
+                      style={styles.activeStatus}
+                      name="dot-circle-o"
+                      size={20}
+                      color={customer.isActive ? '#399918' : '#C7253E'}
+                    />
                   </View>
                 </View>
               </View>

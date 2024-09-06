@@ -9,7 +9,7 @@ import CustomModal from '@/components/Modal';
 interface HeaderProps {
   onSearch: (text: string) => void;
   addCustomer: (customerData: any) => Promise<void>;
-  handleFilterChange: (status: string) => void;
+  handleFilterChange: (status: string, sortOrder: string) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChange }) => {
@@ -33,6 +33,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     tenure: '',
     roi: '',
   });
+
+  const [currentFilter, setCurrentFilter] = useState('all');
+  const [currentSortOrder, setCurrentSortOrder] = useState('desc');
 
   // Regex patterns
   const regexPatterns = {
@@ -133,7 +136,13 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
   };
 
   const handleFilterSelect = (selectedFilter: string) => {
-    handleFilterChange(selectedFilter);
+    setCurrentFilter(selectedFilter);
+    handleFilterChange(selectedFilter, currentSortOrder);
+  };
+
+  const handleSortOrderSelect = (selectedSortOrder: string) => {
+    setCurrentSortOrder(selectedSortOrder);
+    handleFilterChange(currentFilter, selectedSortOrder);
   };
 
   return (
@@ -215,16 +224,37 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
               <MenuTrigger>
                 <View style={styles.filterContainer}>
                   <FontAwesome name="filter" size={18} color="rgb(182, 180, 180)" />
-                  <Text style={styles.filterText}>Filter</Text>
+                  <Text style={styles.filterText}>Filter: {currentFilter}</Text>
                   <FontAwesome name="chevron-down" size={18} color="rgb(182, 180, 180)" />
                 </View>
               </MenuTrigger>
               <MenuOptions>
+                <MenuOption onSelect={() => handleFilterSelect('all')}>
+                  <Text style={styles.menuOptionText}>All</Text>
+                </MenuOption>
                 <MenuOption onSelect={() => handleFilterSelect('active')}>
                   <Text style={styles.menuOptionText}>Active</Text>
                 </MenuOption>
                 <MenuOption onSelect={() => handleFilterSelect('inactive')}>
                   <Text style={styles.menuOptionText}>Inactive</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+
+            <Menu>
+              <MenuTrigger>
+                <View style={styles.filterContainer}>
+                  <FontAwesome name="sort" size={18} color="rgb(182, 180, 180)" />
+                  <Text style={styles.filterText}>Sort: {currentSortOrder === 'desc' ? 'Latest' : 'Oldest'}</Text>
+                  <FontAwesome name="chevron-down" size={18} color="rgb(182, 180, 180)" />
+                </View>
+              </MenuTrigger>
+              <MenuOptions>
+                <MenuOption onSelect={() => handleSortOrderSelect('desc')}>
+                  <Text style={styles.menuOptionText}>Latest First</Text>
+                </MenuOption>
+                <MenuOption onSelect={() => handleSortOrderSelect('asc')}>
+                  <Text style={styles.menuOptionText}>Oldest First</Text>
                 </MenuOption>
               </MenuOptions>
             </Menu>

@@ -432,13 +432,31 @@ export const customersStyles = StyleSheet.create({
         borderColor: '#ccc',
         marginBottom: 10,
         width: '87%',
-        borderRadius: 10
+        borderRadius: 10,
+        backgroundColor: '#E8E8E8', // Light grey background
     },
     leftColumn: {
         flexDirection: 'column',
         justifyContent: 'center',
+        width: '70%'
     },
     rightColumn: {
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        width: '30%'
+    },
+    nameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 5,
+    },
+    phoneContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 5,
+    },
+    dateContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -446,21 +464,30 @@ export const customersStyles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'gray',
         fontSize: 16,
+        marginLeft: 5,
     },
     phoneText: {
         color: 'gray',
         fontSize: 14,
+        marginLeft: 5,
     },
-    statusContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    dateText: {
+        color: 'gray',
+        fontSize: 14,
+        marginLeft: 5,
+    },
+    amountLabel: {
+        fontSize: 14,
+        color: 'gray',
+        marginBottom: 2,
     },
     amountText: {
         fontSize: 16,
+        fontWeight: 'bold',
     },
     activeStatus: {
-        marginLeft: 10,
-    }    
+        marginTop: 10,
+    }
 });
 
 export const indexStyles = StyleSheet.create({
