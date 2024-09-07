@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createUser, signIn } from '@/lib/appwrite';
 import { useSession } from '@/providers/SessionProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login: React.FC = () => {
   const { entry } = useLocalSearchParams(); // Retrieving route parameters
@@ -28,36 +29,42 @@ const Login: React.FC = () => {
 
   // Handle login or signup
   const handleLogin = async () => {
-    if (!emailRegex.test(email)) {
-      showToast('Please enter a valid email address', 'error');
-      return;
-    }
-    if (!passwordRegex.test(password)) {
-      showToast('Password must be at least 8 characters long and contain one letter, and one number.', 'error');
-      return;
-    }
-    if (isSignup && !nameRegex.test(name)) {
-      showToast('Please enter a valid name (only letters and spaces)', 'error');
-      return
-    }
+    if (!validateInputs()) return;
 
     showLoader();
     try {
       const response = isSignup ? await handleSignup() : await handleSignin();
       if (response) {
-        console.log("responseeeee", response)
-        // setIsLogged(true);
-        // setUser(response);
+        await AsyncStorage.setItem('session', JSON.stringify(response));
+        setIsLogged(true);
+        setUser(response);
+        console.log("responseeeeee", response)
         // router.replace(response.role === 'admin' ? '/admin/Customers' : '/CustomerDetail');
       } else {
         showToast('Invalid credentials', 'error');
       }
     } catch (error: any) {
-      console.error('error', error);
+      console.error('Login error:', error);
       showToast(error?.message || 'Something went wrong. Please try again later.', 'error');
     } finally {
       hideLoader();
     }
+  };
+
+  const validateInputs = () => {
+    if (!emailRegex.test(email)) {
+      showToast('Please enter a valid email address', 'error');
+      return false;
+    }
+    if (!passwordRegex.test(password)) {
+      showToast('Password must be at least 8 characters long and contain one letter, and one number.', 'error');
+      return false;
+    }
+    if (isSignup && !nameRegex.test(name)) {
+      showToast('Please enter a valid name (only letters and spaces)', 'error');
+      return false;
+    }
+    return true;
   };
 
   // API Call to handle forgot password

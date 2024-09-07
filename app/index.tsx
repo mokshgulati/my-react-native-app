@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { indexStyles as styles } from '@/assets/styles/css'
 import { useSession } from '@/providers/SessionProvider';
 import { useToast } from '@/providers/ToastProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Index() {
   const router = useRouter();
@@ -12,9 +13,15 @@ export default function Index() {
   const { isLogged, errorInLoggingIn, user, isLoading } = useSession();
 
   useEffect(() => {
-    if (errorInLoggingIn) {
-      showToast('Error in logging in', 'error');
-    }
+    const handleSessionError = async () => {
+      if (errorInLoggingIn) {
+        showToast('Error in logging in', 'error');
+        await AsyncStorage.removeItem('session');
+        router.replace('/Login');
+      }
+    };
+
+    handleSessionError();
   }, [errorInLoggingIn]);
 
   if (isLoading) {

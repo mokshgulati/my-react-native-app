@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getCurrentUser, signOut } from "@/lib/appwrite";
 import { useLoader } from '@/providers/LoaderProvider';
@@ -13,6 +14,26 @@ const SessionContext = createContext<{
     isLoading: boolean
 } | undefined>(undefined);
 
+const RETRY_ATTEMPTS = 1;
+const TIMEOUT = 5000; // 5 seconds
+
+const fetchSessionWithRetry = async (retries = RETRY_ATTEMPTS) => {
+    try {
+        const sessionPromise = getCurrentUser();
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), TIMEOUT)
+        );
+        return await Promise.race([sessionPromise, timeoutPromise]);
+    } catch (error) {
+        if (retries > 0) {
+            console.log('Retrying session check...');
+            return fetchSessionWithRetry(retries - 1);
+        } else {
+            throw new Error('Failed to retrieve session after multiple attempts');
+        }
+    }
+};
+
 export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
     const { showLoader, hideLoader } = useLoader();
 
@@ -22,26 +43,35 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        showLoader();
-        getCurrentUser()
-            .then((res: any) => {
-                if (res) {
+        const checkSession = async () => {
+            showLoader();
+            try {
+                const localSession = await AsyncStorage.getItem('session');
+                if (localSession) {
+                    const sessionData = JSON.parse(localSession);
                     setIsLogged(true);
-                    setUser(res);
+                    setUser(sessionData);
                 } else {
-                    setIsLogged(false);
-                    setUser(null);
+                    const res = await fetchSessionWithRetry();
+                    if (res) {
+                        setIsLogged(true);
+                        setUser(res);
+                        await AsyncStorage.setItem('session', JSON.stringify(res));
+                    } else {
+                        throw new Error('No valid session');
+                    }
                 }
-            })
-            .catch((error: any) => {
-                console.error("errorrrrrr", error);
+            } catch (error: any) {
+                console.error("Session check error:", error);
                 setErrorInLoggingIn(true);
-                signOut();
-            })
-            .finally(() => {
+                await signOut();
+            } finally {
                 hideLoader();
                 setIsLoading(false);
-            });
+            }
+        };
+
+        checkSession();
     }, []);
 
     return (

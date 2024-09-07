@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     Account,
     Client,
@@ -90,11 +91,21 @@ export async function signIn(email: string, password: string) {
 // Sign Out
 export async function signOut() {
     try {
-        const session = await account.deleteSession("current");
-
-        return session;
+        await account.deleteSession('current');
     } catch (error: any) {
-        throw new Error(error);
+        console.error('Failed to sign out through network:', error);
+    } finally {
+        // Clear locally stored session data
+        await clearLocalSessionData();
+    }
+}
+
+// Clear local session data
+async function clearLocalSessionData() {
+    try {
+        await AsyncStorage.removeItem('session');
+    } catch (error) {
+        console.error('Failed to clear local session data:', error);
     }
 }
 
