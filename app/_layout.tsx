@@ -1,7 +1,7 @@
 import React from "react";
 import { Stack } from "expo-router";
 
-import { GlobalProvider } from "@/providers/GlobalProvider";
+import { SessionProvider } from "@/providers/SessionProvider";
 import { LoaderProvider } from "@/providers/LoaderProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
 
@@ -16,7 +16,7 @@ export default function RootLayout() {
       <LoaderProvider>
         <ToastProvider>
           <MenuProvider>
-            <GlobalProvider>
+            <SessionProvider>
               <Stack>
                 {/* Show Index Screen first */}
                 <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -26,7 +26,7 @@ export default function RootLayout() {
                 <Stack.Screen name="admin/Customers" options={{ headerShown: false }} />
                 <Stack.Screen name="CustomerDetail" options={{ headerShown: false }} />
               </Stack>
-            </GlobalProvider>
+            </SessionProvider>
           </MenuProvider>
         </ToastProvider>
       </LoaderProvider >

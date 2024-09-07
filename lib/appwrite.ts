@@ -103,10 +103,9 @@ export async function getAccount() {
     try {
         const currentAccount = await account.get();
 
-        if (!currentAccount) throw new Error("Failed to fetch user account. Try again later.");
         return currentAccount;
     } catch (error: any) {
-        throw error;
+        throw new Error(`Failed to fetch user account. Try again later. Error: ${error}`);
     }
 }
 

@@ -6,6 +6,7 @@ import { loginStyles as styles } from '@/assets/styles/css';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createUser, signIn } from '@/lib/appwrite';
+import { useSession } from '@/providers/SessionProvider';
 
 const Login: React.FC = () => {
   const { entry } = useLocalSearchParams(); // Retrieving route parameters
@@ -18,6 +19,7 @@ const Login: React.FC = () => {
   const { showLoader, hideLoader } = useLoader(); // Show and hide loader
   const showToast = useToast(); // Show toast messages
   const router = useRouter(); // Expo Router for navigation
+  const { setIsLogged, setUser } = useSession(); // Add this line
 
   // Regex for validating email, password, and name
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,20 +44,16 @@ const Login: React.FC = () => {
     showLoader();
     try {
       const response = isSignup ? await handleSignup() : await handleSignin();
-      console.log("response", response);
-      // router.push('/admin/Customers'); // Navigate to Admin Dashboard
-
-      // if (response.success) {
-      //   if (response.type === 'admin') {
-      //     router.push('/admin/Customers'); // Navigate to Admin Dashboard
-      //   } else {
-      //     router.push('/CustomerDetail'); // Navigate to User Dashboard
-      //   }
-      // } else {
-      //   showToast('Invalid credentials', 'error');
-      // }
+      if (response) {
+        console.log("responseeeee", response)
+        // setIsLogged(true);
+        // setUser(response);
+        // router.replace(response.role === 'admin' ? '/admin/Customers' : '/CustomerDetail');
+      } else {
+        showToast('Invalid credentials', 'error');
+      }
     } catch (error: any) {
-      console.log('error', error);
+      console.error('error', error);
       showToast(error?.message || 'Something went wrong. Please try again later.', 'error');
     } finally {
       hideLoader();
