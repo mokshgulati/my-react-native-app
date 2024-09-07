@@ -1,11 +1,37 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Image, Pressable, StyleSheet, StatusBar } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { indexStyles as styles } from '@/assets/styles/css'
+import { useGlobal } from '@/providers/GlobalProvider';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function Index() {
   const router = useRouter();
+  const showToast = useToast();
+  const { isLogged, errorInLoggingIn, user } = useGlobal();
+
+  useEffect(() => {
+
+    console.log("qweqwe", user);
+
+    if (errorInLoggingIn) {
+      showToast('Error in logging in', 'error');
+    }
+  }, [errorInLoggingIn]);
+
+  if (errorInLoggingIn) {
+    showToast('Error in logging in', 'error');
+  }
+
+  if (isLogged && user) {
+    console.log("user login check", user);
+    if (user.role === 'admin') {
+      return <Redirect href="/admin/Customers" />;
+    } else {
+      return <Redirect href="/CustomerDetail" />;
+    }
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>

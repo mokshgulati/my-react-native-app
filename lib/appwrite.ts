@@ -57,7 +57,7 @@ export async function createUser(email: string, password: string, username: stri
 
 
 
-        
+
         // const newUser = await databases.createDocument(
         //     appwriteConfig.databaseId,
         //     appwriteConfig.usersCollectionId,
@@ -79,8 +79,8 @@ export async function createUser(email: string, password: string, username: stri
 export async function signIn(email: string, password: string) {
     try {
         const session = await account.createEmailPasswordSession(email, password);
+        
         if (!session) throw new Error("Failed to create user session. Try again later.");
-
         return session;
     } catch (error: any) {
         throw error;
@@ -103,9 +103,10 @@ export async function getAccount() {
     try {
         const currentAccount = await account.get();
 
+        if (!currentAccount) throw new Error("Failed to fetch user account. Try again later.");
         return currentAccount;
     } catch (error: any) {
-        throw new Error(error);
+        throw error;
     }
 }
 
@@ -113,20 +114,18 @@ export async function getAccount() {
 export async function getCurrentUser() {
     try {
         const currentAccount = await getAccount();
-        if (!currentAccount) throw Error;
 
         const currentUser = await databases.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.usersCollectionId,
-            [Query.equal("accountId", currentAccount.$id)]
+            [Query.equal("email", currentAccount.email)]
         );
 
-        if (!currentUser) throw Error;
+        if (currentUser.documents.length === 0) throw new Error("Failed to fetch user details. Try again later.");
 
         return currentUser.documents[0];
     } catch (error: any) {
-        console.log(error);
-        return null;
+        throw error;
     }
 }
 
