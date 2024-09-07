@@ -13,14 +13,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "package": "com.mokshgulati.myapp",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.mokshgulati.myapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.mokshgulati.myapp"
+      }
     },
     "web": {
       "bundler": "metro",

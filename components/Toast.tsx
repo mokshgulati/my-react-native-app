@@ -11,7 +11,7 @@ interface ToastProps {
   onHide?: () => void;
 }
 
-const Toast: React.FC<ToastProps> = ({ message, type, visible, duration = 500, onHide }) => {
+const Toast: React.FC<ToastProps> = ({ message, type, visible, duration = 1000, onHide }) => {
   const [fadeAnim] = useState(new Animated.Value(0));
   let hideTimeout: NodeJS.Timeout | null = null;
 

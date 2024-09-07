@@ -5,6 +5,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { loginStyles as styles } from '@/assets/styles/css';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { createUser, signIn } from '@/lib/appwrite';
 
 const Login: React.FC = () => {
   const { entry } = useLocalSearchParams(); // Retrieving route parameters
@@ -41,18 +42,21 @@ const Login: React.FC = () => {
     showLoader();
     try {
       const response = isSignup ? await handleSignup() : await handleSignin();
+      console.log("response", response);
+      // router.push('/admin/Customers'); // Navigate to Admin Dashboard
 
-      if (response.success) {
-        if (response.type === 'admin') {
-          router.push('/admin/Customers'); // Navigate to Admin Dashboard
-        } else {
-          router.push('/CustomerDetail'); // Navigate to User Dashboard
-        }
-      } else {
-        showToast('Invalid credentials', 'error');
-      }
-    } catch (error) {
-      showToast('Something went wrong. Please try again later.', 'error');
+      // if (response.success) {
+      //   if (response.type === 'admin') {
+      //     router.push('/admin/Customers'); // Navigate to Admin Dashboard
+      //   } else {
+      //     router.push('/CustomerDetail'); // Navigate to User Dashboard
+      //   }
+      // } else {
+      //   showToast('Invalid credentials', 'error');
+      // }
+    } catch (error: any) {
+      console.log('error', error);
+      showToast(error?.message || 'Something went wrong. Please try again later.', 'error');
     } finally {
       hideLoader();
     }
@@ -64,27 +68,23 @@ const Login: React.FC = () => {
   }
 
   // API Call to handle sign-up
-  const handleSignup = () => {
-    // Simulate an API call to sign up
-    return new Promise<{ success: boolean; type: string }>((resolve) => {
-      setTimeout(() => {
-        // Mock response: return success and assign user type based on email
-        const userType = email.includes("admin") ? 'admin' : 'user';
-        resolve({ success: true, type: userType });
-      }, 1000);
-    });
+  const handleSignup = async () => {
+    try {
+      const user = await createUser(email, password, name);
+      return user;
+    } catch (error: any) {
+      throw error;
+    }
   };
 
   // API Call to handle sign-in
-  const handleSignin = () => {
-    // Simulate an API call to sign in
-    return new Promise<{ success: boolean; type: string }>((resolve) => {
-      setTimeout(() => {
-        // Mock response: return success and assign user type based on email
-        const userType = email.includes("admin") ? 'admin' : 'user';
-        resolve({ success: true, type: userType });
-      }, 1000);
-    });
+  const handleSignin = async () => {
+    try {
+      const user = await signIn(email, password);
+      return user;
+    } catch (error: any) {
+      throw error;
+    }
   };
 
   return (
