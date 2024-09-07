@@ -16,6 +16,7 @@ const Login: React.FC = () => {
   const [name, setName] = useState(""); // Name input state (for signup)
   const [email, setEmail] = useState(""); // Email input state
   const [password, setPassword] = useState(""); // Password input state
+  const [confirmPassword, setConfirmPassword] = useState(""); // Confirm password input state
 
   const { showLoader, hideLoader } = useLoader(); // Show and hide loader
   const showToast = useToast(); // Show toast messages
@@ -60,9 +61,15 @@ const Login: React.FC = () => {
       showToast('Password must be at least 8 characters long and contain one letter, and one number.', 'error');
       return false;
     }
-    if (isSignup && !nameRegex.test(name)) {
-      showToast('Please enter a valid name (only letters and spaces)', 'error');
-      return false;
+    if (isSignup) {
+      if (!nameRegex.test(name)) {
+        showToast('Please enter a valid name (only letters and spaces)', 'error');
+        return false;
+      }
+      if (password !== confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return false;
+      }
     }
     return true;
   };
@@ -127,6 +134,17 @@ const Login: React.FC = () => {
             onFocus={() => setFocusedInput('password')}
             onBlur={() => setFocusedInput("")}
           />
+          {isSignup && (
+            <TextInput
+              style={[styles.input, focusedInput === 'confirmPassword' && styles.inputFocused]}
+              placeholder="Confirm Password"
+              secureTextEntry
+              onChangeText={setConfirmPassword}
+              value={confirmPassword}
+              onFocus={() => setFocusedInput('confirmPassword')}
+              onBlur={() => setFocusedInput("")}
+            />
+          )}
 
           {!isSignup && (
             <View style={styles.forgotPasswordContainer}>

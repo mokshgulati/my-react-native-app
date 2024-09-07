@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getCurrentUser, signOut } from "@/lib/appwrite";
 import { useLoader } from '@/providers/LoaderProvider';
+import { USE_ASYNC_STORAGE } from '@/config';
 
 const SessionContext = createContext<{
     isLogged: boolean,
@@ -46,20 +47,24 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
         const checkSession = async () => {
             showLoader();
             try {
-                const localSession = await AsyncStorage.getItem('session');
-                if (localSession) {
-                    const sessionData = JSON.parse(localSession);
-                    setIsLogged(true);
-                    setUser(sessionData);
-                } else {
-                    const res = await fetchSessionWithRetry();
-                    if (res) {
+                if (USE_ASYNC_STORAGE) {
+                    const localSession = await AsyncStorage.getItem('session');
+                    if (localSession) {
+                        const sessionData = JSON.parse(localSession);
                         setIsLogged(true);
-                        setUser(res);
-                        await AsyncStorage.setItem('session', JSON.stringify(res));
-                    } else {
-                        throw new Error('No valid session');
+                        setUser(sessionData);
+                        return;
                     }
+                }
+                const res = await fetchSessionWithRetry();
+                if (res) {
+                    setIsLogged(true);
+                    setUser(res);
+                    if (USE_ASYNC_STORAGE) {
+                        await AsyncStorage.setItem('session', JSON.stringify(res));
+                    }
+                } else {
+                    throw new Error('No valid session');
                 }
             } catch (error: any) {
                 console.error("Session check error:", error);

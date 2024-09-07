@@ -171,12 +171,6 @@ export const customerDetailStyles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 12,
     },
-    profilePhoto: {
-        height: 36,
-        width: 36,
-        borderRadius: 36,
-        backgroundColor: '#f0f0f0',
-    },
     leftContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -269,6 +263,31 @@ export const customerDetailStyles = StyleSheet.create({
         paddingRight: 10,
         paddingTop: 5,
         paddingBottom: 5
+    },
+    addTransactionContainer: {
+        padding: 16,
+        alignItems: 'center',
+    },
+    addTransactionButton: {
+        backgroundColor: 'rgb(23,43,109)',
+        borderRadius: 8,
+        padding: 12,
+        width: '100%',
+    },
+    addTransactionButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    headerIcon: {
+        width: 20,
+        height: 20,
+    },
+    profilePhoto: {
+        height: 36,
+        width: 36,
+        borderRadius: 18,
     },
 });
 

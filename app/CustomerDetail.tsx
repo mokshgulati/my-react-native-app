@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Switch, StyleSheet, Image } from 'react-native';
+import { View, Text, ScrollView, Switch, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -9,6 +9,7 @@ import SomethingWentWrong from '@/components/SomethingWentWrong';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PageHeader from '@/components/PageHeader';
 import { customerDetailStyles as styles } from '@/assets/styles/css';
+import TransactionModal from '@/components/TransactionModal';
 
 export interface CustomerDetails {
   basicDetails: {
@@ -40,6 +41,7 @@ export default function CustomerDetailsScreen() {
   });
   const [hasChanges, setHasChanges] = useState(false);
   const [error, setError] = useState(false);
+  const [isTransactionModalVisible, setIsTransactionModalVisible] = useState(false);
 
   useEffect(() => {
     if (customerId) {
@@ -114,6 +116,15 @@ export default function CustomerDetailsScreen() {
     });
   };
 
+  const handleAddTransaction = (transactionData: any) => {
+    setDetails((prevDetails) => ({
+      ...prevDetails,
+      payments: [...prevDetails.payments, { id: Date.now(), ...transactionData }],
+    }));
+    setIsTransactionModalVisible(false);
+    setHasChanges(true);
+  };
+
   if (error) {
     return <SomethingWentWrong onRetry={() => fetchCustomerDetails(Number(customerId))} />;
   }
@@ -121,11 +132,38 @@ export default function CustomerDetailsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <PageHeader
-        leftNode={<Icon name="arrow-left" size={24} color="#000" />}
+        leftNode={
+          <Image
+            source={require('@/assets/images/back-arrow-100.png')}
+            style={styles.headerIcon}
+            resizeMode="contain"
+          />
+        }
         headerText="Customer Details"
-        rightNode={<Icon name="account-circle" size={24} color="#000" />}
+        rightNode={
+          <Image
+            style={styles.profilePhoto}
+            source={require('@/assets/images/avatarIconBlue.png')}
+            resizeMode="contain"
+          />
+        }
         handleOnPressLeftNode={() => router.back()}
         handleOnPressRightNode={() => alert("Profile action")}
+      />
+
+      <View style={styles.addTransactionContainer}>
+        <TouchableOpacity
+          style={styles.addTransactionButton}
+          onPress={() => setIsTransactionModalVisible(true)}
+        >
+          <Text style={styles.addTransactionButtonText}>Add Transaction</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TransactionModal
+        visible={isTransactionModalVisible}
+        onClose={() => setIsTransactionModalVisible(false)}
+        onSubmit={handleAddTransaction}
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
