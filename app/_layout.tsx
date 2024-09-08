@@ -23,7 +23,7 @@ export default function RootLayout() {
 
                 {/* Define other screens */}
                 <Stack.Screen name="Login" options={{ headerShown: false }} />
-                <Stack.Screen name="admin/Customers" options={{ headerShown: false }} />
+                <Stack.Screen name="Customers" options={{ headerShown: false }} />
                 <Stack.Screen name="CustomerDetail" options={{ headerShown: false }} />
               </Stack>
             </SessionProvider>

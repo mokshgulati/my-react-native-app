@@ -40,7 +40,7 @@ const Login: React.FC = () => {
         await AsyncStorage.setItem('session', JSON.stringify(user));
         setIsLogged(true);
         setUser(user);
-        router.replace(checkIsAdmin(user) ? '/admin/Customers' : '/CustomerDetail');
+        router.replace(checkIsAdmin(user) ? '/Customers' : '/CustomerDetail');
       } else {
         showToast('Invalid credentials', 'error');
       }

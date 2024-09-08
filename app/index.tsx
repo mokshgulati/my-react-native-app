@@ -33,8 +33,8 @@ export default function Index() {
   }
 
   if (isLogged && user) {
-    console.log("redirecting to: ", checkIsAdmin(user) ? "/admin/Customers" : "/CustomerDetail");
-    return <Redirect href={checkIsAdmin(user) ? "/admin/Customers" : "/CustomerDetail"} />;
+    console.log("redirecting to: ", checkIsAdmin(user) ? "/Customers" : "/CustomerDetail");
+    return <Redirect href={checkIsAdmin(user) ? "/Customers" : "/CustomerDetail"} />;
   }
 
   return (
