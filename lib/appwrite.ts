@@ -20,7 +20,6 @@ export interface User {
     role: 'admin' | 'user';
     fullName: string;
     email: string;
-    username: string;
     phone: string;
     address?: string;
     city?: string;
@@ -70,7 +69,7 @@ const account = new Account(client);
 const databases = new Databases(client);
 
 // Register user
-export async function createUser(email: string, password: string, username: string) {
+export async function createUser(email: string, password: string) {
     try {
 
         // Check if the customer account should be created by admin and must be in the database
@@ -89,7 +88,6 @@ export async function createUser(email: string, password: string, username: stri
             ID.unique(),
             email,
             password,
-            username
         );
 
         if (!newAccount) throw new Error("Failed to create account. Try again later.");
@@ -220,7 +218,6 @@ export async function getAllUsers() {
             //             email: doc.email,
             //             role: doc.role,
             //             fullName: doc.fullName,
-            //             username: doc.username,
             //             phone: doc.phone,
             //             address: doc.address,
             //             city: doc.city,
@@ -300,7 +297,6 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
                 fullName: customerData.fullName,
                 phone: customerData.phone,
                 email: customerData.email,
-                username: customerData.username || null,
                 address: customerData.address || null,
                 city: customerData.city || null,
                 state: customerData.state || null,
@@ -323,7 +319,6 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
         //         email: newCustomer.email,
         //         role: newCustomer.role,
         //         fullName: newCustomer.fullName,
-        //         username: newCustomer.username,
         //         phone: newCustomer.phone,
         //         address: newCustomer.address,
         //         city: newCustomer.city,

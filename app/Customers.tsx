@@ -67,7 +67,7 @@ const Customers = () => {
 
     if (searchText) {
       result = result.filter((customer) =>
-        [customer.username, customer.email, customer.phone, customer.borrowedAmount?.toString()]
+        [customer.email, customer.phone, customer.borrowedAmount?.toString()]
           .some(field => field && field.toLowerCase().includes(searchText.toLowerCase()))
       );
     }
@@ -140,7 +140,7 @@ const Customers = () => {
               <View style={styles.leftColumn}>
                 <View style={styles.nameContainer}>
                   <Ionicons name="person" size={16} color="gray" />
-                  <Text style={styles.nameText}>{customer.username}</Text>
+                  <Text style={styles.nameText}>{customer.fullName}</Text>
                 </View>
                 <View style={styles.phoneContainer}>
                   <Ionicons name="call" size={16} color="gray" />

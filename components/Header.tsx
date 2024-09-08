@@ -21,7 +21,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     fullName: '',
     phone: '',
     email: '',
-    username: '',
     address: '',
     city: '',
     state: '',
@@ -37,7 +36,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     fullName: '',
     phone: '',
     email: '',
-    username: '',
     borrowedAmount: '',
     interestRate: '',
     loanTenureInMonths: '',
@@ -49,7 +47,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     fullName: /^[a-zA-Z\s]+$/,
     phone: /^[0-9]{10}$/,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    username: /^[a-zA-Z0-9_]+$/,
     borrowedAmount: /^[0-9]*\.?[0-9]+$/,
     interestRate: /^([0-9]{1,2})(\.[0-9]{1,2})?$/,
     loanTenureInMonths: /^[0-9]+$/,
@@ -131,7 +128,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
       fullName: '',
       phone: '',
       email: '',
-      username: '',
       address: '',
       city: '',
       state: '',
@@ -162,8 +158,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
         customerData.loanTenureInMonths &&
         customerData.address &&
         customerData.city &&
-        customerData.state &&
-        customerData.username 
+        customerData.state
         ? true : false
     );
   };
@@ -250,17 +245,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
             />
           </View>
           {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
-
-          <View style={styles.inputGroup}>
-            <FontAwesome name="user" size={20} color="#555" style={styles.inputIcon} />
-            <TextInput
-              style={[styles.input, errors.username ? styles.inputError : null]}
-              placeholder="Username"
-              value={customerData.username}
-              onChangeText={(text) => handleInputChange('username', text)}
-            />
-          </View>
-          {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
 
           <View style={styles.inputGroup}>
             <FontAwesome name="phone" size={20} color="#555" style={styles.inputIcon} />

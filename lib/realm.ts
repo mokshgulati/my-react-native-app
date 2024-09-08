@@ -7,7 +7,6 @@
 //   email!: string;
 //   role!: 'admin' | 'user';
 //   fullName!: string;
-//   username!: string;
 //   phone!: string;
 //   address?: string;
 //   city?: string;
@@ -34,7 +33,6 @@
 //       email: 'string',
 //       role: 'string',
 //       fullName: 'string',
-//       username: 'string',
 //       phone: 'string',
 //       address: 'string?',
 //       city: 'string?',
