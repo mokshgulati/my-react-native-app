@@ -1,9 +1,12 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getCurrentUser, signOut } from "@/lib/appwrite";
 import { useLoader } from '@/providers/LoaderProvider';
 import { USE_ASYNC_STORAGE } from '@/config';
+import { Alert } from "react-native";
+import { router } from "expo-router";
+import { useToast } from "@/providers/ToastProvider";
 
 const SessionContext = createContext<{
     isLogged: boolean,
@@ -12,7 +15,9 @@ const SessionContext = createContext<{
     setUser: React.Dispatch<React.SetStateAction<any>>,
     errorInLoggingIn: boolean,
     setErrorInLoggingIn: React.Dispatch<React.SetStateAction<boolean>>,
-    isLoading: boolean
+    isLoading: boolean,
+    logout: () => void,
+    handleLogout: () => void
 } | undefined>(undefined);
 
 const RETRY_ATTEMPTS = 0;
@@ -42,6 +47,50 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
     const [user, setUser] = useState(null);
     const [errorInLoggingIn, setErrorInLoggingIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const showToast = useToast(); // Show toast messages
+
+    const logout = useCallback(() => {
+        setIsLogged(false);
+        setUser(null);
+    }, []);
+
+    const handleLogout = () => {
+        Alert.alert(
+          "Logout",
+          "Do you want to log out?",
+          [
+            {
+              text: "No",
+              style: "cancel"
+            },
+            {
+              text: "Yes",
+              onPress: async () => {
+                try {
+                  await signOut();
+                  logout();
+                  router.replace('/');
+                } catch (error) {
+                  console.error('Error during logout:', error);
+                  showToast('Error during logout', 'error');
+                }
+              }
+            }
+          ]
+        );
+      };
+
+    const value = useMemo(() => ({
+        isLogged,
+        setIsLogged,
+        user,
+        setUser,
+        errorInLoggingIn,
+        setErrorInLoggingIn,
+        isLoading,
+        logout,
+        handleLogout
+    }), [isLogged, user, errorInLoggingIn, isLoading, logout, handleLogout]);
 
     useEffect(() => {
         const checkSession = async () => {
@@ -101,15 +150,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
 
     return (
         <SessionContext.Provider
-            value={{
-                isLogged,
-                setIsLogged,
-                user,
-                setUser,
-                errorInLoggingIn,
-                setErrorInLoggingIn,
-                isLoading
-            }}
+            value={value}
         >
             {children}
         </SessionContext.Provider>

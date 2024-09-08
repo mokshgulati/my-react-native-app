@@ -9,18 +9,16 @@ const Loader: React.FC<{ visible: boolean }> = ({ visible }) => {
   }
 
   return (
-    <SafeAreaView>
-      <Modal transparent={true} animationType="fade" visible={visible}>
-        <View style={styles.loaderContainer}>
-          {/* GIF Loader */}
-          <Image
-            source={require('@/assets/images/gifLoader.gif')} // Update this with the path to your GIF
-            style={{ width: 70, height: 70 }} // Customize the size of the GIF
-            resizeMode="contain" // This ensures the GIF scales properly
-          />
-        </View>
-      </Modal>
-    </SafeAreaView>
+    <Modal transparent={true} animationType="fade" visible={visible}>
+      <View style={styles.loaderContainer}>
+        {/* GIF Loader */}
+        <Image
+          source={require('@/assets/images/gifLoader.gif')} // Update this with the path to your GIF
+          style={{ width: 70, height: 70 }} // Customize the size of the GIF
+          resizeMode="contain" // This ensures the GIF scales properly
+        />
+      </View>
+    </Modal>
   );
 };
 

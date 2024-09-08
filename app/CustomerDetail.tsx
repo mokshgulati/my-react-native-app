@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import PageHeader from '@/components/PageHeader';
 import { customerDetailStyles as styles } from '@/assets/styles/css';
 import TransactionModal from '@/components/TransactionModal';
-import { signOut } from '@/lib/appwrite';
+import { useSession } from '@/providers/SessionProvider';
 
 export interface CustomerDetails {
   basicDetails: {
@@ -35,6 +35,7 @@ export default function CustomerDetailsScreen() {
   const { customerId, type } = useLocalSearchParams();
   const { showLoader, hideLoader } = useLoader();
   const showToast = useToast();
+  const { handleLogout } = useSession();
 
   const [details, setDetails] = useState<CustomerDetails>({
     basicDetails: { name: "", email: "", phone: "", amount: "", status: true },
@@ -124,25 +125,6 @@ export default function CustomerDetailsScreen() {
     }));
     setIsTransactionModalVisible(false);
     setHasChanges(true);
-  };
-
-  const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Do you want to log out?",
-      [
-        {
-          text: "No",
-          style: "cancel"
-        },
-        {
-          text: "Yes",
-          onPress: async () => {
-            await signOut();
-          }
-        }
-      ]
-    );
   };
 
   if (error) {

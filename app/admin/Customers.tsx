@@ -8,9 +8,9 @@ import Header from '@/components/Header';
 import PageHeader from '@/components/PageHeader';
 import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { router, useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { customersStyles as styles } from '@/assets/styles/css';
-import { signOut } from '@/lib/appwrite';
+import { useSession } from '@/providers/SessionProvider';
 
 interface Customer {
   id: number;
@@ -44,24 +44,6 @@ const initialCustomers: Customer[] = [
   { id: 20, name: 'Gary Roberts', phone: '901-234-7654', amount: '800', isActive: false, loanDate: '2023-06-08' },
 ];
 
-const handleLogout = () => {
-  Alert.alert(
-    "Logout",
-    "Do you want to log out?",
-    [
-      {
-        text: "No",
-        style: "cancel"
-      },
-      {
-        text: "Yes",
-        onPress: async () => {
-          await signOut();
-        }
-      }
-    ]
-  );
-};
 
 const Customers = () => {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
@@ -71,7 +53,7 @@ const Customers = () => {
   const [currentSortOrder, setCurrentSortOrder] = useState('desc');
   const { showLoader, hideLoader } = useLoader();
   const showToast = useToast();
-  const router = useRouter();
+  const { handleLogout } = useSession();
 
   useEffect(() => {
     fetchCustomers(); 
