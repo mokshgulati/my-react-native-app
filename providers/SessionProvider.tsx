@@ -112,6 +112,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
                     const localSession = await AsyncStorage.getItem('session');
                     if (localSession) {
                         const sessionData = JSON.parse(localSession);
+                        console.log("checkSession try 2.1.1", sessionData);
                         setIsLogged(true);
                         setUser(sessionData);
                         return;
