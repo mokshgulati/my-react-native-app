@@ -80,7 +80,7 @@ const Login: React.FC = () => {
   // API Call to handle sign-up
   const handleSignup = async () => {
     try {
-      const user = await createUser(email, password, name);
+      const user = await createUser(email, password);
       return user;
     } catch (error: any) {
       throw error;
