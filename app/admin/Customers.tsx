@@ -57,7 +57,6 @@ const handleLogout = () => {
         text: "Yes",
         onPress: async () => {
           await signOut();
-          router.replace('/');
         }
       }
     ]

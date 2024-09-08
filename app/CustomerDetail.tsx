@@ -139,7 +139,6 @@ export default function CustomerDetailsScreen() {
           text: "Yes",
           onPress: async () => {
             await signOut();
-            router.replace('/');
           }
         }
       ]

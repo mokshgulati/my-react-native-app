@@ -47,7 +47,19 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
         const checkSession = async () => {
             showLoader();
             try {
+                console.log("checkSession try");
+                const lastAction = await AsyncStorage.getItem('lastAction');
+                
+                if (lastAction === 'signedout') {
+                    console.log("checkSession try 1.1");
+                    setIsLogged(false);
+                    setUser(null);
+                    return;
+                }
+
+                console.log("checkSession try 2");
                 if (USE_ASYNC_STORAGE) {
+                    console.log("checkSession try 2.1");
                     const localSession = await AsyncStorage.getItem('session');
                     if (localSession) {
                         const sessionData = JSON.parse(localSession);
@@ -56,26 +68,34 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
                         return;
                     }
                 }
+                
                 const response = await fetchSessionWithRetry();
+                console.log("checkSession try 3");
                 if (response) {
+                    console.log("checkSession try 3.1");
                     setIsLogged(true);
                     setUser(response);
                     if (USE_ASYNC_STORAGE) {
                         await AsyncStorage.setItem('session', JSON.stringify(response));
                     }
+                    await AsyncStorage.setItem('lastAction', 'signedin');
                 } else {
                     throw new Error('No valid session');
                 }
             } catch (error: any) {
+                console.log("checkSession catch");
                 console.error("Session check error:", error);
                 setErrorInLoggingIn(true);
+                setIsLogged(false);
+                setUser(null);
                 await signOut();
             } finally {
+                console.log("checkSession finally");
                 hideLoader();
                 setIsLoading(false);
             }
         };
-
+        console.log("checkSession");
         checkSession();
     }, []);
 
@@ -97,9 +117,9 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
 };
 
 export const useSession = () => {
-  const context = useContext(SessionContext);
-  if (!context) {
-    throw new Error('useSession must be used within a SessionProvider');
-  }
-  return context;
+    const context = useContext(SessionContext);
+    if (context === undefined) {
+        throw new Error('useSession must be used within a SessionProvider');
+    }
+    return context;
 };

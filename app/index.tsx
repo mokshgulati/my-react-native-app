@@ -14,9 +14,9 @@ export default function Index() {
 
   useEffect(() => {
     const handleSessionError = async () => {
+      console.log("errorInLoggingIn: ", errorInLoggingIn);
       if (errorInLoggingIn) {
         showToast('Error in logging in', 'error');
-        router.replace('/Login');
       }
     };
 
@@ -24,6 +24,7 @@ export default function Index() {
   }, [errorInLoggingIn]);
 
   if (isLoading) {
+    console.log("isLoading: ", isLoading);
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center' }}>
         <Image source={require('@/assets/images/DKMainLogo.png')} resizeMode="contain" style={{ height: 400, width: 400 }} />
@@ -32,6 +33,7 @@ export default function Index() {
   }
 
   if (isLogged && user) {
+    console.log("redirecting to: ", checkIsAdmin(user) ? "/admin/Customers" : "/CustomerDetail");
     return <Redirect href={checkIsAdmin(user) ? "/admin/Customers" : "/CustomerDetail"} />;
   }
 

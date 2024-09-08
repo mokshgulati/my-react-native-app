@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
 import {
     Account,
     Client,
@@ -53,6 +54,8 @@ export async function createUser(email: string, password: string, username: stri
         // Sign in the user
         await createSession(email, password);
 
+        await AsyncStorage.setItem('lastAction', 'signedin');
+
         return existingUser.documents[0];
 
     } catch (error: any) {
@@ -72,6 +75,8 @@ export async function signIn(email: string, password: string) {
         );
 
         if (currentUser.documents.length === 0) throw new Error("Failed to fetch user details. Try again later.");
+
+        await AsyncStorage.setItem('lastAction', 'signedin');
 
         return currentUser.documents[0];
 
@@ -94,23 +99,26 @@ export async function createSession(email: string, password: string) {
 
 // Sign Out
 export async function signOut() {
+    console.log("signOut");
     try {
+        console.log("signOut try");
         await account.deleteSession('current');
     } catch (error: any) {
+        console.log("signOut catch");
         console.error('Failed to sign out through network:', error);
     } finally {
+        console.log("signOut finally");
         // Clear locally stored session data
         await clearLocalSessionData();
+        await AsyncStorage.setItem('lastAction', 'signedout');
+        router.replace('/');
+        console.log("signOut router.replace");
     }
 }
 
 // Clear local session data
 async function clearLocalSessionData() {
-    try {
-        await AsyncStorage.removeItem('session');
-    } catch (error) {
-        console.error('Failed to clear local session data:', error);
-    }
+    await AsyncStorage.removeItem('session');
 }
 
 // Get Account
