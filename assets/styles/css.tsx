@@ -79,6 +79,106 @@ export const loginStyles = StyleSheet.create({
 });
 
 export const customerDetailStyles = StyleSheet.create({
+    loanStatusContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+    },
+    loanStatusText: {
+        marginLeft: 8,
+        marginRight: 8,
+        color: '#555',
+        fontSize: 16,
+    },
+    menuOptionText: {
+        padding: 10,
+        fontSize: 16,
+    },
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        marginBottom: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    avatarContainer: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
+    name: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginTop: 10,
+    },
+    detailsContainer: {
+        flex: 1,
+    },
+    detailSection: {
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#333',
+    },
+    detailItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    detailIcon: {
+        marginRight: 10,
+    },
+    detailTextContainer: {
+        flex: 1,
+    },
+    detailLabel: {
+        fontSize: 14,
+        color: '#666',
+    },
+    detailValue: {
+        fontSize: 16,
+        color: '#333',
+    },
+    statusSection: {
+        marginTop: 20,
+    },
+    statusLabel: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#333',
+    },
+    statusContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    statusTextContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    statusText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginLeft: 10,
+    },
     headerIcon: {
         width: 20,
         height: 20,
@@ -88,91 +188,29 @@ export const customerDetailStyles = StyleSheet.create({
         width: 36,
         borderRadius: 18,
     },
-    card: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 15,
-        padding: 20,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-      },
-      avatarContainer: {
-        alignItems: 'center',
-        marginBottom: 15,
-      },
-      avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-      },
-      detailsContainer: {
-        alignItems: 'center',
-      },
-      name: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: '#333',
-      },
-      addTransactionContainer: {
+    addTransactionContainer: {
         position: 'absolute',
         bottom: 20,
         left: 20,
         right: 20,
-      },
-      addTransactionButton: {
+    },
+    addTransactionButton: {
         backgroundColor: 'rgb(23,43,109)',
         borderRadius: 10,
         padding: 15,
-      },
-      addTransactionButtonText: {
+    },
+    addTransactionButtonText: {
         color: '#fff',
         fontSize: 18,
         textAlign: 'center',
         fontWeight: 'bold',
-      },
+    },
     container: {
         flex: 1,
         backgroundColor: '#F5F5F5',
     },
     scrollContent: {
         padding: 16,
-    },
-    detailItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    detailIcon: {
-        marginRight: 8,
-    },
-    detailLabel: {
-        fontSize: 14,
-        color: '#757575',
-    },
-    detailValue: {
-        fontSize: 16,
-        color: '#212121',
-        fontWeight: 'bold',
-    },
-    statusContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 8,
-    },
-    statusText: {
-        marginLeft: 8,
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        color: '#212121',
     },
     paymentCard: {
         backgroundColor: '#FFFFFF',

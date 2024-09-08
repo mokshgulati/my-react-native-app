@@ -12,7 +12,7 @@ export default function SomethingWentWrong({ onRetry }: SomethingWentWrongProps)
             <View style={styles.container}>
                 {/* Error image */}
                 <Image
-                    source={require('../assets/images/react-logo.png')}  // Add an image to the assets folder
+                    source={require('../assets/images/kid.png')}  // Add an image to the assets folder
                     style={styles.image}
                     resizeMode="contain"
                 />
@@ -23,14 +23,15 @@ export default function SomethingWentWrong({ onRetry }: SomethingWentWrongProps)
                 {/* Retry button */}
                 <Pressable onPress={() => onRetry()} style={({ pressed }) => [
                     {
-                        backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                        backgroundColor: pressed ? 'rgb(210, 230, 255)' : '#2F3645',
                     },
                     {
                         borderRadius: 8,
-                        padding: 6,
+                        padding: 10,
+                        paddingHorizontal: 20,
                     }, ,
                 ]}>
-                    <Text>Retry</Text>
+                    <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>Retry</Text>
                 </Pressable>
             </View>
         </SafeAreaView>

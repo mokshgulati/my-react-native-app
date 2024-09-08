@@ -7,7 +7,7 @@ import { ToastProvider } from "@/providers/ToastProvider";
 
 import { MenuProvider } from 'react-native-popup-menu';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+import { CustomersProvider } from "@/providers/CustomerProvider";
 
 export default function RootLayout() {
 
@@ -17,6 +17,7 @@ export default function RootLayout() {
         <ToastProvider>
           <MenuProvider>
             <SessionProvider>
+              <CustomersProvider>
               <Stack>
                 {/* Show Index Screen first */}
                 <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -26,6 +27,7 @@ export default function RootLayout() {
                 <Stack.Screen name="Customers" options={{ headerShown: false }} />
                 <Stack.Screen name="CustomerDetail" options={{ headerShown: false }} />
               </Stack>
+              </CustomersProvider>
             </SessionProvider>
           </MenuProvider>
         </ToastProvider>

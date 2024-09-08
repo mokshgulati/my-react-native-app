@@ -33,22 +33,12 @@ export interface User {
     paymentHistory?: string[]; // This should be parsed to get the actual objects
 }
 
-interface Payment { 
+export interface Payment { 
     paymentId: number;
     paymentAmount: number;
     paymentDate: string;
     paymentStatus: string;
 }
-
-// const newPayment: Payment = {
-//     paymentId: 1,
-//     paymentAmount: 100,
-//     paymentDate: '06-09-2024',
-//     paymentStatus: 'completed'
-//   };
-  
-//   // When adding to the database, stringify the payment object
-// const stringifiedPayment = JSON.stringify(newPayment);
 
 export const appwriteConfig = {
     endpoint: "https://cloud.appwrite.io/v1",
@@ -345,3 +335,51 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
         throw new Error(`Failed to add customer: ${error.message}`);
     }
 }
+
+// Get user details
+export async function getUserDetails(userId: string): Promise<User> {
+    try {
+      const user = await databases.getDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.usersCollectionId,
+        userId
+      );
+      return user as User;
+    } catch (error: any) {
+      throw new Error(`Failed to fetch user details: ${error.message}`);
+    }
+  }
+  
+  // Update user details
+  export async function updateUserDetails(userId: string, updatedData: Partial<User>): Promise<User> {
+    try {
+      const updatedUser = await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.usersCollectionId,
+        userId,
+        updatedData
+      );
+      return updatedUser as User;
+    } catch (error: any) {
+      console.error("Error updating user details:", error);
+      throw new Error(`Failed to update user details: ${error.message}`);
+    }
+  }
+  
+  // Add transaction
+  export async function addTransaction(userId: string, transactionData: Payment): Promise<User> {
+    try {
+      const user = await getUserDetails(userId);
+      const updatedPaymentHistory = [...(user.paymentHistory || []), JSON.stringify(transactionData)];
+      const updatedTotalAmountPaid = user.totalAmountPaid + transactionData.paymentAmount;
+  
+      const updatedUser = await updateUserDetails(userId, {
+        paymentHistory: updatedPaymentHistory,
+        totalAmountPaid: updatedTotalAmountPaid,
+      });
+  
+      return updatedUser;
+    } catch (error: any) {
+      throw new Error(`Failed to add transaction: ${error.message}`);
+    }
+  }

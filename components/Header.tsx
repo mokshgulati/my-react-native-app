@@ -304,7 +304,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
 
           <View style={styles.row}>
             <View style={[styles.inputGroup, styles.halfWidth]}>
-              <FontAwesome name="dollar" size={20} color="#555" style={styles.inputIcon} />
+              <FontAwesome name="rupee" size={20} color="#555" style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, errors.borrowedAmount ? styles.inputError : null]}
                 placeholder="Borrowed Amount"

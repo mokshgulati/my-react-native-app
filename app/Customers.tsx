@@ -12,9 +12,10 @@ import { router } from 'expo-router';
 import { customersStyles as styles } from '@/assets/styles/css';
 import { useSession } from '@/providers/SessionProvider';
 import { getAllUsers, User, addCustomerToDatabase } from '@/lib/appwrite';
+import { useCustomers } from '@/providers/CustomerProvider';
 
 const Customers = () => {
-  const [customers, setCustomers] = useState<User[]>([]);
+  const { customers, setCustomers, fetchCustomers } = useCustomers();
   const [filteredCustomers, setFilteredCustomers] = useState<User[]>([]);
   const [searchText, setSearchText] = useState<string>('');
   const [currentFilter, setCurrentFilter] = useState('all');
@@ -30,19 +31,6 @@ const Customers = () => {
   useEffect(() => {
     filterAndSortCustomers();
   }, [customers, searchText, currentFilter, currentSortOrder]);
-
-  const fetchCustomers = async () => {
-    showLoader();
-    try {
-      const fetchedCustomers = await getAllUsers();
-      console.log("fetchCustomers", fetchedCustomers);
-      setCustomers(fetchedCustomers);
-    } catch (error: any) {
-      showToast(`Failed to fetch customers. Error: ${error.message}`, 'error');
-    } finally {
-      hideLoader();
-    }
-  };
 
   const handleRowClick = (customerId: string) => {
     router.push(`/CustomerDetail?customerId=${customerId}`);
@@ -110,11 +98,12 @@ const Customers = () => {
         <StatusBar barStyle="dark-content" />
         <PageHeader
         leftNode={
-          <Image
-            source={require('@/assets/images/back-arrow-100.png')}
-            style={styles.headerIcon}
-            resizeMode="contain"
-          />
+          <></>
+          // <Image
+          //   source={require('@/assets/images/back-arrow-100.png')}
+          //   style={styles.headerIcon}
+          //   resizeMode="contain"
+          // />
         }
         headerText="Debtors"
         rightNode={
@@ -148,7 +137,7 @@ const Customers = () => {
                 </View>
                 <View style={styles.dateContainer}>
                   <Ionicons name="calendar" size={16} color="gray" />
-                  <Text style={styles.dateText}>Date-borrowed: {customer.borrowedOn ? new Date(customer.borrowedOn).toLocaleDateString() : 'N/A'}</Text>
+                  <Text style={styles.dateText}>Date-borrowed: {customer.borrowedOn ? new Date(customer.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}</Text>
                 </View>
               </View>
               <View style={styles.rightColumn}>
