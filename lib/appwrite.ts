@@ -30,10 +30,10 @@ export interface User {
     loanStatus: 'active' | 'closed';
     loanTenureInMonths: number;
     totalAmountPaid: number;
-    paymentHistory?: string[]; // This should be parsed to get the actual objects
+    paymentHistory?: Payment[]; // This should be parsed to get the actual objects
 }
 
-export interface Payment { 
+export interface Payment {
     paymentId: number;
     paymentAmount: number;
     paymentDate: string;
@@ -190,63 +190,80 @@ export async function getAllUsers() {
         // const users = realm.objects<RealmUser>('RealmUser');
 
         // if (users.length === 0) {
-            // console.log("getAllUsers", "Fetching from database");
-            // Fetch from database if Realm is empty
-            const response = await databases.listDocuments(
-                appwriteConfig.databaseId,
-                appwriteConfig.usersCollectionId,
-                [Query.notEqual("role", "admin")]
-            );
-            
-            console.log("getAllUsers", response.documents);
-            // Store fetched users in Realm
-            // realm.write(() => {
-            //     response.documents.forEach((doc) => {
-            //         realm.create('RealmUser', {
-            //             _id: new Realm.BSON.ObjectId(doc.$id),
-            //             name: doc.fullName,
-            //             email: doc.email,
-            //             role: doc.role,
-            //             fullName: doc.fullName,
-            //             phone: doc.phone,
-            //             address: doc.address,
-            //             city: doc.city,
-            //             state: doc.state,
-            //             borrowedAmount: doc.borrowedAmount,
-            //             borrowedOn: doc.borrowedOn,
-            //             interestRate: doc.interestRate,
-            //             loanStatus: doc.loanStatus,
-            //             loanTenureInMonths: doc.loanTenureInMonths,
-            //             totalAmountPaid: doc.totalAmountPaid,
-            //             paymentHistory: doc.paymentHistory,
-            //             $collectionId: doc.$collectionId,
-            //             $databaseId: doc.$databaseId,
-            //             $createdAt: doc.$createdAt,
-            //             $id: doc.$id,
-            //             $permissions: doc.$permissions,
-            //             $updatedAt: doc.$updatedAt,
-            //         });
-            //     });
-            // });
+        // console.log("getAllUsers", "Fetching from database");
+        // Fetch from database if Realm is empty
+        const response = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.usersCollectionId,
+            [Query.notEqual("role", "admin")]
+        );
 
-            const allUsers = response.documents.map(user => ({
-                ...user,
-                paymentHistory: Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0 
-                    ? user.paymentHistory.map((payment: string) => {
-                        if (typeof payment === 'string') {
-                            try {
-                                return JSON.parse(payment.replace(/'/g, '"'));
-                            } catch (e) {
-                                console.error("Error parsing payment history:", e);
-                                return null;
-                            }
-                        }
-                        return null;  // Return null if it's not a valid string
-                    }).filter(Boolean)  // Filter out null values
-                    : []  // Return an empty array if paymentHistory is empty or not an array
-            })) as User[]; 
+        console.log("getAllUsers", response.documents);
+        // Store fetched users in Realm
+        // realm.write(() => {
+        //     response.documents.forEach((doc) => {
+        //         realm.create('RealmUser', {
+        //             _id: new Realm.BSON.ObjectId(doc.$id),
+        //             name: doc.fullName,
+        //             email: doc.email,
+        //             role: doc.role,
+        //             fullName: doc.fullName,
+        //             phone: doc.phone,
+        //             address: doc.address,
+        //             city: doc.city,
+        //             state: doc.state,
+        //             borrowedAmount: doc.borrowedAmount,
+        //             borrowedOn: doc.borrowedOn,
+        //             interestRate: doc.interestRate,
+        //             loanStatus: doc.loanStatus,
+        //             loanTenureInMonths: doc.loanTenureInMonths,
+        //             totalAmountPaid: doc.totalAmountPaid,
+        //             paymentHistory: doc.paymentHistory,
+        //             $collectionId: doc.$collectionId,
+        //             $databaseId: doc.$databaseId,
+        //             $createdAt: doc.$createdAt,
+        //             $id: doc.$id,
+        //             $permissions: doc.$permissions,
+        //             $updatedAt: doc.$updatedAt,
+        //         });
+        //     });
+        // });
 
-            return allUsers;
+        const allUsers = response.documents.map(user => ({
+            ...user,
+            paymentHistory: Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0
+                ? user.paymentHistory.map((paymentStr: string | null) => {
+                    if (paymentStr === null) {
+                        console.log("Null payment string, skipping");
+                        return null;
+                    }
+
+                    try {
+                        // Sanitize the string: Add double quotes to keys and remove trailing commas
+                        console.log("paymentStr", paymentStr);
+
+                        const sanitizedPaymentStr = paymentStr
+                            .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
+                            .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
+                        console.log("Sanitized payment string:", sanitizedPaymentStr);
+
+
+                        const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
+                        console.log("formattedPaymentStr", formattedPaymentStr);
+
+                        const payment: Payment = JSON.parse(formattedPaymentStr);
+                        console.log("Parsed payment:", formattedPaymentStr, "aaaaa", payment, "bbbbb", typeof formattedPaymentStr, "ccccc", typeof payment, "ddddd", sanitizedPaymentStr);
+
+                        return payment;
+                    } catch (e) {
+                        console.error("Error parsing payment history string:", e);
+                        return null;
+                    }
+                }).filter(Boolean)  // Filter out null values
+                : []  // Return an empty array if paymentHistory is empty or not an array
+        })) as User[];
+
+        return allUsers;
         // } else {
         //     // Return users from Realm
         //     console.log("getAllUsers", "Fetching from Realm");
@@ -339,47 +356,81 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
 // Get user details
 export async function getUserDetails(userId: string): Promise<User> {
     try {
-      const user = await databases.getDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.usersCollectionId,
-        userId
-      );
-      return user as User;
+        const user = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.usersCollectionId,
+            userId
+        );
+
+        if (Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0) {
+            user.paymentHistory = user.paymentHistory.map((paymentStr: string | null) => {
+                if (paymentStr === null) {
+                    console.log("Null payment string, skipping");
+                    return null;
+                }
+
+                try {
+                    // Sanitize the string: Add double quotes to keys and remove trailing commas
+                    console.log("paymentStr", paymentStr);
+
+                    const sanitizedPaymentStr = paymentStr
+                        .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
+                        .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
+                    console.log("Sanitized payment string:", sanitizedPaymentStr);
+
+
+                    const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
+                    console.log("formattedPaymentStr", formattedPaymentStr);
+
+                    const payment: Payment = JSON.parse(formattedPaymentStr);
+                    console.log("Parsed payment:", formattedPaymentStr, "aaaaa", payment, "bbbbb", typeof formattedPaymentStr, "ccccc", typeof payment, "ddddd", sanitizedPaymentStr);
+
+                    return payment;
+                } catch (e) {
+                    console.error("Error parsing payment history string:", e);
+                    return null;
+                }
+            }).filter(Boolean)  // Filter out null values
+        } else {
+            user.paymentHistory = [];
+        }
+
+        return user as User;
     } catch (error: any) {
-      throw new Error(`Failed to fetch user details: ${error.message}`);
+        throw new Error(`Failed to fetch user details: ${error.message}`);
     }
-  }
-  
-  // Update user details
-  export async function updateUserDetails(userId: string, updatedData: Partial<User>): Promise<User> {
+}
+
+// Update user details
+export async function updateUserDetails(userId: string, updatedData: Partial<User>): Promise<User> {
     try {
-      const updatedUser = await databases.updateDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.usersCollectionId,
-        userId,
-        updatedData
-      );
-      return updatedUser as User;
+        const updatedUser = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.usersCollectionId,
+            userId,
+            updatedData
+        );
+        return updatedUser as User;
     } catch (error: any) {
-      console.error("Error updating user details:", error);
-      throw new Error(`Failed to update user details: ${error.message}`);
+        console.error("Error updating user details:", error);
+        throw new Error(`Failed to update user details: ${error.message}`);
     }
-  }
-  
-  // Add transaction
-  export async function addTransaction(userId: string, transactionData: Payment): Promise<User> {
+}
+
+// Add transaction
+export async function addTransaction(userId: string, transactionData: Payment): Promise<User> {
     try {
-      const user = await getUserDetails(userId);
-      const updatedPaymentHistory = [...(user.paymentHistory || []), JSON.stringify(transactionData)];
-      const updatedTotalAmountPaid = user.totalAmountPaid + transactionData.paymentAmount;
-  
-      const updatedUser = await updateUserDetails(userId, {
-        paymentHistory: updatedPaymentHistory,
-        totalAmountPaid: updatedTotalAmountPaid,
-      });
-  
-      return updatedUser;
+        const user = await getUserDetails(userId);
+        const updatedPaymentHistory = [...(user.paymentHistory || []), JSON.stringify(transactionData)];
+        const updatedTotalAmountPaid = user.totalAmountPaid + transactionData.paymentAmount;
+
+        const updatedUser = await updateUserDetails(userId, {
+            paymentHistory: updatedPaymentHistory as Payment[],
+            totalAmountPaid: updatedTotalAmountPaid,
+        });
+
+        return updatedUser;
     } catch (error: any) {
-      throw new Error(`Failed to add transaction: ${error.message}`);
+        throw new Error(`Failed to add transaction: ${error.message}`);
     }
-  }
+}

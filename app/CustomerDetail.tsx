@@ -32,7 +32,7 @@ export default function CustomerDetailsScreen() {
   const id = customerId || user?.$id;
 
   useEffect(() => {
-      fetchUserDetails();
+    fetchUserDetails();
   }, [customerId, role]);
 
   const fetchUserDetails = async () => {
@@ -69,42 +69,41 @@ export default function CustomerDetailsScreen() {
     }
   };
 
-  // const handlePaymentStatusToggle = async (id: number, newStatus: string) => {
-  //   if (!details) return;
+  const handlePaymentStatusToggle = async (id: number, newStatus: string) => {
+    if (!details) return;
 
-  //   try {
-  //     const updatedPaymentHistory = details.paymentHistory?.map(payment => {
-  //       const parsedPayment = JSON.parse(payment);
-  //       if (parsedPayment.paymentId === id) {
-  //         return JSON.stringify({ ...parsedPayment, paymentStatus: newStatus });
-  //       }
-  //       return payment;
-  //     });
+    try {
+      const updatedPaymentHistory = details.paymentHistory?.map(payment => {
+        if (payment.paymentId === id) {
+          return { ...payment, paymentStatus: newStatus };
+        }
+        return payment;
+      });
 
-  //     const updatedUser = await updateUserDetails(details.$id, {
-  //       paymentHistory: updatedPaymentHistory,
-  //     });
-  //     setDetails(updatedUser);
-  //     setHasChanges(false);
-  //     showToast('Payment status updated successfully', 'success');
-  //   } catch (error: any) {
-  //     showToast(`Error updating payment status: ${error.message}`, 'error');
-  //   }
-  // };
+      const updatedUser = await updateUserDetails(details.$id, {
+        paymentHistory: updatedPaymentHistory,
+      });
+      setDetails(updatedUser);
+      setHasChanges(false);
+      showToast('Payment status updated successfully', 'success');
+    } catch (error: any) {
+      showToast(`Error updating payment status: ${error.message}`, 'error');
+    }
+  };
 
-  // const handleAddTransaction = async (transactionData: Payment) => {
-  //   if (!details) return;
+  const handleAddTransaction = async (transactionData: Payment) => {
+    if (!details) return;
 
-  //   try {
-  //     const updatedUser = await addTransaction(details.$id, transactionData);
-  //     setDetails(updatedUser);
-  //     setIsTransactionModalVisible(false);
-  //     setHasChanges(false);
-  //     showToast('Transaction added successfully', 'success');
-  //   } catch (error: any) {
-  //     showToast(`Error adding transaction: ${error.message}`, 'error');
-  //   }
-  // };
+    try {
+      const updatedUser = await addTransaction(details.$id, transactionData);
+      setDetails(updatedUser);
+      setIsTransactionModalVisible(false);
+      setHasChanges(false);
+      showToast('Transaction added successfully', 'success');
+    } catch (error: any) {
+      showToast(`Error adding transaction: ${error.message}`, 'error');
+    }
+  };
 
   const handleLoanStatusChange = (status: string) => {
     console.log('Loan status change');
@@ -180,8 +179,8 @@ export default function CustomerDetailsScreen() {
                         styles.statusText,
                         { color: details.loanStatus === 'active' ? "#4CAF50" : "#F44336" }
                       ]}>
-                          {details.loanStatus === 'active' ? "Active" : "Closed"}
-                        </Text>
+                        {details.loanStatus === 'active' ? "Active" : "Closed"}
+                      </Text>
                     </View>
                     {role === 'admin' && (
                       <View>
@@ -209,18 +208,23 @@ export default function CustomerDetailsScreen() {
               </View>
             </View>
 
-            {/* <Text style={styles.sectionTitle}>{role === 'user' ? "My Transactions" : "Payment History"}</Text>
-          {details.paymentHistory?.map((payment, index) => {
-            const parsedPayment = JSON.parse(payment);
-            return (
-              <PaymentCard
-                key={index}
-                payment={parsedPayment}
-                isAdmin={role === 'admin'}
-                onStatusChange={handlePaymentStatusToggle}
-              />
-            );
-          })} */}
+            <Text style={styles.sectionTitle}>Payment History</Text>
+            {Array.isArray(details.paymentHistory) && details.paymentHistory.length > 0
+              ? details.paymentHistory.map((payment: Payment, index: number) => {
+                console.log("paymentttttt", payment, typeof payment);
+                if (typeof payment === 'object') {
+                  return (
+                    <PaymentCard
+                      key={index}
+                      payment={payment}
+                      isAdmin={role === 'admin'}
+                      onStatusChange={handlePaymentStatusToggle}
+                    />
+                  );
+                }
+                return null;
+              }).filter(Boolean)  // Filter out null values
+              : []}
           </>
         )}
       </ScrollView>
@@ -262,43 +266,43 @@ const DetailItem = ({ icon, label, value }: { icon: string, label: string, value
   </View>
 );
 
-// const PaymentCard = ({ payment, isAdmin, onStatusChange }: { payment: Payment, isAdmin: boolean, onStatusChange: (id: number, newStatus: string) => void }) => (
-//   <View style={styles.paymentCard}>
-//     <View style={styles.paymentDetails}>
-//       <Text style={styles.paymentAmount}>${payment.paymentAmount}</Text>
-//       <Text style={styles.paymentDate}>{new Date(payment.paymentDate).toLocaleDateString()}</Text>
-//     </View>
-//     <View style={styles.paymentStatus}>
-//       <StatusTag status={payment.paymentStatus} />
-//       {isAdmin && (
-//         <Menu>
-//           <MenuTrigger>
-//             <Icon name="dots-vertical" size={20} color="#000" />
-//           </MenuTrigger>
-//           <MenuOptions>
-//             <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'paid')} text="Mark as Paid" />
-//             <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'pending')} text="Mark as Pending" />
-//             <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'delayed')} text="Mark as Delayed" />
-//           </MenuOptions>
-//         </Menu>
-//       )}
-//     </View>
-//   </View>
-// );
+const PaymentCard = ({ payment, isAdmin, onStatusChange }: { payment: Payment, isAdmin: boolean, onStatusChange: (id: number, newStatus: string) => void }) => (
+  <View style={styles.paymentCard}>
+    <View style={styles.paymentDetails}>
+      <Text style={styles.paymentAmount}>${payment.paymentAmount}</Text>
+      <Text style={styles.paymentDate}>{new Date(payment.paymentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+    </View>
+    <View style={styles.paymentStatus}>
+      <StatusTag status={payment.paymentStatus} />
+      {isAdmin && (
+        <Menu>
+          <MenuTrigger>
+            <FontAwesome name="ellipsis-v" size={20} color="#000" />
+          </MenuTrigger>
+          <MenuOptions>
+            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'paid')} text="Mark as Paid" />
+            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'pending')} text="Mark as Pending" />
+            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'delayed')} text="Mark as Delayed" />
+          </MenuOptions>
+        </Menu>
+      )}
+    </View>
+  </View>
+);
 
-// const StatusTag = ({ status }: { status: string }) => {
-//   const getStatusColor = () => {
-//     switch (status) {
-//       case 'paid': return '#4CAF50';
-//       case 'pending': return '#FFC107';
-//       case 'delayed': return '#F44336';
-//       default: return '#9E9E9E';
-//     }
-//   };
+const StatusTag = ({ status }: { status: string }) => {
+  const getStatusColor = () => {
+    switch (status?.toLowerCase()) {
+      case 'paid': return '#4CAF50';
+      case 'pending': return '#FFC107';
+      case 'delayed': return '#F44336';
+      default: return '#9E9E9E';
+    }
+  };
 
-//   return (
-//     <View style={[styles.statusTag, { backgroundColor: getStatusColor() }]}>
-//       <Text style={styles.statusTagText}>{status.toUpperCase()}</Text>
-//     </View>
-//   );
-// };
+  return (
+    <View style={[styles.statusTag, { backgroundColor: getStatusColor() }]}>
+      <Text style={styles.statusTagText}>{status?.toUpperCase()}</Text>
+    </View>
+  );
+};
