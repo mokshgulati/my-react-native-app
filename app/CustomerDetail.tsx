@@ -189,8 +189,8 @@ export default function CustomerDetailsScreen() {
                           <MenuTrigger>
                             <View style={styles.loanStatusContainer}>
                               <FontAwesome name="pencil" size={24} color="gray" />
-                              <Text style={styles.loanStatusText}>Edit</Text>
-                              <FontAwesome name="chevron-down" size={18} color="#555" />
+                              {/* <Text style={styles.loanStatusText}>Edit</Text> */}
+                              {/* <FontAwesome name="chevron-down" size={18} color="#555" /> */}
                             </View>
                           </MenuTrigger>
                           <MenuOptions>

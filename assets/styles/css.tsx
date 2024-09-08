@@ -82,7 +82,7 @@ export const customerDetailStyles = StyleSheet.create({
     loanStatusContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f0f0f0',
+        // backgroundColor: '#f0f0f0',
         borderRadius: 5,
         paddingHorizontal: 10,
         paddingVertical: 8,
