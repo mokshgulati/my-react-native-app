@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Switch, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Switch, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import PageHeader from '@/components/PageHeader';
 import { customerDetailStyles as styles } from '@/assets/styles/css';
 import TransactionModal from '@/components/TransactionModal';
+import { signOut } from '@/lib/appwrite';
 
 export interface CustomerDetails {
   basicDetails: {
@@ -125,6 +126,26 @@ export default function CustomerDetailsScreen() {
     setHasChanges(true);
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Do you want to log out?",
+      [
+        {
+          text: "No",
+          style: "cancel"
+        },
+        {
+          text: "Yes",
+          onPress: async () => {
+            await signOut();
+            router.replace('/');
+          }
+        }
+      ]
+    );
+  };
+
   if (error) {
     return <SomethingWentWrong onRetry={() => fetchCustomerDetails(Number(customerId))} />;
   }
@@ -132,50 +153,21 @@ export default function CustomerDetailsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <PageHeader
-        leftNode={
-          <Image
-            source={require('@/assets/images/back-arrow-100.png')}
-            style={styles.headerIcon}
-            resizeMode="contain"
-          />
-        }
+        leftNode={<Image source={require('@/assets/images/back-arrow-100.png')} style={styles.headerIcon} resizeMode="contain" />}
         headerText="Customer Details"
-        rightNode={
-          <Image
-            style={styles.profilePhoto}
-            source={require('@/assets/images/avatarIconBlue.png')}
-            resizeMode="contain"
-          />
-        }
+        rightNode={<TouchableOpacity onPress={handleLogout}><Image style={styles.profilePhoto} source={require('@/assets/images/avatarIconBlue.png')} resizeMode="contain" /></TouchableOpacity>}
         handleOnPressLeftNode={() => router.back()}
-        handleOnPressRightNode={() => alert("Profile action")}
       />
-
-      <View style={styles.addTransactionContainer}>
-        <TouchableOpacity
-          style={styles.addTransactionButton}
-          onPress={() => setIsTransactionModalVisible(true)}
-        >
-          <Text style={styles.addTransactionButtonText}>Add Transaction</Text>
-        </TouchableOpacity>
-      </View>
-
-      <TransactionModal
-        visible={isTransactionModalVisible}
-        onClose={() => setIsTransactionModalVisible(false)}
-        onSubmit={handleAddTransaction}
-      />
-
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
           <View style={styles.avatarContainer}>
-            <Icon name="account" size={60} color="#4A90E2" />
+            <Image source={require('@/assets/images/avatarIconBlue.png')} style={styles.avatar} resizeMode="contain" />
           </View>
           <View style={styles.detailsContainer}>
-            <DetailItem icon="account" label="Name" value={details.basicDetails.name} />
-            <DetailItem icon="email" label="Email" value={details.basicDetails.email} />
-            <DetailItem icon="phone" label="Phone" value={details.basicDetails.phone} />
-            <DetailItem icon="currency-usd" label="Amount" value={`$${details.basicDetails.amount}`} />
+            <Text style={styles.name}>{details.basicDetails.name}</Text>
+            <DetailItem icon="email" value={details.basicDetails.email} />
+            <DetailItem icon="phone" value={details.basicDetails.phone} />
+            <DetailItem icon="currency-usd" value={`$${details.basicDetails.amount}`} />
             <View style={styles.statusContainer}>
               <Icon name={details.basicDetails.status ? "check-circle" : "close-circle"} size={24} color={details.basicDetails.status ? "#4CAF50" : "#F44336"} />
               <Text style={styles.statusText}>{details.basicDetails.status ? "Active" : "Inactive"}</Text>
@@ -196,17 +188,27 @@ export default function CustomerDetailsScreen() {
           <PaymentCard key={index} payment={payment} isAdmin={type === 'admin'} onStatusChange={handlePaymentStatusToggle} />
         ))}
       </ScrollView>
+      <View style={styles.addTransactionContainer}>
+        <TouchableOpacity
+          style={styles.addTransactionButton}
+          onPress={() => setIsTransactionModalVisible(true)}
+        >
+          <Text style={styles.addTransactionButtonText}>Add Transaction</Text>
+        </TouchableOpacity>
+      </View>
+      <TransactionModal
+        visible={isTransactionModalVisible}
+        onClose={() => setIsTransactionModalVisible(false)}
+        onSubmit={handleAddTransaction}
+      />
     </SafeAreaView>
   );
 }
 
-const DetailItem = ({ icon, label, value }: { icon: string, label: string, value: string }) => (
+const DetailItem = ({ icon, value }: { icon: string, value: string }) => (
   <View style={styles.detailItem}>
     <Icon name={icon} size={20} color="#4A90E2" style={styles.detailIcon} />
-    <View>
-      <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
-    </View>
+    <Text style={styles.detailValue}>{value}</Text>
   </View>
 );
 

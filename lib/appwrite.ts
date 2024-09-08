@@ -51,26 +51,10 @@ export async function createUser(email: string, password: string, username: stri
         if (!newAccount) throw new Error("Failed to create account. Try again later.");
 
         // Sign in the user
-        await signIn(email, password);
+        await createSession(email, password);
 
         return existingUser.documents[0];
 
-
-
-
-
-        // const newUser = await databases.createDocument(
-        //     appwriteConfig.databaseId,
-        //     appwriteConfig.usersCollectionId,
-        //     ID.unique(),
-        //     {
-        //         accountId: newAccount.$id,
-        //         email: email,
-        //         username: username,
-        //     }
-        // );
-
-        // return newUser;
     } catch (error: any) {
         throw error;
     }
@@ -78,6 +62,26 @@ export async function createUser(email: string, password: string, username: stri
 
 // Sign In
 export async function signIn(email: string, password: string) {
+    try {
+        await createSession(email, password);
+
+        const currentUser = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.usersCollectionId,
+            [Query.equal("email", email), Query.limit(1)]
+        );
+
+        if (currentUser.documents.length === 0) throw new Error("Failed to fetch user details. Try again later.");
+
+        return currentUser.documents[0];
+
+    } catch (error: any) {
+        throw error;
+    }
+}
+
+// Create Session
+export async function createSession(email: string, password: string) {
     try {
         const session = await account.createEmailPasswordSession(email, password);
         
@@ -128,7 +132,7 @@ export async function getCurrentUser() {
         const currentUser = await databases.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.usersCollectionId,
-            [Query.equal("email", currentAccount.email)]
+            [Query.equal("email", currentAccount.email), Query.limit(1)]
         );
 
         if (currentUser.documents.length === 0) throw new Error("Failed to fetch user details. Try again later.");
@@ -138,6 +142,17 @@ export async function getCurrentUser() {
         throw error;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 // Create Video Post
 export async function createVideoPost(form: any) {

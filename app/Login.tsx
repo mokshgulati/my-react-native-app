@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { createUser, signIn } from '@/lib/appwrite';
 import { useSession } from '@/providers/SessionProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { checkIsAdmin } from '@/utils/auth';
 
 const Login: React.FC = () => {
   const { entry } = useLocalSearchParams(); // Retrieving route parameters
@@ -34,13 +35,12 @@ const Login: React.FC = () => {
 
     showLoader();
     try {
-      const response = isSignup ? await handleSignup() : await handleSignin();
-      if (response) {
-        await AsyncStorage.setItem('session', JSON.stringify(response));
+      const user = isSignup ? await handleSignup() : await handleSignin();
+      if (user) {
+        await AsyncStorage.setItem('session', JSON.stringify(user));
         setIsLogged(true);
-        setUser(response);
-        console.log("responseeeeee", response)
-        // router.replace(response.role === 'admin' ? '/admin/Customers' : '/CustomerDetail');
+        setUser(user);
+        router.replace(checkIsAdmin(user) ? '/admin/Customers' : '/CustomerDetail');
       } else {
         showToast('Invalid credentials', 'error');
       }
@@ -75,9 +75,7 @@ const Login: React.FC = () => {
   };
 
   // API Call to handle forgot password
-  const handleForgotPassword = () => {
-    // Simulate an API call to sign up
-  }
+  const handleForgotPassword = () => { }
 
   // API Call to handle sign-up
   const handleSignup = async () => {
@@ -146,13 +144,13 @@ const Login: React.FC = () => {
             />
           )}
 
-          {!isSignup && (
+          {/* {!isSignup && (
             <View style={styles.forgotPasswordContainer}>
               <TouchableOpacity onPress={handleForgotPassword}>
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
               </TouchableOpacity>
             </View>
-          )}
+          )} */}
 
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>{isSignup ? 'Signup' : 'Login'}</Text>

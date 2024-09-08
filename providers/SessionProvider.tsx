@@ -15,7 +15,7 @@ const SessionContext = createContext<{
     isLoading: boolean
 } | undefined>(undefined);
 
-const RETRY_ATTEMPTS = 1;
+const RETRY_ATTEMPTS = 0;
 const TIMEOUT = 5000; // 5 seconds
 
 const fetchSessionWithRetry = async (retries = RETRY_ATTEMPTS) => {
@@ -56,12 +56,12 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
                         return;
                     }
                 }
-                const res = await fetchSessionWithRetry();
-                if (res) {
+                const response = await fetchSessionWithRetry();
+                if (response) {
                     setIsLogged(true);
-                    setUser(res);
+                    setUser(response);
                     if (USE_ASYNC_STORAGE) {
-                        await AsyncStorage.setItem('session', JSON.stringify(res));
+                        await AsyncStorage.setItem('session', JSON.stringify(response));
                     }
                 } else {
                     throw new Error('No valid session');

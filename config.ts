@@ -1,1 +1,1 @@
-export const USE_ASYNC_STORAGE = true;
+export const USE_ASYNC_STORAGE = false;

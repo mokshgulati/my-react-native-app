@@ -8,8 +8,9 @@ import Header from '@/components/Header';
 import PageHeader from '@/components/PageHeader';
 import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { useRouter } from 'expo-router';
+import { router, useRouter } from 'expo-router';
 import { customersStyles as styles } from '@/assets/styles/css';
+import { signOut } from '@/lib/appwrite';
 
 interface Customer {
   id: number;
@@ -42,6 +43,26 @@ const initialCustomers: Customer[] = [
   { id: 19, name: 'Amy Young', phone: '890-123-6543', amount: '400', isActive: true, loanDate: '2023-07-18' },
   { id: 20, name: 'Gary Roberts', phone: '901-234-7654', amount: '800', isActive: false, loanDate: '2023-06-08' },
 ];
+
+const handleLogout = () => {
+  Alert.alert(
+    "Logout",
+    "Do you want to log out?",
+    [
+      {
+        text: "No",
+        style: "cancel"
+      },
+      {
+        text: "Yes",
+        onPress: async () => {
+          await signOut();
+          router.replace('/');
+        }
+      }
+    ]
+  );
+};
 
 const Customers = () => {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
@@ -175,7 +196,7 @@ const Customers = () => {
           />
         }
         handleOnPressLeftNode={router.back}
-        handleOnPressRightNode={() => Alert.alert('Custom Action')}
+        handleOnPressRightNode={handleLogout}
       />
       <Header
         onSearch={setSearchText}

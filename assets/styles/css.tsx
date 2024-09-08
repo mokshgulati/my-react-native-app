@@ -79,27 +79,67 @@ export const loginStyles = StyleSheet.create({
 });
 
 export const customerDetailStyles = StyleSheet.create({
+    headerIcon: {
+        width: 20,
+        height: 20,
+    },
+    profilePhoto: {
+        height: 36,
+        width: 36,
+        borderRadius: 18,
+    },
+    card: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 15,
+        padding: 20,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+      avatarContainer: {
+        alignItems: 'center',
+        marginBottom: 15,
+      },
+      avatar: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+      },
+      detailsContainer: {
+        alignItems: 'center',
+      },
+      name: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#333',
+      },
+      addTransactionContainer: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        right: 20,
+      },
+      addTransactionButton: {
+        backgroundColor: 'rgb(23,43,109)',
+        borderRadius: 10,
+        padding: 15,
+      },
+      addTransactionButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        textAlign: 'center',
+        fontWeight: 'bold',
+      },
     container: {
         flex: 1,
         backgroundColor: '#F5F5F5',
     },
     scrollContent: {
         padding: 16,
-    },
-    card: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        elevation: 2,
-    },
-    avatarContainer: {
-        marginRight: 16,
-    },
-    detailsContainer: {
-        flex: 1,
     },
     detailItem: {
         flexDirection: 'row',
@@ -264,33 +304,7 @@ export const customerDetailStyles = StyleSheet.create({
         paddingTop: 5,
         paddingBottom: 5
     },
-    addTransactionContainer: {
-        padding: 16,
-        alignItems: 'center',
-    },
-    addTransactionButton: {
-        backgroundColor: 'rgb(23,43,109)',
-        borderRadius: 8,
-        padding: 12,
-        width: '100%',
-    },
-    addTransactionButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        textAlign: 'center',
-        fontWeight: 'bold',
-    },
-    headerIcon: {
-        width: 20,
-        height: 20,
-    },
-    profilePhoto: {
-        height: 36,
-        width: 36,
-        borderRadius: 18,
-    },
 });
-
 
 export const headerStyles = StyleSheet.create({
     formContainer: {

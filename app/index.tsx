@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { indexStyles as styles } from '@/assets/styles/css'
 import { useSession } from '@/providers/SessionProvider';
 import { useToast } from '@/providers/ToastProvider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { checkIsAdmin, } from '@/utils/auth';
 
 export default function Index() {
   const router = useRouter();
@@ -16,7 +16,6 @@ export default function Index() {
     const handleSessionError = async () => {
       if (errorInLoggingIn) {
         showToast('Error in logging in', 'error');
-        await AsyncStorage.removeItem('session');
         router.replace('/Login');
       }
     };
@@ -33,7 +32,7 @@ export default function Index() {
   }
 
   if (isLogged && user) {
-    return <Redirect href={user.role === 'admin' ? "/admin/Customers" : "/CustomerDetail"} />;
+    return <Redirect href={checkIsAdmin(user) ? "/admin/Customers" : "/CustomerDetail"} />;
   }
 
   return (
