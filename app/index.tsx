@@ -44,7 +44,7 @@ export default function Index() {
       <View style={styles.overlay}>
         <Image source={require('@/assets/images/DKMainLogo.png')} resizeMode="contain" style={{ height: 360, width: 360 }} />
         <View style={styles.buttonWrapper}>
-          <Pressable onPress={() => router.push("/Login?entry=login")}
+          <Pressable onPress={() => router.replace("/Login?entry=login")}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'rgb(23,43,109)',
@@ -56,7 +56,7 @@ export default function Index() {
             ]}>
             <Text style={styles.btnTxt}>LOGIN</Text>
           </Pressable>
-          <Pressable onPress={() => router.push("/Login?entry=signup")}
+          <Pressable onPress={() => router.replace("/Login?entry=signup")}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'rgb(23,43,109)',

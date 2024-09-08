@@ -99,6 +99,15 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
                 console.log("checkSession try");
                 const lastAction = await AsyncStorage.getItem('lastAction');
                 
+                // Do something about users who open the app first time
+                const isFirstTime = lastAction === null;
+                if (isFirstTime) {
+                    console.log("checkSession try 0.1");
+                    setIsLogged(false);
+                    setUser(null);
+                    return;
+                }
+
                 if (lastAction === 'signedout') {
                     console.log("checkSession try 1.1");
                     setIsLogged(false);
