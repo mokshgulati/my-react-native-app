@@ -14,7 +14,7 @@
 //   borrowedAmount!: number;
 //   borrowedOn?: string;
 //   interestRate!: number;
-//   loanStatus!: 'active' | 'inactive';
+//   loanStatus!: 'active' | 'closed';
 //   loanTenureInMonths!: number;
 //   totalAmountPaid!: number;
 //   paymentHistory?: string[];  // Assuming payment history is stored as an array of strings

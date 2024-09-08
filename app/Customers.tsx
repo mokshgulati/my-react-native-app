@@ -73,7 +73,7 @@ const Customers = () => {
     }
 
     result = result.filter((customer) =>
-      currentFilter === 'all' ? true : currentFilter === 'active' ? customer.loanStatus === 'active' : customer.loanStatus === 'inactive'
+      currentFilter === 'all' ? true : currentFilter === 'active' ? customer.loanStatus === 'active' : customer.loanStatus === 'closed'
     );
 
     result.sort((a, b) => {

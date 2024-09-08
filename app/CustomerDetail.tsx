@@ -57,7 +57,7 @@ export default function CustomerDetailsScreen() {
       ...prevDetails,
       basicDetails: {
         ...prevDetails.basicDetails,
-        status: !prevDetails.basicDetails.status, // Toggle active/inactive status
+        status: !prevDetails.basicDetails.status, // Toggle active/closed status
       },
     }));
     setHasChanges(true); // Mark changes as unsaved
@@ -151,7 +151,7 @@ export default function CustomerDetailsScreen() {
             <DetailItem icon="currency-usd" value={`$${details.basicDetails.amount}`} />
             <View style={styles.statusContainer}>
               <Icon name={details.basicDetails.status ? "check-circle" : "close-circle"} size={24} color={details.basicDetails.status ? "#4CAF50" : "#F44336"} />
-              <Text style={styles.statusText}>{details.basicDetails.status ? "Active" : "Inactive"}</Text>
+              <Text style={styles.statusText}>{details.basicDetails.status ? "Active" : "Closed"}</Text>
               {type === 'admin' && (
                 <Switch
                   value={details.basicDetails.status}

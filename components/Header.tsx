@@ -183,8 +183,8 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
               <MenuOption onSelect={() => handleFilterSelect('active')}>
                 <Text style={styles.menuOptionText}>Active</Text>
               </MenuOption>
-              <MenuOption onSelect={() => handleFilterSelect('inactive')}>
-                <Text style={styles.menuOptionText}>Inactive</Text>
+              <MenuOption onSelect={() => handleFilterSelect('closed')}>
+                <Text style={styles.menuOptionText}>Closed</Text>
               </MenuOption>
             </MenuOptions>
           </Menu>

@@ -27,7 +27,7 @@ export interface User {
     borrowedAmount: number;
     borrowedOn?: string;
     interestRate: number;
-    loanStatus: 'active' | 'inactive';
+    loanStatus: 'active' | 'closed';
     loanTenureInMonths: number;
     totalAmountPaid: number;
     paymentHistory?: string[]; // This should be parsed to get the actual objects
