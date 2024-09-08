@@ -18,33 +18,41 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
   const [currentSortOrder, setCurrentSortOrder] = useState('desc');
 
   const [customerData, setCustomerData] = useState({
-    name: '',
+    fullName: '',
     phone: '',
     email: '',
-    amount: '',
-    tenure: '',
-    roi: '',
+    username: '',
     address: '',
+    city: '',
+    state: '',
+    borrowedAmount: '',
+    borrowedOn: new Date().toISOString().split('T')[0],
+    interestRate: '',
+    loanTenureInMonths: '',
+    totalAmountPaid: '0',
+    loanStatus: 'active',
   });
 
   const [errors, setErrors] = useState({
-    name: '',
+    fullName: '',
     phone: '',
     email: '',
-    amount: '',
-    tenure: '',
-    roi: '',
+    username: '',
+    borrowedAmount: '',
+    interestRate: '',
+    loanTenureInMonths: '',
   });
 
 
   // Regex patterns
   const regexPatterns = {
-    name: /^[a-zA-Z\s]+$/, // Only letters and spaces
-    phone: /^[0-9]{10}$/, // 10 digits
-    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Valid email
-    amount: /^[0-9]*\.?[0-9]+$/, // Positive number
-    tenure: /^[0-9]+$/, // Positive integer
-    roi: /^([0-9]{1,2})(\.[0-9]{1,2})?$/, // Percentage (e.g., 5, 7.5)
+    fullName: /^[a-zA-Z\s]+$/,
+    phone: /^[0-9]{10}$/,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    username: /^[a-zA-Z0-9_]+$/,
+    borrowedAmount: /^[0-9]*\.?[0-9]+$/,
+    interestRate: /^([0-9]{1,2})(\.[0-9]{1,2})?$/,
+    loanTenureInMonths: /^[0-9]+$/,
   };
 
   const handleSearchChange = (text: string) => {
@@ -87,7 +95,14 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
   // Handle the form submission for adding a customer
   const handleAddCustomer = async () => {
     if (isFormValid()) {
-      await addCustomer(customerData);
+      const newCustomer = {
+        ...customerData,
+        borrowedAmount: parseFloat(customerData.borrowedAmount),
+        totalAmountPaid: parseFloat(customerData.totalAmountPaid),
+        interestRate: parseFloat(customerData.interestRate),
+        loanTenureInMonths: parseInt(customerData.loanTenureInMonths),
+      };
+      await addCustomer(newCustomer);
       resetCustomerForm();
     } else {
       Alert.alert('Validation Error', 'Please correct the errors before submitting.');
@@ -113,13 +128,19 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
   // Reset the customer form fields
   const resetCustomerForm = () => {
     setCustomerData({
-      name: '',
+      fullName: '',
       phone: '',
       email: '',
-      amount: '',
-      tenure: '',
-      roi: '',
+      username: '',
       address: '',
+      city: '',
+      state: '',
+      borrowedAmount: '',
+      borrowedOn: new Date().toISOString().split('T')[0],
+      interestRate: '',
+      loanTenureInMonths: '',
+      loanStatus: 'active',
+      totalAmountPaid: '0',
     });
     setModalVisible(false);
   };
@@ -133,13 +154,16 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
   const isFormValid = () => {
     return (
       Object.values(errors).every((error) => error === '') &&
-        customerData.name &&
+        customerData.fullName &&
         customerData.phone &&
         customerData.email &&
-        customerData.amount &&
-        customerData.tenure &&
-        customerData.roi &&
-        customerData.address
+        customerData.borrowedAmount &&
+        customerData.interestRate &&
+        customerData.loanTenureInMonths &&
+        customerData.address &&
+        customerData.city &&
+        customerData.state &&
+        customerData.username 
         ? true : false
     );
   };
@@ -219,13 +243,24 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
           <View style={styles.inputGroup}>
             <FontAwesome name="user" size={20} color="#555" style={styles.inputIcon} />
             <TextInput
-              style={[styles.input, errors.name ? styles.inputError : null]}
+              style={[styles.input, errors.fullName ? styles.inputError : null]}
               placeholder="Full Name"
-              value={customerData.name}
-              onChangeText={(text) => handleInputChange('name', text)}
+              value={customerData.fullName}
+              onChangeText={(text) => handleInputChange('fullName', text)}
             />
           </View>
-          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+          {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
+
+          <View style={styles.inputGroup}>
+            <FontAwesome name="user" size={20} color="#555" style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, errors.username ? styles.inputError : null]}
+              placeholder="Username"
+              value={customerData.username}
+              onChangeText={(text) => handleInputChange('username', text)}
+            />
+          </View>
+          {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
 
           <View style={styles.inputGroup}>
             <FontAwesome name="phone" size={20} color="#555" style={styles.inputIcon} />
@@ -251,44 +286,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
           </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-          <View style={styles.row}>
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <FontAwesome name="dollar" size={20} color="#555" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, errors.amount ? styles.inputError : null]}
-                placeholder="Amount"
-                value={customerData.amount}
-                onChangeText={(text) => handleInputChange('amount', text)}
-                keyboardType="numeric"
-              />
-            </View>
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <FontAwesome name="calendar" size={20} color="#555" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, errors.tenure ? styles.inputError : null]}
-                placeholder="Tenure (months)"
-                value={customerData.tenure}
-                onChangeText={(text) => handleInputChange('tenure', text)}
-                keyboardType="numeric"
-              />
-            </View>
-          </View>
-          {(errors.amount || errors.tenure) && (
-            <Text style={styles.errorText}>{errors.amount || errors.tenure}</Text>
-          )}
-
-          <View style={styles.inputGroup}>
-            <FontAwesome name="percent" size={20} color="#555" style={styles.inputIcon} />
-            <TextInput
-              style={[styles.input, errors.roi ? styles.inputError : null]}
-              placeholder="ROI (%)"
-              value={customerData.roi}
-              onChangeText={(text) => handleInputChange('roi', text)}
-              keyboardType="numeric"
-            />
-          </View>
-          {errors.roi && <Text style={styles.errorText}>{errors.roi}</Text>}
-
           <View style={styles.inputGroup}>
             <FontAwesome name="map-marker" size={20} color="#555" style={styles.inputIcon} />
             <TextInput
@@ -299,11 +296,80 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
               multiline
             />
           </View>
+
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <FontAwesome name="building" size={20} color="#555" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="City"
+                value={customerData.city}
+                onChangeText={(text) => handleInputChange('city', text)}
+              />
+            </View>
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <FontAwesome name="map" size={20} color="#555" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="State"
+                value={customerData.state}
+                onChangeText={(text) => handleInputChange('state', text)}
+              />
+            </View>
+          </View>
+
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <FontAwesome name="dollar" size={20} color="#555" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, errors.borrowedAmount ? styles.inputError : null]}
+                placeholder="Borrowed Amount"
+                value={customerData.borrowedAmount}
+                onChangeText={(text) => handleInputChange('borrowedAmount', text)}
+                keyboardType="numeric"
+              />
+            </View>
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <FontAwesome name="calendar" size={20} color="#555" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Borrowed On"
+                value={customerData.borrowedOn}
+                onChangeText={(text) => handleInputChange('borrowedOn', text)}
+              />
+            </View>
+          </View>
+          {errors.borrowedAmount && <Text style={styles.errorText}>{errors.borrowedAmount}</Text>}
+
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <FontAwesome name="percent" size={20} color="#555" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, errors.interestRate ? styles.inputError : null]}
+                placeholder="Interest Rate (%)"
+                value={customerData.interestRate}
+                onChangeText={(text) => handleInputChange('interestRate', text)}
+                keyboardType="numeric"
+              />
+            </View>
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <FontAwesome name="clock-o" size={20} color="#555" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, errors.loanTenureInMonths ? styles.inputError : null]}
+                placeholder="Loan Tenure (months)"
+                value={customerData.loanTenureInMonths}
+                onChangeText={(text) => handleInputChange('loanTenureInMonths', text)}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
+          {(errors.interestRate || errors.loanTenureInMonths) && (
+            <Text style={styles.errorText}>{errors.interestRate || errors.loanTenureInMonths}</Text>
+          )}
         </View>
       </CustomModal>
     </View>
   );
 };
-
 
 export default Header;

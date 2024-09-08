@@ -32,6 +32,23 @@ export interface User {
     paymentHistory?: string[]; // This should be parsed to get the actual objects
 }
 
+interface Payment { 
+    paymentId: number;
+    paymentAmount: number;
+    paymentDate: string;
+    paymentStatus: string;
+}
+
+// const newPayment: Payment = {
+//     paymentId: 1,
+//     paymentAmount: 100,
+//     paymentDate: '06-09-2024',
+//     paymentStatus: 'completed'
+//   };
+  
+//   // When adding to the database, stringify the payment object
+// const stringifiedPayment = JSON.stringify(newPayment);
+
 export const appwriteConfig = {
     endpoint: "https://cloud.appwrite.io/v1",
     platform: "com.mokshgulati.myapp",
@@ -188,14 +205,19 @@ export async function getAllUsers() {
         const allUsers = users.documents.map(user => ({
             ...user,
             // borrowedOn: user?.borrowedOn ? new Date(user.borrowedOn).toLocaleDateString() : null,
-            paymentHistory: user.paymentHistory?.map((payment: string) => {
-                try {
-                    return JSON.parse(payment.replace(/'/g, '"'));
-                } catch (e) {
-                    console.error("Error parsing payment history:", e);
-                    return null;
-                }
-            }).filter(Boolean) || []
+            paymentHistory: Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0 
+                ? user.paymentHistory.map((payment: string) => {
+                    if (typeof payment === 'string') {
+                        try {
+                            return JSON.parse(payment.replace(/'/g, '"'));
+                        } catch (e) {
+                            console.error("Error parsing payment history:", e);
+                            return null;
+                        }
+                    }
+                    return null;  // Return null if it's not a valid string
+                }).filter(Boolean)  // Filter out null values
+                : []  // Return an empty array if paymentHistory is empty or not an array
         })) as User[]; 
 
         await AsyncStorage.setItem('allUsers', JSON.stringify(allUsers));
@@ -203,6 +225,39 @@ export async function getAllUsers() {
         return allUsers;
     } catch (error: any) {
         throw new Error(`Failed to fetch users: ${error.message}`);
+    }
+}
+
+// Add Customer
+export async function addCustomerToDatabase(customerData: Partial<User>): Promise<User> {
+    try {
+        const newCustomer = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.usersCollectionId,
+            ID.unique(),
+            {
+                role: 'user',
+                fullName: customerData.fullName,
+                phone: customerData.phone,
+                email: customerData.email,
+                username: customerData.username || null,
+                address: customerData.address || null,
+                city: customerData.city || null,
+                state: customerData.state || null,
+                borrowedOn: customerData.borrowedOn || new Date().toISOString(),
+                borrowedAmount: customerData.borrowedAmount || 0,
+                totalAmountPaid: customerData.totalAmountPaid || 0,
+                interestRate: customerData.interestRate || 0,
+                loanTenureInMonths: customerData.loanTenureInMonths || 0,
+                loanStatus: customerData.loanStatus || 'active',
+                paymentHistory: customerData.paymentHistory || []
+            }
+        );
+
+        return newCustomer as User;
+    } catch (error: any) {
+        console.error("Error adding customer:", error);
+        throw new Error(`Failed to add customer: ${error.message}`);
     }
 }
 
