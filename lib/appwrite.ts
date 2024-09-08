@@ -7,6 +7,8 @@ import {
     ID,
     Query,
 } from "react-native-appwrite";
+// import Realm from 'realm';
+// import { realmConfig, RealmUser } from './realm';
 
 export interface User {
     $collectionId: string;
@@ -195,34 +197,92 @@ export async function getCurrentUser() {
 // Get all users
 export async function getAllUsers() {
     try {
-        const users = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.usersCollectionId,
-            [Query.notEqual("role", "admin")]
-        );
-        console.log("getAllUsers", users.documents);
+        // Check if Realm has data
+        // const realm = await Realm.open(realmConfig);
+        // const users = realm.objects<RealmUser>('RealmUser');
 
-        const allUsers = users.documents.map(user => ({
-            ...user,
-            // borrowedOn: user?.borrowedOn ? new Date(user.borrowedOn).toLocaleDateString() : null,
-            paymentHistory: Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0 
-                ? user.paymentHistory.map((payment: string) => {
-                    if (typeof payment === 'string') {
-                        try {
-                            return JSON.parse(payment.replace(/'/g, '"'));
-                        } catch (e) {
-                            console.error("Error parsing payment history:", e);
-                            return null;
+        // if (users.length === 0) {
+            // console.log("getAllUsers", "Fetching from database");
+            // Fetch from database if Realm is empty
+            const response = await databases.listDocuments(
+                appwriteConfig.databaseId,
+                appwriteConfig.usersCollectionId,
+                [Query.notEqual("role", "admin")]
+            );
+            
+            console.log("getAllUsers", response.documents);
+            // Store fetched users in Realm
+            // realm.write(() => {
+            //     response.documents.forEach((doc) => {
+            //         realm.create('RealmUser', {
+            //             _id: new Realm.BSON.ObjectId(doc.$id),
+            //             name: doc.fullName,
+            //             email: doc.email,
+            //             role: doc.role,
+            //             fullName: doc.fullName,
+            //             username: doc.username,
+            //             phone: doc.phone,
+            //             address: doc.address,
+            //             city: doc.city,
+            //             state: doc.state,
+            //             borrowedAmount: doc.borrowedAmount,
+            //             borrowedOn: doc.borrowedOn,
+            //             interestRate: doc.interestRate,
+            //             loanStatus: doc.loanStatus,
+            //             loanTenureInMonths: doc.loanTenureInMonths,
+            //             totalAmountPaid: doc.totalAmountPaid,
+            //             paymentHistory: doc.paymentHistory,
+            //             $collectionId: doc.$collectionId,
+            //             $databaseId: doc.$databaseId,
+            //             $createdAt: doc.$createdAt,
+            //             $id: doc.$id,
+            //             $permissions: doc.$permissions,
+            //             $updatedAt: doc.$updatedAt,
+            //         });
+            //     });
+            // });
+
+            const allUsers = response.documents.map(user => ({
+                ...user,
+                paymentHistory: Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0 
+                    ? user.paymentHistory.map((payment: string) => {
+                        if (typeof payment === 'string') {
+                            try {
+                                return JSON.parse(payment.replace(/'/g, '"'));
+                            } catch (e) {
+                                console.error("Error parsing payment history:", e);
+                                return null;
+                            }
                         }
-                    }
-                    return null;  // Return null if it's not a valid string
-                }).filter(Boolean)  // Filter out null values
-                : []  // Return an empty array if paymentHistory is empty or not an array
-        })) as User[]; 
+                        return null;  // Return null if it's not a valid string
+                    }).filter(Boolean)  // Filter out null values
+                    : []  // Return an empty array if paymentHistory is empty or not an array
+            })) as User[]; 
 
-        await AsyncStorage.setItem('allUsers', JSON.stringify(allUsers));
+            return allUsers;
+        // } else {
+        //     // Return users from Realm
+        //     console.log("getAllUsers", "Fetching from Realm");
+        //     const allUsers = Array.from(users).map(user => ({
+        //         ...user,
+        //         // borrowedOn: user.borrowedOn ? new Date(user.borrowedOn).toLocaleDateString() : null,
+        //         paymentHistory: Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0 
+        //             ? user.paymentHistory.map((payment: string) => {
+        //                 if (typeof payment === 'string') {
+        //                     try {
+        //                         return JSON.parse(payment.replace(/'/g, '"'));
+        //                     } catch (e) {
+        //                         console.error("Error parsing payment history:", e);
+        //                         return null;
+        //                     }
+        //                 }
+        //                 return null;  // Return null if it's not a valid string
+        //             }).filter(Boolean)  // Filter out null values
+        //             : []  // Return an empty array if paymentHistory is empty or not an array
+        //     })) as User[]; 
 
-        return allUsers;
+        //     return allUsers;
+        // }
     } catch (error: any) {
         throw new Error(`Failed to fetch users: ${error.message}`);
     }
@@ -254,140 +314,39 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
             }
         );
 
+        // Add user to Realm
+        // const realm = await Realm.open(realmConfig);
+        // realm.write(() => {
+        //     realm.create('RealmUser', {
+        //         _id: new Realm.BSON.ObjectId(newCustomer.$id),
+        //         name: newCustomer.fullName,
+        //         email: newCustomer.email,
+        //         role: newCustomer.role,
+        //         fullName: newCustomer.fullName,
+        //         username: newCustomer.username,
+        //         phone: newCustomer.phone,
+        //         address: newCustomer.address,
+        //         city: newCustomer.city,
+        //         state: newCustomer.state,
+        //         borrowedAmount: newCustomer.borrowedAmount,
+        //         borrowedOn: newCustomer.borrowedOn,
+        //         interestRate: newCustomer.interestRate,
+        //         loanStatus: newCustomer.loanStatus,
+        //         loanTenureInMonths: newCustomer.loanTenureInMonths,
+        //         totalAmountPaid: newCustomer.totalAmountPaid,
+        //         paymentHistory: newCustomer.paymentHistory,
+        //         $collectionId: newCustomer.$collectionId,
+        //         $databaseId: newCustomer.$databaseId,
+        //         $createdAt: newCustomer.$createdAt,
+        //         $id: newCustomer.$id, 
+        //         $permissions: newCustomer.$permissions,
+        //         $updatedAt: newCustomer.$updatedAt,
+        //     });
+        // });
+
         return newCustomer as User;
     } catch (error: any) {
         console.error("Error adding customer:", error);
         throw new Error(`Failed to add customer: ${error.message}`);
-    }
-}
-
-// Add Customer
-// export async function addCustomerToDatabase(customerData: Partial<User>): Promise<User> {
-//     try {
-//         const newCustomer = await databases.createDocument(
-//             appwriteConfig.databaseId,
-//             appwriteConfig.usersCollectionId,
-//             ID.unique(),
-//             {
-//                 role: 'user',
-//                 username: customerData.username,
-//                 email: customerData.email,
-//                 phone: customerData.phone,
-//                 storeName: customerData.storeName || null,
-//                 address: customerData.address || null,
-//                 borrowDate: customerData.borrowDate || null,
-//                 borrowedAmount: customerData.borrowedAmount || 0,
-//                 amountPaidBack: customerData.amountPaidBack || 0,
-//                 roi: customerData.roi || null,
-//                 tenure: customerData.tenure || null,
-//                 amountToPayBack: customerData.amountToPayBack || null,
-//                 isActive: customerData.isActive !== undefined ? customerData.isActive : true,
-//                 paymentHistory: customerData.paymentHistory || []
-//             }
-//         );
-
-//         return newCustomer as unknown as User;
-//     } catch (error: any) {
-//         throw new Error(`Failed to add customer: ${error.message}`);
-//     }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-// Create Video Post
-export async function createVideoPost(form: any) {
-    try {
-        const [thumbnailUrl, videoUrl] = await Promise.all([
-            '',''
-            // uploadFile(form.thumbnail, "image"),
-            // uploadFile(form.video, "video"),
-        ]);
-
-        const newPost = await databases.createDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.usersCollectionId,
-            ID.unique(),
-            {
-                title: form.title,
-                thumbnail: thumbnailUrl,
-                video: videoUrl,
-                prompt: form.prompt,
-                creator: form.userId,
-            }
-        );
-
-        return newPost;
-    } catch (error: any) {
-        throw new Error(error);
-    }
-}
-
-// Get all video Posts
-export async function getAllPosts() {
-    try {
-        const posts = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.usersCollectionId
-        );
-
-        return posts.documents;
-    } catch (error: any) {
-        throw new Error(error);
-    }
-}
-
-// Get video posts created by user
-export async function getUserPosts(userId: string) {
-    try {
-        const posts = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.usersCollectionId,
-            [Query.equal("creator", userId)]
-        );
-
-        return posts.documents;
-    } catch (error: any) {
-        throw new Error(error);
-    }
-}
-
-// Get video posts that matches search query
-export async function searchPosts(query: string) {
-    try {
-        const posts = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.usersCollectionId,
-            [Query.search("title", query)]
-        );
-
-        if (!posts) throw new Error("Something went wrong");
-
-        return posts.documents;
-    } catch (error: any) {
-        throw new Error(error);
-    }
-}
-
-// Get latest created video posts
-export async function getLatestPosts() {
-    try {
-        const posts = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.usersCollectionId,
-            [Query.orderDesc("$createdAt"), Query.limit(7)]
-        );
-
-        return posts.documents;
-    } catch (error: any) {
-        throw new Error(error);
     }
 }
