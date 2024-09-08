@@ -8,6 +8,30 @@ import {
     Query,
 } from "react-native-appwrite";
 
+export interface User {
+    $collectionId: string;
+    $databaseId: string;
+    $createdAt: string;
+    $id: string;
+    $permissions: string[];
+    $updatedAt: string;
+    role: 'admin' | 'user';
+    fullName: string;
+    email: string;
+    username: string;
+    phone: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    borrowedAmount: number;
+    borrowedOn?: string;
+    interestRate: number;
+    loanStatus: 'active' | 'inactive';
+    loanTenureInMonths: number;
+    totalAmountPaid: number;
+    paymentHistory?: string[]; // This should be parsed to get the actual objects
+}
+
 export const appwriteConfig = {
     endpoint: "https://cloud.appwrite.io/v1",
     platform: "com.mokshgulati.myapp",
@@ -89,7 +113,7 @@ export async function signIn(email: string, password: string) {
 export async function createSession(email: string, password: string) {
     try {
         const session = await account.createEmailPasswordSession(email, password);
-        
+
         if (!session) throw new Error("Failed to create user session. Try again later.");
         return session;
     } catch (error: any) {
@@ -150,6 +174,68 @@ export async function getCurrentUser() {
         throw error;
     }
 }
+
+// Get all users
+export async function getAllUsers() {
+    try {
+        const users = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.usersCollectionId,
+            [Query.notEqual("role", "admin")]
+        );
+        console.log("getAllUsers", users.documents);
+
+        const allUsers = users.documents.map(user => ({
+            ...user,
+            // borrowedOn: user?.borrowedOn ? new Date(user.borrowedOn).toLocaleDateString() : null,
+            paymentHistory: user.paymentHistory?.map((payment: string) => {
+                try {
+                    return JSON.parse(payment.replace(/'/g, '"'));
+                } catch (e) {
+                    console.error("Error parsing payment history:", e);
+                    return null;
+                }
+            }).filter(Boolean) || []
+        })) as User[]; 
+
+        await AsyncStorage.setItem('allUsers', JSON.stringify(allUsers));
+
+        return allUsers;
+    } catch (error: any) {
+        throw new Error(`Failed to fetch users: ${error.message}`);
+    }
+}
+
+// Add Customer
+// export async function addCustomerToDatabase(customerData: Partial<User>): Promise<User> {
+//     try {
+//         const newCustomer = await databases.createDocument(
+//             appwriteConfig.databaseId,
+//             appwriteConfig.usersCollectionId,
+//             ID.unique(),
+//             {
+//                 role: 'user',
+//                 username: customerData.username,
+//                 email: customerData.email,
+//                 phone: customerData.phone,
+//                 storeName: customerData.storeName || null,
+//                 address: customerData.address || null,
+//                 borrowDate: customerData.borrowDate || null,
+//                 borrowedAmount: customerData.borrowedAmount || 0,
+//                 amountPaidBack: customerData.amountPaidBack || 0,
+//                 roi: customerData.roi || null,
+//                 tenure: customerData.tenure || null,
+//                 amountToPayBack: customerData.amountToPayBack || null,
+//                 isActive: customerData.isActive !== undefined ? customerData.isActive : true,
+//                 paymentHistory: customerData.paymentHistory || []
+//             }
+//         );
+
+//         return newCustomer as unknown as User;
+//     } catch (error: any) {
+//         throw new Error(`Failed to add customer: ${error.message}`);
+//     }
+// }
 
 
 

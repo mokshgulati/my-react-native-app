@@ -11,6 +11,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { router } from 'expo-router';
 import { customersStyles as styles } from '@/assets/styles/css';
 import { useSession } from '@/providers/SessionProvider';
+import { getAllUsers, User } from '@/lib/appwrite';
 
 interface Customer {
   id: number;
@@ -46,8 +47,8 @@ const initialCustomers: Customer[] = [
 
 
 const Customers = () => {
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>(initialCustomers);
+  const [customers, setCustomers] = useState<User[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<User[]>([]);
   const [searchText, setSearchText] = useState<string>('');
   const [currentFilter, setCurrentFilter] = useState('all');
   const [currentSortOrder, setCurrentSortOrder] = useState('desc');
@@ -66,43 +67,30 @@ const Customers = () => {
   const fetchCustomers = async () => {
     showLoader();
     try {
-      const response = await fakeApiCall();
-      if (response.success) {
-        // Assume we get new customers from the API
-        // setCustomers(response.data); Uncomment this when real API is used
-      } else {
-        showToast('Failed to fetch customers', 'error');
-      }
+      const fetchedCustomers = await getAllUsers();
+      console.log("fetchCustomers", fetchedCustomers);
+      setCustomers(fetchedCustomers);
     } catch (error: any) {
-      showToast(`Error: ${error.message}`, 'error');
+      showToast(`Failed to fetch customers. Error: ${error.message}`, 'error');
     } finally {
       hideLoader();
     }
   };
 
-  const fakeApiCall = () => {
-    return new Promise<{ success: boolean }>((resolve) => {
-      setTimeout(() => {
-        resolve({ success: true });
-      }, 1000);
-    });
-  };
-
-  const handleRowClick = (customerId: number) => {
+  const handleRowClick = (customerId: string) => {
     router.push(`/CustomerDetail?customerId=${customerId}`);
   };
 
-  const addCustomer = async (newCustomer: Customer) => {
+  // const addCustomer = async (newCustomer: Customer) => {
+  const addCustomer = async (newCustomerData: Partial<User>) => {
     showLoader();
     try {
-      const response = await fakeApiCall();
-      if (response.success) {
-        setCustomers((prevCustomers) => [...prevCustomers, { ...newCustomer, id: Date.now(), isActive: true, loanDate: new Date().toISOString().split('T')[0] }]);
-        showToast('Customer added successfully', 'success');
-      } else {
-        showToast('Failed to add customer', 'error');
-      }
+      // const newCustomer = await addCustomerToDatabase(newCustomerData);
+      // setCustomers((prevCustomers) => [...prevCustomers, { ...newCustomer, id: Date.now(), isActive: true, loanDate: new Date().toISOString().split('T')[0] }]);
+      // setCustomers(prevCustomers => [...prevCustomers, newCustomer]);
+      showToast('Customer added successfully', 'success');
     } catch (error: any) {
+      // showToast('Failed to add customer', 'error');
       showToast(`Error: ${error.message}`, 'error');
     } finally {
       hideLoader();
@@ -112,25 +100,20 @@ const Customers = () => {
   const filterAndSortCustomers = useCallback(() => {
     let result = customers;
 
-    // Apply search filter
     if (searchText) {
       result = result.filter((customer) =>
-        [customer.name, customer.phone, customer.amount]
-          .some(field => field.toLowerCase().includes(searchText.toLowerCase()))
+        [customer.username, customer.email, customer.phone, customer.borrowedAmount?.toString()]
+          .some(field => field && field.toLowerCase().includes(searchText.toLowerCase()))
       );
     }
 
-    // Apply status filter
-    if (currentFilter !== 'all') {
-      result = result.filter((customer) =>
-        currentFilter === 'active' ? customer.isActive : !customer.isActive
-      );
-    }
+    result = result.filter((customer) =>
+      currentFilter === 'all' ? true : currentFilter === 'active' ? customer.loanStatus === 'active' : customer.loanStatus === 'inactive'
+    );
 
-    // Apply sorting
     result.sort((a, b) => {
-      const dateA = new Date(a.loanDate).getTime();
-      const dateB = new Date(b.loanDate).getTime();
+      const dateA = new Date(a.borrowedOn || '').getTime();
+      const dateB = new Date(b.borrowedOn || '').getTime();
       return currentSortOrder === 'desc' ? dateB - dateA : dateA - dateB;
     });
 
@@ -185,41 +168,41 @@ const Customers = () => {
         handleFilterChange={handleFilterChange}
       />
       <ScrollView style={styles.scrollView}>
-        {filteredCustomers.map((customer, index) => (
-          <TouchableOpacity key={index} onPress={() => handleRowClick(customer.id)}>
-            <View style={styles.rowWrapper}>
-              <View style={styles.rowContainer}>
-                <View style={styles.leftColumn}>
-                  <View style={styles.nameContainer}>
-                    <Ionicons name="person" size={16} color="gray" />
-                    <Text style={styles.nameText}>{customer.name}</Text>
-                  </View>
-                  <View style={styles.phoneContainer}>
-                    <Ionicons name="call" size={16} color="gray" />
-                    <Text style={styles.phoneText}>+91 {customer.phone}</Text>
-                  </View>
-                  <View style={styles.dateContainer}>
-                    <Ionicons name="calendar" size={16} color="gray" />
-                    <Text style={styles.dateText}>Date-borrowed: {customer.loanDate}</Text>
-                  </View>
+      {filteredCustomers.map((customer, index) => (
+        <TouchableOpacity key={index} onPress={() => handleRowClick(customer.$id)}>
+          <View style={styles.rowWrapper}>
+            <View style={styles.rowContainer}>
+              <View style={styles.leftColumn}>
+                <View style={styles.nameContainer}>
+                  <Ionicons name="person" size={16} color="gray" />
+                  <Text style={styles.nameText}>{customer.username}</Text>
                 </View>
-                <View style={styles.rightColumn}>
-                  <View>
-                    <Text style={styles.amountLabel}>Amount:</Text>
-                    <Text style={styles.amountText}>{formatAmount(customer.amount)}</Text>
-                  </View>
-                  <FontAwesome
-                    style={styles.activeStatus}
-                    name="dot-circle-o"
-                    size={20}
-                    color={customer.isActive ? '#399918' : '#C7253E'}
-                  />
+                <View style={styles.phoneContainer}>
+                  <Ionicons name="call" size={16} color="gray" />
+                  <Text style={styles.phoneText}>+91 {customer.phone}</Text>
+                </View>
+                <View style={styles.dateContainer}>
+                  <Ionicons name="calendar" size={16} color="gray" />
+                  <Text style={styles.dateText}>Date-borrowed: {customer.borrowedOn ? new Date(customer.borrowedOn).toLocaleDateString() : 'N/A'}</Text>
                 </View>
               </View>
+              <View style={styles.rightColumn}>
+                <View>
+                  <Text style={styles.amountLabel}>Amount:</Text>
+                  <Text style={styles.amountText}>{formatAmount(customer.borrowedAmount?.toString() || '0')}</Text>
+                </View>
+                <FontAwesome
+                  style={styles.activeStatus}
+                  name="dot-circle-o"
+                  size={20}
+                  color={customer?.loanStatus === 'active' ? '#399918' : '#C7253E'}
+                />
+              </View>
             </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+          </View>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
     </SafeAreaView>
   );
 };
