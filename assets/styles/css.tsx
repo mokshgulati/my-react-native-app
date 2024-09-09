@@ -79,6 +79,65 @@ export const loginStyles = StyleSheet.create({
 });
 
 export const customerDetailStyles = StyleSheet.create({
+    paymentCard: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+      paymentLeftSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
+      paymentIconContainer: {
+        backgroundColor: '#EBF5FF',
+        borderRadius: 8,
+        padding: 8,
+        marginRight: 12,
+      },
+      paymentInfo: {
+        justifyContent: 'center',
+      },
+      paymentAmount: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#1F2937',
+      },
+      paymentDate: {
+        fontSize: 14,
+        color: '#6B7280',
+        marginTop: 4,
+      },
+      paymentRightSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
+      statusTag: {
+        borderRadius: 16,
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        marginRight: 8,
+      },
+      statusTagText: {
+        fontSize: 12,
+        fontWeight: '600',
+      },
+      menuTrigger: {
+        padding: 8,
+      },
+      menuOptionText: {
+        marginLeft: 8,
+        fontSize: 14,
+        color: '#1F2937',
+      },
     loanStatusContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -91,10 +150,6 @@ export const customerDetailStyles = StyleSheet.create({
         marginLeft: 8,
         marginRight: 8,
         color: '#555',
-        fontSize: 16,
-    },
-    menuOptionText: {
-        padding: 10,
         fontSize: 16,
     },
     card: {
@@ -212,42 +267,12 @@ export const customerDetailStyles = StyleSheet.create({
     scrollContent: {
         padding: 16,
     },
-    paymentCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 12,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        elevation: 1,
-    },
     paymentDetails: {
         flex: 1,
-    },
-    paymentAmount: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#212121',
-    },
-    paymentDate: {
-        fontSize: 14,
-        color: '#757575',
     },
     paymentStatus: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    statusTag: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        marginRight: 8,
-    },
-    statusTagText: {
-        color: '#FFFFFF',
-        fontWeight: 'bold',
-        fontSize: 12,
     },
     leftContainer: {
         flex: 1,

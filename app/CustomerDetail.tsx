@@ -268,21 +268,37 @@ const DetailItem = ({ icon, label, value }: { icon: string, label: string, value
 
 const PaymentCard = ({ payment, isAdmin, onStatusChange }: { payment: Payment, isAdmin: boolean, onStatusChange: (id: number, newStatus: string) => void }) => (
   <View style={styles.paymentCard}>
-    <View style={styles.paymentDetails}>
-      <Text style={styles.paymentAmount}>${payment.paymentAmount}</Text>
-      <Text style={styles.paymentDate}>{new Date(payment.paymentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+    <View style={styles.paymentLeftSection}>
+      <View style={styles.paymentIconContainer}>
+        <FontAwesome name="credit-card" size={24} color="#4A90E2" />
+      </View>
+      <View style={styles.paymentInfo}>
+        <Text style={styles.paymentAmount}>₹{payment.paymentAmount.toLocaleString()}</Text>
+        <Text style={styles.paymentDate}>{new Date(payment.paymentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+      </View>
     </View>
-    <View style={styles.paymentStatus}>
+    <View style={styles.paymentRightSection}>
       <StatusTag status={payment.paymentStatus} />
       {isAdmin && (
         <Menu>
           <MenuTrigger>
-            <FontAwesome name="ellipsis-v" size={20} color="#000" />
+            <View style={styles.menuTrigger}>
+              <FontAwesome name="ellipsis-v" size={20} color="#6B7280" />
+            </View>
           </MenuTrigger>
-          <MenuOptions>
-            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'paid')} text="Mark as Paid" />
-            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'pending')} text="Mark as Pending" />
-            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'delayed')} text="Mark as Delayed" />
+          <MenuOptions customStyles={menuOptionsStyles}>
+            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'paid')} style={{ flexDirection: 'row', alignItems: 'center', padding: 12, }}>
+              <FontAwesome name="check" size={16} color="#4CAF50" />
+              <Text style={styles.menuOptionText}>Mark as Paid</Text>
+            </MenuOption>
+            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'pending')} style={{ flexDirection: 'row', alignItems: 'center', padding: 12, }}>
+              <FontAwesome name="clock-o" size={16} color="#FFC107" />
+              <Text style={styles.menuOptionText}>Mark as Pending</Text>
+            </MenuOption>
+            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'delayed')} style={{ flexDirection: 'row', alignItems: 'center', padding: 12, }}>
+              <FontAwesome name="exclamation-circle" size={16} color="#F44336" />
+              <Text style={styles.menuOptionText}>Mark as Delayed</Text>
+            </MenuOption>
           </MenuOptions>
         </Menu>
       )}
@@ -293,16 +309,31 @@ const PaymentCard = ({ payment, isAdmin, onStatusChange }: { payment: Payment, i
 const StatusTag = ({ status }: { status: string }) => {
   const getStatusColor = () => {
     switch (status?.toLowerCase()) {
-      case 'paid': return '#4CAF50';
-      case 'pending': return '#FFC107';
-      case 'delayed': return '#F44336';
-      default: return '#9E9E9E';
+      case 'paid': return { bg: '#E6F4EA', text: '#1E8E3E' };
+      case 'pending': return { bg: '#FFF8E1', text: '#F9A825' };
+      case 'delayed': return { bg: '#FDECEA', text: '#D93025' };
+      default: return { bg: '#F3F4F6', text: '#6B7280' };
     }
   };
 
+  const { bg, text } = getStatusColor();
+
   return (
-    <View style={[styles.statusTag, { backgroundColor: getStatusColor() }]}>
-      <Text style={styles.statusTagText}>{status?.toUpperCase()}</Text>
+    <View style={[styles.statusTag, { backgroundColor: bg }]}>
+      <Text style={[styles.statusTagText, { color: text }]}>{status?.toUpperCase()}</Text>
     </View>
   );
+};
+
+const menuOptionsStyles = {
+  optionsContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
 };
