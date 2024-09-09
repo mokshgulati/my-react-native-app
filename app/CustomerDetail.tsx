@@ -278,20 +278,28 @@ export default function CustomerDetailsScreen() {
 
             <Text style={styles.sectionTitle}>Payment History</Text>
             {Array.isArray(details.paymentHistory) && details.paymentHistory.length > 0
-              ? details.paymentHistory.map((payment: Payment | string, index: number) => {
-                console.log("paymentttttt", payment, typeof payment);
-                if (typeof payment === 'object') {
-                  return (
-                    <PaymentCard
-                      key={index}
-                      payment={payment}
-                      isAdmin={role === 'admin'}
-                      onStatusChange={handlePaymentStatusToggle}
-                    />
-                  );
-                }
-                return null;
-              }).filter(Boolean)  // Filter out null values
+              ? details.paymentHistory
+                .sort((a: Payment | string, b: Payment | string) => {
+                  // @ts-ignore
+                  const dateA = new Date(a.paymentDate).getTime();
+                  // @ts-ignore
+                  const dateB = new Date(b.paymentDate).getTime();
+                  return dateB - dateA;
+                })
+                .map((payment: Payment | string, index: number) => {
+                  console.log("paymentttttt", payment, typeof payment);
+                  if (typeof payment === 'object') {
+                    return (
+                      <PaymentCard
+                        key={index}
+                        payment={payment}
+                        isAdmin={role === 'admin'}
+                        onStatusChange={handlePaymentStatusToggle}
+                      />
+                    );
+                  }
+                  return null;
+                }).filter(Boolean)  // Filter out null values
               : []}
           </>
         )}
