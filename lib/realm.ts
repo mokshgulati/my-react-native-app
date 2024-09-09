@@ -13,7 +13,6 @@
 //   state?: string;
 //   borrowedAmount!: number;
 //   borrowedOn?: string;
-//   interestRate!: number;
 //   loanStatus!: 'active' | 'closed';
 //   loanTenureInMonths!: number;
 //   totalAmountPaid!: number;
@@ -39,7 +38,6 @@
 //       state: 'string?',
 //       borrowedAmount: 'double',
 //       borrowedOn: 'string?',
-//       interestRate: 'double',
 //       loanStatus: 'string',
 //       loanTenureInMonths: 'int',
 //       totalAmountPaid: 'double',

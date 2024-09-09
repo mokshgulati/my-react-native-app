@@ -26,7 +26,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     state: '',
     borrowedAmount: '',
     borrowedOn: new Date().toISOString().split('T')[0],
-    interestRate: '',
     loanTenureInMonths: '',
     totalAmountPaid: '0',
     loanStatus: 'active',
@@ -37,7 +36,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     phone: '',
     email: '',
     borrowedAmount: '',
-    interestRate: '',
     loanTenureInMonths: '',
   });
 
@@ -48,7 +46,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     phone: /^[0-9]{10}$/,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     borrowedAmount: /^[0-9]*\.?[0-9]+$/,
-    interestRate: /^([0-9]{1,2})(\.[0-9]{1,2})?$/,
     loanTenureInMonths: /^[0-9]+$/,
   };
 
@@ -96,7 +93,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
         ...customerData,
         borrowedAmount: parseFloat(customerData.borrowedAmount),
         totalAmountPaid: parseFloat(customerData.totalAmountPaid),
-        interestRate: parseFloat(customerData.interestRate),
         loanTenureInMonths: parseInt(customerData.loanTenureInMonths),
       };
       await addCustomer(newCustomer);
@@ -133,7 +129,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
       state: '',
       borrowedAmount: '',
       borrowedOn: new Date().toISOString().split('T')[0],
-      interestRate: '',
       loanTenureInMonths: '',
       loanStatus: 'active',
       totalAmountPaid: '0',
@@ -154,7 +149,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
         customerData.phone &&
         customerData.email &&
         customerData.borrowedAmount &&
-        customerData.interestRate &&
         customerData.loanTenureInMonths &&
         customerData.address &&
         customerData.city &&
@@ -327,16 +321,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
 
           <View style={styles.row}>
             <View style={[styles.inputGroup, styles.halfWidth]}>
-              <FontAwesome name="percent" size={20} color="#555" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, errors.interestRate ? styles.inputError : null]}
-                placeholder="Interest Rate (%)"
-                value={customerData.interestRate}
-                onChangeText={(text) => handleInputChange('interestRate', text)}
-                keyboardType="numeric"
-              />
-            </View>
-            <View style={[styles.inputGroup, styles.halfWidth]}>
               <FontAwesome name="clock-o" size={20} color="#555" style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, errors.loanTenureInMonths ? styles.inputError : null]}
@@ -347,8 +331,8 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
               />
             </View>
           </View>
-          {(errors.interestRate || errors.loanTenureInMonths) && (
-            <Text style={styles.errorText}>{errors.interestRate || errors.loanTenureInMonths}</Text>
+          {(errors.loanTenureInMonths) && (
+            <Text style={styles.errorText}>{errors.loanTenureInMonths}</Text>
           )}
         </View>
       </CustomModal>

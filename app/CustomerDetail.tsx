@@ -246,7 +246,6 @@ export default function CustomerDetailsScreen() {
                   <DetailItem icon="rupee" label="Borrowed Amount" value={`₹${details.borrowedAmount}`} />
                   <DetailItem icon="calendar" label="Borrowed On" value={details.borrowedOn ? new Date(details.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'} />
                   <DetailItem icon="clock-o" label="Loan Tenure" value={`${details.loanTenureInMonths ? `${details.loanTenureInMonths} months` : 'N/A'}`} />
-                  <DetailItem icon="percent" label="Interest Rate" value={`${details.interestRate}%`} />
                   <DetailItem icon="money" label="Total Amount Paid" value={`₹${details.totalAmountPaid}`} />
                   <DetailItem icon="money" label="Remaining Amount" value={`₹${details.borrowedAmount - details.totalAmountPaid}`} />
                 </DetailSection>

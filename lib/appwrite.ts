@@ -26,7 +26,6 @@ export interface User {
     state?: string;
     borrowedAmount: number;
     borrowedOn?: string;
-    interestRate: number;
     loanStatus: 'active' | 'closed';
     loanTenureInMonths: number;
     totalAmountPaid: number;
@@ -208,7 +207,6 @@ export async function getAllUsers() {
         //             state: doc.state,
         //             borrowedAmount: doc.borrowedAmount,
         //             borrowedOn: doc.borrowedOn,
-        //             interestRate: doc.interestRate,
         //             loanStatus: doc.loanStatus,
         //             loanTenureInMonths: doc.loanTenureInMonths,
         //             totalAmountPaid: doc.totalAmountPaid,
@@ -299,7 +297,6 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
                 borrowedOn: customerData.borrowedOn || new Date().toISOString(),
                 borrowedAmount: customerData.borrowedAmount || 0,
                 totalAmountPaid: customerData.totalAmountPaid || 0,
-                interestRate: customerData.interestRate || 0,
                 loanTenureInMonths: customerData.loanTenureInMonths || 0,
                 loanStatus: customerData.loanStatus || 'active',
                 paymentHistory: customerData.paymentHistory || []
@@ -321,7 +318,6 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
         //         state: newCustomer.state,
         //         borrowedAmount: newCustomer.borrowedAmount,
         //         borrowedOn: newCustomer.borrowedOn,
-        //         interestRate: newCustomer.interestRate,
         //         loanStatus: newCustomer.loanStatus,
         //         loanTenureInMonths: newCustomer.loanTenureInMonths,
         //         totalAmountPaid: newCustomer.totalAmountPaid,
