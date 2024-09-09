@@ -96,32 +96,26 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
         const checkSession = async () => {
             showLoader();
             try {
-                console.log("checkSession try");
                 const lastAction = await AsyncStorage.getItem('lastAction');
                 
                 // Do something about users who open the app first time
                 const isFirstTime = lastAction === null;
                 if (isFirstTime) {
-                    console.log("checkSession try 0.1");
                     setIsLogged(false);
                     setUser(null);
                     return;
                 }
 
                 if (lastAction === 'signedout') {
-                    console.log("checkSession try 1.1");
                     setIsLogged(false);
                     setUser(null);
                     return;
                 }
 
-                console.log("checkSession try 2");
                 if (USE_ASYNC_STORAGE) {
-                    console.log("checkSession try 2.1");
                     const localSession = await AsyncStorage.getItem('session');
                     if (localSession) {
                         const sessionData = JSON.parse(localSession);
-                        console.log("checkSession try 2.1.1", sessionData);
                         setIsLogged(true);
                         setUser(sessionData);
                         return;
@@ -129,9 +123,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
                 }
                 
                 const response = await fetchSessionWithRetry();
-                console.log("checkSession try 3");
                 if (response) {
-                    console.log("checkSession try 3.1");
                     setIsLogged(true);
                     setUser(response);
                     if (USE_ASYNC_STORAGE) {
@@ -142,7 +134,6 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
                     throw new Error('No valid session');
                 }
             } catch (error: any) {
-                console.log("checkSession catch");
                 console.error("Session check error:", error);
                 setErrorInLoggingIn(true);
                 setIsLogged(false);
@@ -154,7 +145,6 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
                 setIsLoading(false);
             }
         };
-        console.log("checkSession");
         checkSession();
     }, []);
 

@@ -40,7 +40,6 @@ const Customers = () => {
     showLoader();
     try {
       const newCustomer = await addCustomerToDatabase(newCustomerData);
-      console.log("newCustomer", newCustomer);
       setCustomers(prevCustomers => [...prevCustomers, newCustomer]);
       showToast('Customer added successfully', 'success');
     } catch (error: any) {

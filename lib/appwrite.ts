@@ -130,20 +130,15 @@ export async function createSession(email: string, password: string) {
 
 // Sign Out
 export async function signOut() {
-    console.log("signOut");
     try {
-        console.log("signOut try");
         await account.deleteSession('current');
     } catch (error: any) {
-        console.log("signOut catch");
         console.error('Failed to sign out through network:', error);
     } finally {
-        console.log("signOut finally");
         // Clear locally stored session data
         await clearLocalSessionData();
         await AsyncStorage.setItem('lastAction', 'signedout');
         router.replace('/');
-        console.log("signOut router.replace");
     }
 }
 
@@ -198,7 +193,6 @@ export async function getAllUsers() {
             [Query.notEqual("role", "admin")]
         );
 
-        console.log("getAllUsers", response.documents);
         // Store fetched users in Realm
         // realm.write(() => {
         //     response.documents.forEach((doc) => {
@@ -234,25 +228,20 @@ export async function getAllUsers() {
             paymentHistory: Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0
                 ? user.paymentHistory.map((paymentStr: string | null) => {
                     if (paymentStr === null) {
-                        console.log("Null payment string, skipping");
                         return null;
                     }
 
                     try {
                         // Sanitize the string: Add double quotes to keys and remove trailing commas
-                        console.log("paymentStr", paymentStr);
 
                         const sanitizedPaymentStr = paymentStr
                             .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
                             .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
-                        console.log("Sanitized payment string:", sanitizedPaymentStr);
 
 
                         const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
-                        console.log("formattedPaymentStr", formattedPaymentStr);
 
                         const payment: Payment = JSON.parse(formattedPaymentStr);
-                        console.log("Parsed payment:", formattedPaymentStr, "aaaaa", payment, "bbbbb", typeof formattedPaymentStr, "ccccc", typeof payment, "ddddd", sanitizedPaymentStr);
 
                         return payment;
                     } catch (e) {
@@ -357,7 +346,6 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
 export async function getUserDetails(userId: string): Promise<User> {
     try {
 
-        console.log("===============================Api is called===============================");
         const user = await databases.getDocument(
             appwriteConfig.databaseId,
             appwriteConfig.usersCollectionId,
@@ -367,25 +355,20 @@ export async function getUserDetails(userId: string): Promise<User> {
         if (Array.isArray(user.paymentHistory) && user.paymentHistory.length > 0) {
             user.paymentHistory = user.paymentHistory.map((paymentStr: string | null) => {
                 if (paymentStr === null) {
-                    console.log("Null payment string, skipping");
                     return null;
                 }
 
                 try {
                     // Sanitize the string: Add double quotes to keys and remove trailing commas
-                    console.log("paymentStr", paymentStr);
 
                     const sanitizedPaymentStr = paymentStr
                         .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
                         .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
-                    console.log("Sanitized payment string:", sanitizedPaymentStr);
 
 
                     const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
-                    console.log("formattedPaymentStr", formattedPaymentStr);
 
                     const payment: Payment = JSON.parse(formattedPaymentStr);
-                    console.log("Parsed payment:", formattedPaymentStr, "aaaaa", payment, "bbbbb", typeof formattedPaymentStr, "ccccc", typeof payment, "ddddd", sanitizedPaymentStr);
 
                     return payment;
                 } catch (e) {

@@ -41,7 +41,6 @@ export default function CustomerDetailsScreen() {
     try {
       if (id) {
         const userData = await getUserDetails(id);
-        console.log("userDataaaaaa", userData);
         setDetails(userData);
       } else {
         throw new Error('User not found');
@@ -64,25 +63,20 @@ export default function CustomerDetailsScreen() {
       if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
         updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
           if (paymentStr === null) {
-            console.log("Null payment string, skipping");
             return null;
           }
 
           try {
             // Sanitize the string: Add double quotes to keys and remove trailing commas
-            console.log("paymentStr", paymentStr);
 
             const sanitizedPaymentStr = paymentStr
               .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
               .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
-            console.log("Sanitized payment string:", sanitizedPaymentStr);
 
 
             const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
-            console.log("formattedPaymentStr", formattedPaymentStr);
 
             const payment: Payment = JSON.parse(formattedPaymentStr);
-            console.log("Parsed payment:", formattedPaymentStr, "aaaaa", payment, "bbbbb", typeof formattedPaymentStr, "ccccc", typeof payment, "ddddd", sanitizedPaymentStr);
 
             return payment;
           } catch (e) {
@@ -113,7 +107,6 @@ export default function CustomerDetailsScreen() {
         return JSON.stringify(paymentObj);
       });
 
-      console.log("updatedPaymentHistoryyyyyyyy", updatedPaymentHistory);
       const updatedUser = await updateUserDetails(details.$id, {
         paymentHistory: updatedPaymentHistory,
       });
@@ -122,25 +115,20 @@ export default function CustomerDetailsScreen() {
       if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
         updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
           if (paymentStr === null) {
-            console.log("Null payment string, skipping");
             return null;
           }
 
           try {
             // Sanitize the string: Add double quotes to keys and remove trailing commas
-            console.log("paymentStr", paymentStr);
 
             const sanitizedPaymentStr = paymentStr
               .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
               .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
-            console.log("Sanitized payment string:", sanitizedPaymentStr);
 
 
             const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
-            console.log("formattedPaymentStr", formattedPaymentStr);
 
             const payment: Payment = JSON.parse(formattedPaymentStr);
-            console.log("Parsed payment:", formattedPaymentStr, "aaaaa", payment, "bbbbb", typeof formattedPaymentStr, "ccccc", typeof payment, "ddddd", sanitizedPaymentStr);
 
             return payment;
           } catch (e) {
@@ -152,7 +140,6 @@ export default function CustomerDetailsScreen() {
         updatedUser.paymentHistory = [];
       }
 
-      console.log("updatedUseryyyyyyyy", updatedUser);
       setDetails(updatedUser);
       showToast('Payment status updated successfully', 'success');
     } catch (error: any) {
@@ -166,29 +153,23 @@ export default function CustomerDetailsScreen() {
     try {
       const updatedUser = await addTransaction(details, transactionData);
 
-      console.log("updatedUserzzzzzzzzzzzzz", updatedUser);
       if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
         updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
           if (paymentStr === null) {
-            console.log("Null payment string, skipping");
             return null;
           }
 
           try {
             // Sanitize the string: Add double quotes to keys and remove trailing commas
-            console.log("paymentStr", paymentStr);
 
             const sanitizedPaymentStr = paymentStr
               .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
               .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
-            console.log("Sanitized payment string:", sanitizedPaymentStr);
 
 
             const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
-            console.log("formattedPaymentStr", formattedPaymentStr);
 
             const payment: Payment = JSON.parse(formattedPaymentStr);
-            console.log("Parsed payment:", formattedPaymentStr, "aaaaa", payment, "bbbbb", typeof formattedPaymentStr, "ccccc", typeof payment, "ddddd", sanitizedPaymentStr);
 
             return payment;
           } catch (e) {
@@ -209,7 +190,6 @@ export default function CustomerDetailsScreen() {
   };
 
   const handleLoanStatusChange = (status: string) => {
-    console.log('Loan status change');
     Alert.alert('Loan status change', 'Are you sure you want to change the loan status?', [
       {
         text: 'Cancel',
@@ -324,7 +304,6 @@ export default function CustomerDetailsScreen() {
                   return dateB - dateA;
                 })
                 .map((payment: Payment | string, index: number) => {
-                  console.log("paymentttttt", payment, typeof payment);
                   if (typeof payment === 'object') {
                     return (
                       <PaymentCard
