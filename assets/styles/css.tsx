@@ -79,6 +79,37 @@ export const loginStyles = StyleSheet.create({
 });
 
 export const customerDetailStyles = StyleSheet.create({
+    scrollContent: {
+        flexGrow: 1,
+        padding: 16,
+      },
+    
+      addTransactionContainer: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        right: 20,
+      },
+    
+      addTransactionButton: {
+        backgroundColor: '#4A90E2',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+      },
+    
+      addTransactionButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+      },
+    
+      noPaymentsText: {
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 16,
+        color: '#666',
+      },
     paymentCard: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -243,29 +274,9 @@ export const customerDetailStyles = StyleSheet.create({
         width: 36,
         borderRadius: 18,
     },
-    addTransactionContainer: {
-        position: 'absolute',
-        bottom: 20,
-        left: 20,
-        right: 20,
-    },
-    addTransactionButton: {
-        backgroundColor: 'rgb(23,43,109)',
-        borderRadius: 10,
-        padding: 15,
-    },
-    addTransactionButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        textAlign: 'center',
-        fontWeight: 'bold',
-    },
     container: {
         flex: 1,
         backgroundColor: '#F5F5F5',
-    },
-    scrollContent: {
-        padding: 16,
     },
     paymentDetails: {
         flex: 1,

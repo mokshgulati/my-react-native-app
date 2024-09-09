@@ -164,7 +164,42 @@ export default function CustomerDetailsScreen() {
     if (!details) return;
 
     try {
-      const updatedUser = await addTransaction(details.$id, transactionData);
+      const updatedUser = await addTransaction(details, transactionData);
+
+      console.log("updatedUserzzzzzzzzzzzzz", updatedUser);
+      if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
+        updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
+          if (paymentStr === null) {
+            console.log("Null payment string, skipping");
+            return null;
+          }
+
+          try {
+            // Sanitize the string: Add double quotes to keys and remove trailing commas
+            console.log("paymentStr", paymentStr);
+
+            const sanitizedPaymentStr = paymentStr
+              .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
+              .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
+            console.log("Sanitized payment string:", sanitizedPaymentStr);
+
+
+            const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
+            console.log("formattedPaymentStr", formattedPaymentStr);
+
+            const payment: Payment = JSON.parse(formattedPaymentStr);
+            console.log("Parsed payment:", formattedPaymentStr, "aaaaa", payment, "bbbbb", typeof formattedPaymentStr, "ccccc", typeof payment, "ddddd", sanitizedPaymentStr);
+
+            return payment;
+          } catch (e) {
+            console.error("Error parsing payment history string:", e);
+            return null;
+          }
+        }).filter(Boolean)  // Filter out null values
+      } else {
+        updatedUser.paymentHistory = [];
+      }
+
       setDetails(updatedUser);
       setIsTransactionModalVisible(false);
       showToast('Transaction added successfully', 'success');
@@ -204,7 +239,9 @@ export default function CustomerDetailsScreen() {
         rightNode={<TouchableOpacity onPress={handleLogout}><Image style={styles.profilePhoto} source={require('@/assets/images/avatarIconBlue.png')} resizeMode="contain" /></TouchableOpacity>}
         handleOnPressLeftNode={role === 'admin' ? () => router.back() : undefined}
       />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent,
+                { paddingBottom: role === 'admin' ? 80 : 20 } // Add extra padding for admin
+      ]}>
         {details && (
           <>
             <View style={styles.card}>
@@ -300,11 +337,12 @@ export default function CustomerDetailsScreen() {
                   }
                   return null;
                 }).filter(Boolean)  // Filter out null values
-              : []}
+                : <Text style={styles.noPaymentsText}>No payment history available</Text>
+              }
           </>
         )}
       </ScrollView>
-      {/* {role === 'admin' && (
+      {role === 'admin' && (
         <View style={styles.addTransactionContainer}>
           <TouchableOpacity
             style={styles.addTransactionButton}
@@ -313,14 +351,14 @@ export default function CustomerDetailsScreen() {
             <Text style={styles.addTransactionButtonText}>Add Transaction</Text>
           </TouchableOpacity>
         </View>
-      )} */}
-      {/* {role === 'admin' && (
+      )}
+      {role === 'admin' && (
         <TransactionModal
           visible={isTransactionModalVisible}
           onClose={() => setIsTransactionModalVisible(false)}
           onSubmit={handleAddTransaction}
         />
-      )} */}
+      )}
     </SafeAreaView>
   );
 }

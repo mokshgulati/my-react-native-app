@@ -356,6 +356,8 @@ export async function addCustomerToDatabase(customerData: Partial<User>): Promis
 // Get user details
 export async function getUserDetails(userId: string): Promise<User> {
     try {
+
+        console.log("===============================Api is called===============================");
         const user = await databases.getDocument(
             appwriteConfig.databaseId,
             appwriteConfig.usersCollectionId,
@@ -418,14 +420,14 @@ export async function updateUserDetails(userId: string, updatedData: Partial<Use
 }
 
 // Add transaction
-export async function addTransaction(userId: string, transactionData: Payment): Promise<User> {
+export async function addTransaction(detailsOfUser: User, transactionData: Payment): Promise<User> {
     try {
-        const user = await getUserDetails(userId);
-        const updatedPaymentHistory = [...(user.paymentHistory || []), JSON.stringify(transactionData)];
-        const updatedTotalAmountPaid = user.totalAmountPaid + transactionData.paymentAmount;
+        const updatedPaymentHistory = [...(detailsOfUser.paymentHistory || []), transactionData];
+        const updatedPaymentHistoryString = updatedPaymentHistory.map(payment => JSON.stringify(payment));
+        const updatedTotalAmountPaid = detailsOfUser.totalAmountPaid + transactionData.paymentAmount;
 
-        const updatedUser = await updateUserDetails(userId, {
-            paymentHistory: updatedPaymentHistory as Payment[],
+        const updatedUser = await updateUserDetails(detailsOfUser.$id, {
+            paymentHistory: updatedPaymentHistoryString as string[],
             totalAmountPaid: updatedTotalAmountPaid,
         });
 
