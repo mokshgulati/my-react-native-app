@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Switch, StyleSheet, Image, TouchableOpacity, Alert, StatusBar } from 'react-native';
+import { View, Text, ScrollView, Switch, StyleSheet, Image, TouchableOpacity, Alert, StatusBar, TextInput } from 'react-native';
 import { useLoader } from '@/providers/LoaderProvider';
 import { useToast } from '@/providers/ToastProvider';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -13,6 +13,7 @@ import TransactionModal from '@/components/TransactionModal';
 import { useSession } from '@/providers/SessionProvider';
 import { getUserDetails, updateUserDetails, addTransaction, User, Payment } from '@/lib/appwrite';
 import { useCustomers } from '@/providers/CustomerProvider';
+import { ActivityIndicator } from 'react-native';
 
 export default function CustomerDetailsScreen() {
   const router = useRouter();
@@ -22,6 +23,10 @@ export default function CustomerDetailsScreen() {
   const showToast = useToast();
   const { handleLogout, user } = useSession();
   const { role = 'user' } = user;
+
+  const [comments, setComments] = useState('');
+  const [isEditingComments, setIsEditingComments] = useState(false);
+  const [isSavingComments, setIsSavingComments] = useState(false);
 
   const [error, setError] = useState(false);
   const [isTransactionModalVisible, setIsTransactionModalVisible] = useState(false);
@@ -42,6 +47,7 @@ export default function CustomerDetailsScreen() {
       if (id) {
         const userData = await getUserDetails(id);
         setDetails(userData);
+        setComments(userData.comments || '');
       } else {
         throw new Error('User not found');
       }
@@ -50,6 +56,22 @@ export default function CustomerDetailsScreen() {
       showToast(`Error: ${error.message}`, 'error');
     } finally {
       hideLoader();
+    }
+  };
+
+  const handleSaveComments = async () => {
+    if (!details) return;
+
+    setIsSavingComments(true);
+    try {
+      const updatedUser = await updateUserDetails(details.$id, { comments });
+      setDetails(updatedUser);
+      showToast('Comments saved successfully', 'success');
+      setIsEditingComments(false);
+    } catch (error: any) {
+      showToast(`Error saving comments: ${error.message}`, 'error');
+    } finally {
+      setIsSavingComments(false);
     }
   };
 
@@ -220,7 +242,7 @@ export default function CustomerDetailsScreen() {
         handleOnPressLeftNode={role === 'admin' ? () => router.back() : undefined}
       />
       <ScrollView contentContainerStyle={[styles.scrollContent,
-                { paddingBottom: role === 'admin' ? 80 : 20 } // Add extra padding for admin
+      { paddingBottom: role === 'admin' ? 80 : 20 } // Add extra padding for admin
       ]}>
         {details && (
           <>
@@ -249,6 +271,43 @@ export default function CustomerDetailsScreen() {
                   <DetailItem icon="money" label="Total Amount Paid" value={`₹${details.totalAmountPaid}`} />
                   <DetailItem icon="money" label="Remaining Amount" value={`₹${details.borrowedAmount - details.totalAmountPaid}`} />
                 </DetailSection>
+
+                {role === 'admin' && (
+                  <DetailSection title="Admin Comments">
+                    <View style={styles.commentContainer}>
+                      {isEditingComments ? (
+                        <>
+                          <TextInput
+                            style={styles.commentInput}
+                            multiline
+                            numberOfLines={4}
+                            placeholder="Add comments about this customer..."
+                            value={comments}
+                            onChangeText={setComments}
+                          />
+                          <TouchableOpacity
+                            style={styles.saveCommentButton}
+                            onPress={handleSaveComments}
+                            disabled={isSavingComments}
+                          >
+                            {isSavingComments ? (
+                              <ActivityIndicator size="small" color="#ffffff" />
+                            ) : (
+                              <Text style={styles.saveCommentButtonText}>Save</Text>
+                            )}
+                          </TouchableOpacity>
+                        </>
+                      ) : (
+                        <View style={styles.commentTextContainer}>
+                          <Text style={styles.commentText}>{comments || 'No comments'}</Text>
+                          <TouchableOpacity onPress={() => setIsEditingComments(true)}>
+                            <FontAwesome name="pencil" size={20} color="#4A90E2" />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+                  </DetailSection>
+                )}
 
                 <View style={styles.statusSection}>
                   <Text style={styles.statusLabel}>Loan Status</Text>
@@ -315,8 +374,8 @@ export default function CustomerDetailsScreen() {
                   }
                   return null;
                 }).filter(Boolean)  // Filter out null values
-                : <Text style={styles.noPaymentsText}>No payment history available</Text>
-              }
+              : <Text style={styles.noPaymentsText}>No payment history available</Text>
+            }
           </>
         )}
       </ScrollView>

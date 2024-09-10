@@ -54,7 +54,7 @@ const Customers = () => {
 
     if (searchText) {
       result = result.filter((customer) =>
-        [customer.email, customer.phone, customer.borrowedAmount?.toString()]
+        [customer.fullName, customer.phone, customer.borrowedAmount?.toString()]
           .some(field => field && field.toLowerCase().includes(searchText.toLowerCase()))
       );
     }

@@ -79,6 +79,37 @@ export const loginStyles = StyleSheet.create({
 });
 
 export const customerDetailStyles = StyleSheet.create({
+    commentContainer: {
+        marginTop: 10,
+      },
+      commentInput: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 4,
+        padding: 10,
+        minHeight: 100,
+        textAlignVertical: 'top',
+      },
+      saveCommentButton: {
+        backgroundColor: '#4A90E2',
+        padding: 10,
+        borderRadius: 4,
+        alignSelf: 'flex-end',
+        marginTop: 10,
+      },
+      saveCommentButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+      },
+      commentTextContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+      },
+      commentText: {
+        flex: 1,
+        marginRight: 10,
+      },
     scrollContent: {
         flexGrow: 1,
         padding: 16,

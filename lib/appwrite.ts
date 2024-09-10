@@ -29,6 +29,7 @@ export interface User {
     loanStatus: 'active' | 'closed';
     loanTenureInMonths: number;
     totalAmountPaid: number;
+    comments?: string;
     paymentHistory?: Payment[] | string[]; // This should be parsed to get the actual objects
 }
 
