@@ -37,7 +37,6 @@ export interface Payment {
     paymentId: number;
     paymentAmount: number;
     paymentDate: string;
-    paymentStatus: string;
 }
 
 export const appwriteConfig = {

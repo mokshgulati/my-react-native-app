@@ -728,7 +728,7 @@ const PaymentCard = ({ payment, isAdmin, onEditAmount }: { payment: Payment, isA
           </>
         ) : (
           <>
-            <StatusTag status={payment.paymentStatus} />
+            <StatusTag />
             {isAdmin && (
               <TouchableOpacity onPress={() => setIsEditing(true)}>
                 <FontAwesome name="edit" size={20} color="#4A90E2" />
@@ -741,7 +741,7 @@ const PaymentCard = ({ payment, isAdmin, onEditAmount }: { payment: Payment, isA
   );
 };
 
-const StatusTag = ({ status }: { status: string }) => {
+const StatusTag = ({ status='paid' }: { status?: string }) => {
   const getStatusColor = () => {
     switch (status?.toLowerCase()) {
       case 'paid': return { bg: '#E6F4EA', text: '#1E8E3E' };

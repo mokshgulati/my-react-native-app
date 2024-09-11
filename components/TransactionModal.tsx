@@ -12,7 +12,6 @@ interface TransactionModalProps {
 const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, onSubmit }) => {
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState('');
-  // const [paymentStatus, setPaymentStatus] = useState('');
 
   const handleSubmit = () => {
     if (isFormValid()) {
@@ -20,7 +19,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
         paymentId: Math.floor(Math.random() * 1000000), // Generate a random ID
         paymentAmount: parseFloat(amount),
         paymentDate: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
-        paymentStatus: 'paid'
       };
       onSubmit(transactionData);
       setAmount('');
@@ -30,10 +28,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
   const isFormValid = () => {
     const amountRegex = /^\d+(\.\d{1,2})?$/;
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    // const statusRegex = /^(paid|pending|delayed)$/i;
 
     return amountRegex.test(amount) && dateRegex.test(date);
-    //  && statusRegex.test(paymentStatus);
   };
 
   return (
@@ -65,15 +61,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
             onChangeText={setDate}
           />
         </View>
-        {/* <View style={styles.inputContainer}>
-          <Ionicons name="checkmark-circle-outline" size={24} color="#555" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Payment Status (paid/pending/delayed)"
-            value={paymentStatus}
-            onChangeText={setPaymentStatus}
-          />
-        </View> */}
       </View>
     </CustomModal>
   );
