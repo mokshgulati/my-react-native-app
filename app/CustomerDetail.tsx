@@ -181,7 +181,37 @@ export default function CustomerDetailsScreen() {
     setIsSavingComments(true);
     try {
       const updatedUser = await updateUserDetails(details.$id, { comments });
+      await updateCustomer(details.$id, updatedUser);
+
+      if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
+        updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
+          if (paymentStr === null) {
+            return null;
+          }
+
+          try {
+            // Sanitize the string: Add double quotes to keys and remove trailing commas
+
+            const sanitizedPaymentStr = paymentStr
+              .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
+              .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
+
+
+            const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
+
+            const payment: Payment = JSON.parse(formattedPaymentStr);
+
+            return payment;
+          } catch (e) {
+            console.error("Error parsing payment history string:", e);
+            return null;
+          }
+        }).filter(Boolean)  // Filter out null values
+      } else {
+        updatedUser.paymentHistory = [];
+      }
       setDetails(updatedUser);
+
       showToast('Comments saved successfully', 'success');
       setIsEditingComments(false);
     } catch (error: any) {
@@ -549,7 +579,7 @@ export default function CustomerDetailsScreen() {
                       ) : (
                         <View style={styles.commentTextContainer}>
                           <Text style={styles.commentText}>{details.comments || 'No comments'}</Text>
-                          <TouchableOpacity onPress={() => setIsEditingComments(true)}>
+                          <TouchableOpacity onPress={() => {setComments(details.comments); setIsEditingComments(true);}}>
                             <FontAwesome name="pencil" size={20} color="#4A90E2" />
                           </TouchableOpacity>
                         </View>
