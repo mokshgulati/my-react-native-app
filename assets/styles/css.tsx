@@ -79,6 +79,130 @@ export const loginStyles = StyleSheet.create({
 });
 
 export const customerDetailStyles = StyleSheet.create({
+    deleteButton: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+    },
+    headerIcon: {
+        width: 24,
+        height: 24,
+    },
+    datePickerButton: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 10,
+      },
+      modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+      },
+      cancelButton: {
+        backgroundColor: '#ccc',
+        padding: 10,
+        borderRadius: 5,
+        width: '45%',
+      },
+      submitButton: {
+        backgroundColor: '#4A90E2',
+        padding: 10,
+        borderRadius: 5,
+        width: '45%',
+      },
+      buttonText: {
+        color: '#fff',
+        textAlign: 'center',
+      },
+    keyboardAvoidingView: {
+        flex: 1,
+      },
+      scrollContent: {
+        flexGrow: 1,
+        padding: 16,
+      },
+      card: {
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        padding: 20,
+        marginBottom: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+      avatarContainer: {
+        alignItems: 'center',
+        marginBottom: 20,
+      },
+      avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+      },
+      name: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginTop: 10,
+        color: '#333',
+      },
+      detailsContainer: {
+        flex: 1,
+      },
+      detailSection: {
+        marginBottom: 20,
+      },
+      sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+      },
+      sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+      },
+      editButton: {
+        backgroundColor: '#4A90E2',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 5,
+      },
+      editButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+      },
+      detailItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 15,
+      },
+      detailIcon: {
+        marginRight: 15,
+      },
+      detailTextContainer: {
+        flex: 1,
+      },
+      detailLabel: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 2,
+      },
+      detailValue: {
+        fontSize: 16,
+        color: '#333',
+      },
+      detailInput: {
+        fontSize: 16,
+        color: '#333',
+        borderBottomWidth: 1,
+        borderBottomColor: '#4A90E2',
+        paddingVertical: 4,
+      },
     commentContainer: {
         marginTop: 10,
       },
@@ -90,12 +214,27 @@ export const customerDetailStyles = StyleSheet.create({
         minHeight: 100,
         textAlignVertical: 'top',
       },
+      commentButtonsContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      },
+      cancelSaveCommentButton: {
+        backgroundColor: 'lightgray',
+        padding: 10,
+        width: '20%',
+        borderRadius: 4,
+        marginTop: 10,
+        alignItems: 'center',
+      },
       saveCommentButton: {
         backgroundColor: '#4A90E2',
         padding: 10,
+        width: '20%',
         borderRadius: 4,
-        alignSelf: 'flex-end',
         marginTop: 10,
+        alignItems: 'center',
       },
       saveCommentButtonText: {
         color: '#fff',
@@ -110,11 +249,6 @@ export const customerDetailStyles = StyleSheet.create({
         flex: 1,
         marginRight: 10,
       },
-    scrollContent: {
-        flexGrow: 1,
-        padding: 16,
-      },
-    
       addTransactionContainer: {
         position: 'absolute',
         bottom: 20,
@@ -214,62 +348,6 @@ export const customerDetailStyles = StyleSheet.create({
         color: '#555',
         fontSize: 16,
     },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        padding: 20,
-        marginBottom: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    avatarContainer: {
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 50,
-    },
-    name: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginTop: 10,
-    },
-    detailsContainer: {
-        flex: 1,
-    },
-    detailSection: {
-        marginBottom: 20,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: '#333',
-    },
-    detailItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    detailIcon: {
-        marginRight: 10,
-    },
-    detailTextContainer: {
-        flex: 1,
-    },
-    detailLabel: {
-        fontSize: 14,
-        color: '#666',
-    },
-    detailValue: {
-        fontSize: 16,
-        color: '#333',
-    },
     statusSection: {
         marginTop: 20,
     },
@@ -295,10 +373,6 @@ export const customerDetailStyles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginLeft: 10,
-    },
-    headerIcon: {
-        width: 20,
-        height: 20,
     },
     profilePhoto: {
         height: 36,
@@ -626,6 +700,18 @@ export const toastStyles = StyleSheet.create({
 });
 
 export const customersStyles = StyleSheet.create({
+    noCustomersContainer: {
+        marginTop: '50%',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    noCustomersText: {
+        marginBottom: 10,
+        textAlign: 'center',
+        fontSize: 16,
+        color: 'gray',
+    },
     container: {
         flex: 1,
         backgroundColor: '#F5F5F5',

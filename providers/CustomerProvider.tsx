@@ -7,6 +7,7 @@ interface CustomersContextType {
     setCustomers: React.Dispatch<React.SetStateAction<User[]>>;
     updateCustomer: (customerId: string, updatedDetails: Partial<User>) => Promise<void>;
     fetchCustomers: () => Promise<void>;
+    deleteCustomer: (customerId: string) => Promise<void>;
 }
 
 const CustomersContext = createContext<CustomersContextType | undefined>(undefined);
@@ -40,8 +41,17 @@ export const CustomersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
     };
 
+    const deleteCustomer = async (customerId: string) => {
+        try {
+            setCustomers(prevCustomers => prevCustomers.filter(customer => customer.$id !== customerId));
+        } catch (error) {
+            console.error('Failed to delete customer:', error);
+            throw error;
+        }
+    };
+
     return (
-        <CustomersContext.Provider value={{ customers, setCustomers, updateCustomer, fetchCustomers }}>
+        <CustomersContext.Provider value={{ customers, setCustomers, updateCustomer, fetchCustomers, deleteCustomer }}>
             {children}
         </CustomersContext.Provider>
     );

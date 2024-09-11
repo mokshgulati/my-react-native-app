@@ -190,9 +190,9 @@ export async function getAllUsers() {
         const response = await databases.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.usersCollectionId,
-            [Query.notEqual("role", "admin")]
+            [Query.notEqual("role", "admin"), Query.equal("isActive", true)]
         );
-
+ 
         // Store fetched users in Realm
         // realm.write(() => {
         //     response.documents.forEach((doc) => {
@@ -414,5 +414,19 @@ export async function addTransaction(detailsOfUser: User, transactionData: Payme
         return updatedUser;
     } catch (error: any) {
         throw new Error(`Failed to add transaction: ${error.message}`);
+    }
+}
+
+// Delete user
+export async function deleteUser(userId: string): Promise<void> {
+    try {
+      await databases.deleteDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.usersCollectionId,
+        userId
+      );
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+      throw new Error(`Failed to delete user: ${error.message}`);
     }
 }

@@ -25,7 +25,7 @@ const Customers = () => {
   const { handleLogout } = useSession();
 
   useEffect(() => {
-    fetchCustomers(); 
+    fetchCustomers();
   }, []);
 
   useEffect(() => {
@@ -94,8 +94,8 @@ const Customers = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <PageHeader
+      <StatusBar barStyle="dark-content" />
+      <PageHeader
         leftNode={
           <></>
           // <Image
@@ -121,41 +121,50 @@ const Customers = () => {
         handleFilterChange={handleFilterChange}
       />
       <ScrollView style={styles.scrollView}>
-      {filteredCustomers.map((customer, index) => (
-        <TouchableOpacity key={index} onPress={() => handleRowClick(customer.$id)}>
-          <View style={styles.rowWrapper}>
-            <View style={styles.rowContainer}>
-              <View style={styles.leftColumn}>
-                <View style={styles.nameContainer}>
-                  <Ionicons name="person" size={16} color="gray" />
-                  <Text style={styles.nameText}>{customer.fullName}</Text>
-                </View>
-                <View style={styles.phoneContainer}>
-                  <Ionicons name="call" size={16} color="gray" />
-                  <Text style={styles.phoneText}>+91 {customer.phone}</Text>
-                </View>
-                <View style={styles.dateContainer}>
-                  <Ionicons name="calendar" size={16} color="gray" />
-                  <Text style={styles.dateText}>Date-borrowed: {customer.borrowedOn ? new Date(customer.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}</Text>
-                </View>
-              </View>
-              <View style={styles.rightColumn}>
-                <View>
-                  <Text style={styles.amountLabel}>Amount:</Text>
-                  <Text style={styles.amountText}>{formatAmount(customer.borrowedAmount?.toString() || '0')}</Text>
-                </View>
-                <FontAwesome
-                  style={styles.activeStatus}
-                  name="dot-circle-o"
-                  size={20}
-                  color={customer?.loanStatus === 'active' ? '#399918' : '#C7253E'}
-                />
-              </View>
-            </View>
+        {filteredCustomers.length === 0 ?
+          <View style={styles.noCustomersContainer}>
+            <Text style={styles.noCustomersText}>No customers found</Text>
+            <Text style={styles.noCustomersText}>Try changing filter or adding some new customers.</Text>
           </View>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+          :
+          <View>
+            {filteredCustomers.map((customer, index) => (
+              <TouchableOpacity key={index} onPress={() => handleRowClick(customer.$id)}>
+                <View style={styles.rowWrapper}>
+                  <View style={styles.rowContainer}>
+                    <View style={styles.leftColumn}>
+                      <View style={styles.nameContainer}>
+                        <Ionicons name="person" size={16} color="gray" />
+                        <Text style={styles.nameText}>{customer.fullName}</Text>
+                      </View>
+                      <View style={styles.phoneContainer}>
+                        <Ionicons name="call" size={16} color="gray" />
+                        <Text style={styles.phoneText}>+91 {customer.phone}</Text>
+                      </View>
+                      <View style={styles.dateContainer}>
+                        <Ionicons name="calendar" size={16} color="gray" />
+                        <Text style={styles.dateText}>Date-borrowed: {customer.borrowedOn ? new Date(customer.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.rightColumn}>
+                      <View>
+                        <Text style={styles.amountLabel}>Amount:</Text>
+                        <Text style={styles.amountText}>{formatAmount(customer.borrowedAmount?.toString() || '0')}</Text>
+                      </View>
+                      <FontAwesome
+                        style={styles.activeStatus}
+                        name="dot-circle-o"
+                        size={20}
+                        color={customer?.loanStatus === 'active' ? '#399918' : '#C7253E'}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        }
+      </ScrollView>
     </SafeAreaView>
   );
 };

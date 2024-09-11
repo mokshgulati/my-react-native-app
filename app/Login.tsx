@@ -26,7 +26,7 @@ const Login: React.FC = () => {
 
   // Regex for validating email, password, and name
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  const passwordRegex = /^.{8,}$/;
   const nameRegex = /^[a-zA-Z\s]+$/; // Allows letters and spaces
 
   // Handle login or signup
@@ -58,7 +58,7 @@ const Login: React.FC = () => {
       return false;
     }
     if (!passwordRegex.test(password)) {
-      showToast('Password must be at least 8 characters long and contain one letter, and one number.', 'error');
+      showToast('Password must be at least 8 characters long.', 'error');
       return false;
     }
     if (isSignup) {

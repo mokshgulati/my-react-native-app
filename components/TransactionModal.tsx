@@ -11,7 +11,7 @@ interface TransactionModalProps {
 
 const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, onSubmit }) => {
   const [amount, setAmount] = useState('');
-  // const [date, setDate] = useState('');
+  const [date, setDate] = useState('');
   // const [paymentStatus, setPaymentStatus] = useState('');
 
   const handleSubmit = () => {
@@ -29,11 +29,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
 
   const isFormValid = () => {
     const amountRegex = /^\d+(\.\d{1,2})?$/;
-    // const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     // const statusRegex = /^(paid|pending|delayed)$/i;
 
-    return amountRegex.test(amount);
-    //  && dateRegex.test(date) && statusRegex.test(paymentStatus);
+    return amountRegex.test(amount) && dateRegex.test(date);
+    //  && statusRegex.test(paymentStatus);
   };
 
   return (
@@ -56,7 +56,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
             keyboardType="numeric"
           />
         </View>
-        {/* <View style={styles.inputContainer}>
+        <View style={styles.inputContainer}>
           <Ionicons name="calendar-outline" size={24} color="#555" style={styles.icon} />
           <TextInput
             style={styles.input}
@@ -65,7 +65,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
             onChangeText={setDate}
           />
         </View>
-        <View style={styles.inputContainer}>
+        {/* <View style={styles.inputContainer}>
           <Ionicons name="checkmark-circle-outline" size={24} color="#555" style={styles.icon} />
           <TextInput
             style={styles.input}

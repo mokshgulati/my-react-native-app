@@ -14,10 +14,14 @@ import { useSession } from '@/providers/SessionProvider';
 import { getUserDetails, updateUserDetails, addTransaction, User, Payment } from '@/lib/appwrite';
 import { useCustomers } from '@/providers/CustomerProvider';
 import { ActivityIndicator } from 'react-native';
+import { validateEmail, validatePhone, validateAmount } from '@/utils/validation';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { deleteUser } from '@/lib/appwrite';
+
 
 export default function CustomerDetailsScreen() {
   const router = useRouter();
-  const { updateCustomer } = useCustomers();
+  const { updateCustomer, deleteCustomer } = useCustomers();
   const { customerId = null, } = useLocalSearchParams();
   const { showLoader, hideLoader } = useLoader();
   const showToast = useToast();
@@ -28,10 +32,15 @@ export default function CustomerDetailsScreen() {
   const [isEditingComments, setIsEditingComments] = useState(false);
   const [isSavingComments, setIsSavingComments] = useState(false);
 
+  const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
+  const [editedFields, setEditedFields] = useState<Partial<User>>({});
+
   const [error, setError] = useState(false);
   const [isTransactionModalVisible, setIsTransactionModalVisible] = useState(false);
 
   const [details, setDetails] = useState<User | null>(null);
+
+  const [editedErrors, setEditedErrors] = useState<Record<string, string>>({});
 
   const id = customerId || user?.$id;
 
@@ -59,8 +68,115 @@ export default function CustomerDetailsScreen() {
     }
   };
 
+  const handleDeleteCustomer = async (id: string) => {
+    try {
+      showLoader();
+      if (id) {
+        await deleteUser(id);
+        deleteCustomer(id);
+        showToast("Customer deleted successfully", "success");
+        router.back();
+      }
+    } catch (error: any) {
+      showToast(`Error deleting customer: ${error.message}`, "error");
+    } finally {
+      hideLoader();
+    }
+  }
+
+  const onDeleteCustomer = async () => {
+    Alert.alert(
+      "Delete Customer",
+      "Are you sure you want to delete this customer? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => handleDeleteCustomer(details.$id)
+        }
+      ]
+    );
+  };
+
+  const toggleSectionEditing = (section: string) => {
+    setEditingSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const handleFieldChange = (field: keyof User, value: string) => {
+    setEditedFields(prev => ({ ...prev, [field]: value }));
+    validateField(field, value);
+  };
+
+  const validateField = (field: keyof User, value: string) => {
+    let error = '';
+    switch (field) {
+      case 'email':
+        error = validateEmail(value);
+        break;
+      case 'phone':
+        error = validatePhone(value);
+        break;
+      case 'borrowedAmount':
+        error = validateAmount(value);
+        break;
+      // Add more validations for other fields as needed
+    }
+    setEditedErrors(prev => ({ ...prev, [field]: error }));
+  };
+
+  const handleSaveSection = async (section: string) => {
+    if (!details) return;
+
+    const sectionFields = Object.keys(editedFields).filter(key => {
+      switch (section) {
+        case 'personal':
+          return ['email', 'phone'].includes(key);
+        case 'address':
+          return ['address', 'city', 'state'].includes(key);
+        case 'loan':
+          return ['borrowedAmount', 'borrowedOn', 'loanTenureInMonths'].includes(key);
+        default:
+          return false;
+      }
+    });
+
+    const hasErrors = sectionFields.some(field => editedErrors[field]);
+    if (hasErrors) {
+      showToast('Please correct the errors before saving', 'error');
+      return;
+    }
+
+    setIsSavingComments(true);
+    try {
+      const updatedFields = Object.keys(editedFields).reduce((acc, key) => {
+        if (editedFields[key as keyof User] !== details[key as keyof User]) {
+          // @ts-ignore
+          acc[key as keyof User] = editedFields[key as keyof User];
+        }
+        return acc;
+      }, {} as Partial<User>);
+
+      if (Object.keys(updatedFields).length > 0) {
+        const updatedUser = await updateUserDetails(details.$id, updatedFields);
+        setDetails(updatedUser);
+        showToast('Section updated successfully', 'success');
+      }
+      toggleSectionEditing(section);
+    } catch (error: any) {
+      showToast(`Error saving section: ${error.message}`, 'error');
+    } finally {
+      setIsSavingComments(false);
+    }
+  };
+
   const handleSaveComments = async () => {
     if (!details) return;
+
+    if (comments === details.comments) {
+      setIsEditingComments(false);
+      return;
+    }
 
     setIsSavingComments(true);
     try {
@@ -199,6 +315,7 @@ export default function CustomerDetailsScreen() {
             return null;
           }
         }).filter(Boolean)  // Filter out null values
+          .sort((a: Payment, b: Payment) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime());
       } else {
         updatedUser.paymentHistory = [];
       }
@@ -228,6 +345,36 @@ export default function CustomerDetailsScreen() {
     ]);
   };
 
+  const handleEditTransaction = async (paymentId: number, newAmount: string) => {
+    if (!details) return;
+
+    const amountError = validateAmount(newAmount);
+    if (amountError) {
+      showToast(amountError, 'error');
+      return;
+    }
+
+    try {
+      const updatedPaymentHistory = details.paymentHistory?.map((payment: Payment | string) => {
+        let paymentObj: Payment = payment as Payment;
+        if (paymentObj.paymentId === paymentId) {
+          paymentObj = { ...paymentObj, paymentAmount: parseFloat(newAmount) };
+        }
+        return JSON.stringify(paymentObj);
+      });
+
+      const updatedUser = await updateUserDetails(details.$id, {
+        paymentHistory: updatedPaymentHistory,
+      });
+
+      // ... rest of the function to update the state ...
+
+      showToast('Transaction amount updated successfully', 'success');
+    } catch (error: any) {
+      showToast(`Error updating transaction amount: ${error.message}`, 'error');
+    }
+  };
+
   if (error) {
     return <SomethingWentWrong onRetry={fetchUserDetails} />;
   }
@@ -248,32 +395,122 @@ export default function CustomerDetailsScreen() {
           <>
             <View style={styles.card}>
               <View style={styles.avatarContainer}>
+              {role === 'admin' ? (
+                <TouchableOpacity style={styles.deleteButton} onPress={onDeleteCustomer}>
+                  <FontAwesome name="trash" size={24} color="#C7253E" />
+                </TouchableOpacity>
+              ) : null}
                 <Image source={require('@/assets/images/profile.png')} style={styles.avatar} resizeMode="contain" />
                 <Text style={styles.name}>{details.fullName}</Text>
               </View>
               <View style={styles.detailsContainer}>
-                <DetailSection title="Personal Information">
-                  <DetailItem icon="envelope" label="Email" value={details.email} />
-                  <DetailItem icon="phone" label="Phone" value={details.phone} />
-                  {/* <DetailItem icon="user" label="Role" value={details.role} /> */}
+                <DetailSection
+                  title="Personal Information"
+                  isEditing={editingSections['personal']}
+                  onToggleEdit={() => toggleSectionEditing('personal')}
+                  onSave={() => handleSaveSection('personal')}
+                  isAdmin={role === 'admin'}
+                >
+                  <DetailItem
+                    icon="envelope"
+                    label="Email"
+                    value={editedFields.email || details.email}
+                    isEditing={editingSections['personal']}
+                    onChangeText={(value) => handleFieldChange('email', value)}
+                    error={editedErrors.email}
+                  />
+                  <DetailItem
+                    icon="phone"
+                    label="Phone"
+                    value={editedFields.phone || details.phone}
+                    isEditing={editingSections['personal']}
+                    onChangeText={(value) => handleFieldChange('phone', value)}
+                    error={editedErrors.phone}
+                  />
                 </DetailSection>
 
-                <DetailSection title="Address">
-                  <DetailItem icon="home" label="Address" value={details.address} />
-                  <DetailItem icon="building" label="City" value={details.city} />
-                  <DetailItem icon="map" label="State" value={details.state} />
+                <DetailSection
+                  title="Address"
+                  isEditing={editingSections['address']}
+                  onToggleEdit={() => toggleSectionEditing('address')}
+                  onSave={() => handleSaveSection('address')}
+                  isAdmin={role === 'admin'}
+                >
+                  <DetailItem
+                    icon="home"
+                    label="Address"
+                    value={editedFields.address || details.address}
+                    isEditing={editingSections['address']}
+                    onChangeText={(value) => handleFieldChange('address', value)}
+                  />
+                  <DetailItem
+                    icon="building"
+                    label="City"
+                    value={editedFields.city || details.city}
+                    isEditing={editingSections['address']}
+                    onChangeText={(value) => handleFieldChange('city', value)}
+                  />
+                  <DetailItem
+                    icon="map"
+                    label="State"
+                    value={editedFields.state || details.state}
+                    isEditing={editingSections['address']}
+                    onChangeText={(value) => handleFieldChange('state', value)}
+                  />
                 </DetailSection>
 
-                <DetailSection title="Loan Details">
-                  <DetailItem icon="rupee" label="Borrowed Amount" value={`₹${details.borrowedAmount}`} />
-                  <DetailItem icon="calendar" label="Borrowed On" value={details.borrowedOn ? new Date(details.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'} />
-                  <DetailItem icon="clock-o" label="Loan Tenure" value={`${details.loanTenureInMonths ? `${details.loanTenureInMonths} months` : 'N/A'}`} />
-                  <DetailItem icon="money" label="Total Amount Paid" value={`₹${details.totalAmountPaid}`} />
-                  <DetailItem icon="money" label="Remaining Amount" value={`₹${details.borrowedAmount - details.totalAmountPaid}`} />
+                <DetailSection
+                  title="Loan Details"
+                  isEditing={editingSections['loan']}
+                  onToggleEdit={() => toggleSectionEditing('loan')}
+                  onSave={() => handleSaveSection('loan')}
+                  isAdmin={role === 'admin'}
+                >
+                  <DetailItem
+                    icon="rupee"
+                    label="Borrowed Amount"
+                    value={`₹${editedFields.borrowedAmount || details.borrowedAmount}`}
+                    isEditing={editingSections['loan']}
+                    onChangeText={(value) => handleFieldChange('borrowedAmount', value)}
+                    error={editedErrors.borrowedAmount}
+                  />
+                  <DetailItem
+                    icon="calendar"
+                    label="Borrowed On"
+                    value={editedFields.borrowedOn || (details.borrowedOn ? new Date(details.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A')}
+                    isEditing={editingSections['loan']}
+                    onChangeText={(value) => handleFieldChange('borrowedOn', value)}
+                  />
+                  <DetailItem
+                    icon="clock-o"
+                    label="Loan Tenure"
+                    value={`${editedFields.loanTenureInMonths || details.loanTenureInMonths ? `${details.loanTenureInMonths} months` : 'N/A'}`}
+                    isEditing={editingSections['loan']}
+                    onChangeText={(value) => handleFieldChange('loanTenureInMonths', value)}
+                  />
+                  <DetailItem
+                    icon="money"
+                    label="Total Amount Paid"
+                    value={`₹${editedFields.totalAmountPaid || details.totalAmountPaid}`}
+                    isEditing={editingSections['loan']}
+                    onChangeText={(value) => handleFieldChange('totalAmountPaid', value)}
+                  />
+                  <DetailItem
+                    icon="money"
+                    label="Remaining Amount"
+                    value={`₹${(editedFields.borrowedAmount || details.borrowedAmount) - (editedFields.totalAmountPaid || details.totalAmountPaid)}`}
+                    isEditing={false}
+                  />
                 </DetailSection>
 
                 {role === 'admin' && (
-                  <DetailSection title="Admin Comments">
+                  <DetailSection
+                    title="Admin Comments"
+                    isEditing={false}
+                    onToggleEdit={() => { }}
+                    onSave={() => { }}
+                    isAdmin={false}
+                  >
                     <View style={styles.commentContainer}>
                       {isEditingComments ? (
                         <>
@@ -285,21 +522,33 @@ export default function CustomerDetailsScreen() {
                             value={comments}
                             onChangeText={setComments}
                           />
-                          <TouchableOpacity
-                            style={styles.saveCommentButton}
-                            onPress={handleSaveComments}
-                            disabled={isSavingComments}
-                          >
-                            {isSavingComments ? (
-                              <ActivityIndicator size="small" color="#ffffff" />
-                            ) : (
-                              <Text style={styles.saveCommentButtonText}>Save</Text>
-                            )}
-                          </TouchableOpacity>
+                          <View style={styles.commentButtonsContainer}>
+                            <TouchableOpacity
+                              style={styles.cancelSaveCommentButton}
+                              onPress={() => {
+                                setComments('');
+                                setIsEditingComments(false);
+                              }}
+                              disabled={isSavingComments}
+                            >
+                              <Text style={styles.saveCommentButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={styles.saveCommentButton}
+                              onPress={handleSaveComments}
+                              disabled={isSavingComments}
+                            >
+                              {isSavingComments ? (
+                                <ActivityIndicator size="small" color="#ffffff" />
+                              ) : (
+                                <Text style={styles.saveCommentButtonText}>Save</Text>
+                              )}
+                            </TouchableOpacity>
+                          </View>
                         </>
                       ) : (
                         <View style={styles.commentTextContainer}>
-                          <Text style={styles.commentText}>{comments || 'No comments'}</Text>
+                          <Text style={styles.commentText}>{details.comments || 'No comments'}</Text>
                           <TouchableOpacity onPress={() => setIsEditingComments(true)}>
                             <FontAwesome name="pencil" size={20} color="#4A90E2" />
                           </TouchableOpacity>
@@ -354,13 +603,8 @@ export default function CustomerDetailsScreen() {
             <Text style={styles.sectionTitle}>Payment History</Text>
             {Array.isArray(details.paymentHistory) && details.paymentHistory.length > 0
               ? details.paymentHistory
-                .sort((a: Payment | string, b: Payment | string) => {
-                  // @ts-ignore
-                  const dateA = new Date(a.paymentDate).getTime();
-                  // @ts-ignore
-                  const dateB = new Date(b.paymentDate).getTime();
-                  return dateB - dateA;
-                })
+                // @ts-ignore
+                .sort((a: Payment, b: Payment) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime())
                 .map((payment: Payment | string, index: number) => {
                   if (typeof payment === 'object') {
                     return (
@@ -368,7 +612,7 @@ export default function CustomerDetailsScreen() {
                         key={index}
                         payment={payment}
                         isAdmin={role === 'admin'}
-                        onStatusChange={handlePaymentStatusToggle}
+                        onEditAmount={handleEditTransaction}
                       />
                     );
                   }
@@ -400,62 +644,102 @@ export default function CustomerDetailsScreen() {
   );
 }
 
-const DetailSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
+const DetailSection = ({ title = "TITLE", children = <></>, isEditing = false, onToggleEdit = () => { }, onSave = () => { }, isAdmin = false }: { title: string, children: React.ReactNode, isEditing: boolean, onToggleEdit: () => void, onSave: () => void, isAdmin: boolean }) => (
   <View style={styles.detailSection}>
-    <Text style={styles.sectionTitle}>{title}</Text>
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {isAdmin && (
+        isEditing ? (
+          <TouchableOpacity onPress={onSave} style={styles.editButton}>
+            <Text style={styles.editButtonText}>Save</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={onToggleEdit} style={styles.editButton}>
+            <Text style={styles.editButtonText}>Edit</Text>
+          </TouchableOpacity>
+        )
+      )}
+    </View>
     {children}
   </View>
 );
 
-const DetailItem = ({ icon, label, value }: { icon: string, label: string, value: string }) => (
+const DetailItem = ({ icon, label, value, isEditing, onChangeText, error }: { icon: string, label: string, value: string, isEditing?: boolean, onChangeText?: (text: string) => void, error?: string }) => (
   <View style={styles.detailItem}>
     <FontAwesome name={icon} size={18} color="#4A90E2" style={styles.detailIcon} />
     <View style={styles.detailTextContainer}>
       <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
-    </View>
-  </View>
-);
-
-const PaymentCard = ({ payment, isAdmin, onStatusChange }: { payment: Payment, isAdmin: boolean, onStatusChange: (id: number, newStatus: string) => void }) => (
-  <View style={styles.paymentCard}>
-    <View style={styles.paymentLeftSection}>
-      <View style={styles.paymentIconContainer}>
-        <FontAwesome name="credit-card" size={24} color="#4A90E2" />
-      </View>
-      <View style={styles.paymentInfo}>
-        <Text style={styles.paymentAmount}>₹{payment.paymentAmount.toLocaleString()}</Text>
-        <Text style={styles.paymentDate}>{new Date(payment.paymentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
-      </View>
-    </View>
-    <View style={styles.paymentRightSection}>
-      <StatusTag status={payment.paymentStatus} />
-      {isAdmin && (
-        <Menu>
-          <MenuTrigger>
-            <View style={styles.menuTrigger}>
-              <FontAwesome name="ellipsis-v" size={20} color="#6B7280" />
-            </View>
-          </MenuTrigger>
-          <MenuOptions customStyles={menuOptionsStyles}>
-            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'paid')} style={{ flexDirection: 'row', alignItems: 'center', padding: 12, }}>
-              <FontAwesome name="check" size={16} color="#4CAF50" />
-              <Text style={styles.menuOptionText}>Mark as Paid</Text>
-            </MenuOption>
-            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'pending')} style={{ flexDirection: 'row', alignItems: 'center', padding: 12, }}>
-              <FontAwesome name="clock-o" size={16} color="#FFC107" />
-              <Text style={styles.menuOptionText}>Mark as Pending</Text>
-            </MenuOption>
-            <MenuOption onSelect={() => onStatusChange(payment.paymentId, 'delayed')} style={{ flexDirection: 'row', alignItems: 'center', padding: 12, }}>
-              <FontAwesome name="exclamation-circle" size={16} color="#F44336" />
-              <Text style={styles.menuOptionText}>Mark as Delayed</Text>
-            </MenuOption>
-          </MenuOptions>
-        </Menu>
+      {isEditing ? (
+        <>
+          <TextInput
+            style={[styles.detailInput, error ? { borderWidth: 1, borderColor: 'red', padding: 5, borderRadius: 5 } : null]}
+            value={value}
+            onChangeText={onChangeText}
+          />
+          {error && <Text style={{ color: 'red' }}>{error}</Text>}
+        </>
+      ) : (
+        <Text style={styles.detailValue}>{value}</Text>
       )}
     </View>
   </View>
 );
+
+const PaymentCard = ({ payment, isAdmin, onEditAmount }: { payment: Payment, isAdmin: boolean, onEditAmount: (id: number, newAmount: string) => void }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAmount, setEditedAmount] = useState(payment.paymentAmount.toString());
+
+  const handleSaveEdit = () => {
+    onEditAmount(payment.paymentId, editedAmount);
+    setIsEditing(false);
+  };
+
+  return (
+    <View style={styles.paymentCard}>
+      <View style={styles.paymentLeftSection}>
+        <View style={styles.paymentIconContainer}>
+          <FontAwesome name="credit-card" size={24} color="#4A90E2" />
+        </View>
+        <View style={styles.paymentInfo}>
+          <Text style={styles.paymentAmount}>₹{payment.paymentAmount.toLocaleString()}</Text>
+          <Text style={styles.paymentDate}>
+            {new Date(payment.paymentDate).toLocaleString('en-GB', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.paymentRightSection}>
+        {isEditing ? (
+          <>
+            <TextInput
+              style={{ borderWidth: 1, borderColor: 'gray', padding: 5, borderRadius: 5 }}
+              value={editedAmount}
+              onChangeText={setEditedAmount}
+              keyboardType="numeric"
+            />
+            <TouchableOpacity onPress={handleSaveEdit}>
+              <FontAwesome name="check" size={20} color="#4CAF50" />
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <StatusTag status={payment.paymentStatus} />
+            {isAdmin && (
+              <TouchableOpacity onPress={() => setIsEditing(true)}>
+                <FontAwesome name="edit" size={20} color="#4A90E2" />
+              </TouchableOpacity>
+            )}
+          </>
+        )}
+      </View>
+    </View>
+  );
+};
 
 const StatusTag = ({ status }: { status: string }) => {
   const getStatusColor = () => {
