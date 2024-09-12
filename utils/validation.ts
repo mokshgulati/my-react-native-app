@@ -1,3 +1,5 @@
+import { parseISO, } from 'date-fns';
+
 export const validateEmail = (email: string): string => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email.trim()) return 'Email is required';
@@ -24,8 +26,7 @@ export const validateDate = (date: string): string => {
   const dateRegex = /^[1-9][0-9][0-9]{2}-([0][1-9]|[1][0-2])-([1-2][0-9]|[0][1-9]|[3][0-1])$/;
   if (!date.trim()) return 'Date is required';
   if (!dateRegex.test(date)) return 'Invalid date format (YYYY-MM-DD)';
-  const parsedDate = new Date(date);
-  if (isNaN(parsedDate.getTime())) return 'Invalid date';
+  const parsedDate = parseISO(date);
   if (parsedDate > new Date()) return 'Date cannot be in the future';
   return '';
 };

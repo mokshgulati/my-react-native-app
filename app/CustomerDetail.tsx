@@ -17,6 +17,7 @@ import { ActivityIndicator } from 'react-native';
 import { validateEmail, validatePhone, validateAmount, validateLoanTenure, validateDate } from '@/utils/validation';
 import { deleteUser } from '@/lib/appwrite';
 import { Ionicons } from '@expo/vector-icons';
+import { isValid, parseISO, format } from 'date-fns';
 
 
 export default function CustomerDetailsScreen() {
@@ -31,6 +32,8 @@ export default function CustomerDetailsScreen() {
   const [comments, setComments] = useState('');
   const [isEditingComments, setIsEditingComments] = useState(false);
   const [isSavingComments, setIsSavingComments] = useState(false);
+
+  const [borrowedOnValue, setBorrowedOnValue] = useState('');
 
   const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
   const [editedFields, setEditedFields] = useState<Partial<User>>({});
@@ -52,6 +55,12 @@ export default function CustomerDetailsScreen() {
   useEffect(() => {
     fetchUserDetails();
   }, [customerId, role]);
+
+  useEffect(() => {
+    if (details?.borrowedOn) {
+      setBorrowedOnValue(formatDateForDisplay(details.borrowedOn));
+    }
+  }, [details]);
 
   const fetchUserDetails = async () => {
     showLoader();
@@ -133,10 +142,11 @@ export default function CustomerDetailsScreen() {
 
   const handleFieldChange = (field: keyof User, value: string) => {
     let formattedValue: string | number = value;
-    if (field === 'borrowedAmount' || field === 'loanTenureInMonths') {
+    if (field === 'borrowedOn') {
+      setBorrowedOnValue(formattedValue);
+      formattedValue = value;
+    } else if (field === 'borrowedAmount' || field === 'loanTenureInMonths') {
       formattedValue = value === '' || isNaN(parseFloat(value)) ? '' : parseFloat(value);
-    } else if (field === 'borrowedOn') {
-      formattedValue = value === '' ? '' : formatDateForDB(value);
     }
     setEditedFields(prev => ({ ...prev, [field]: formattedValue }));
     validateField(field, value);
@@ -192,8 +202,13 @@ export default function CustomerDetailsScreen() {
     try {
       const updatedFields = Object.keys(editedFields).reduce((acc, key) => {
         if (editedFields[key as keyof User] !== details[key as keyof User]) {
-          // @ts-ignore
-          acc[key as keyof User] = editedFields[key as keyof User];
+          if (key === 'borrowedOn') {
+            // @ts-ignore
+            acc[key as keyof User] = formatDateForDB(editedFields[key as keyof User]);
+          } else {
+            // @ts-ignore
+            acc[key as keyof User] = editedFields[key as keyof User];
+          }
         }
         return acc;
       }, {} as Partial<User>);
@@ -610,7 +625,7 @@ export default function CustomerDetailsScreen() {
                   <DetailItem
                     icon="calendar"
                     label="Borrowed On"
-                    value={editingSections['loan'] ? formatDateForDisplay(editedFields.borrowedOn || details.borrowedOn) : formatDateForDisplay(details.borrowedOn)}
+                    value={borrowedOnValue}
                     finalValue={formatDateForDisplay(details.borrowedOn)}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('borrowedOn', value)}
