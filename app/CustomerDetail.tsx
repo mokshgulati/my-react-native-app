@@ -117,13 +117,13 @@ export default function CustomerDetailsScreen() {
     let error = '';
     switch (field) {
       case 'email':
-        error = validateEmail(value);
+        error = value.trim() === '' ? 'Email is required' : validateEmail(value);
         break;
       case 'phone':
-        error = validatePhone(value);
+        error = value.trim() === '' ? 'Phone is required' : validatePhone(value);
         break;
       case 'borrowedAmount':
-        error = validateAmount(value);
+        error = value.trim() === '' ? 'Borrowed amount is required' : validateAmount(value);
         break;
       // Add more validations for other fields as needed
     }
@@ -474,12 +474,14 @@ export default function CustomerDetailsScreen() {
                     icon="envelope"
                     label="Email"
                     value={details.email}
+                    finalValue={details.email}
                     isEditing={false}
                   />
                   <DetailItem
                     icon="phone"
                     label="Phone"
-                    value={editedFields.phone || details.phone}
+                    value={editedFields.phone}
+                    finalValue={details.phone}
                     isEditing={editingSections['personal']}
                     onChangeText={(value) => handleFieldChange('phone', value)}
                     error={editedErrors.phone}
@@ -497,21 +499,24 @@ export default function CustomerDetailsScreen() {
                   <DetailItem
                     icon="home"
                     label="Address"
-                    value={editedFields.address || details.address}
+                    value={editedFields.address}
+                    finalValue={details.address}
                     isEditing={editingSections['address']}
                     onChangeText={(value) => handleFieldChange('address', value)}
                   />
                   <DetailItem
                     icon="building"
                     label="City"
-                    value={editedFields.city || details.city}
+                    value={editedFields.city}
+                    finalValue={details.city}
                     isEditing={editingSections['address']}
                     onChangeText={(value) => handleFieldChange('city', value)}
                   />
                   <DetailItem
                     icon="map"
                     label="State"
-                    value={editedFields.state || details.state}
+                    value={editedFields.state}
+                    finalValue={details.state}
                     isEditing={editingSections['address']}
                     onChangeText={(value) => handleFieldChange('state', value)}
                   />
@@ -528,7 +533,8 @@ export default function CustomerDetailsScreen() {
                   <DetailItem
                     icon="rupee"
                     label="Borrowed Amount"
-                    value={`₹${editedFields.borrowedAmount || details.borrowedAmount}`}
+                    value={editedFields.borrowedAmount}
+                    finalValue={details.borrowedAmount}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('borrowedAmount', value)}
                     error={editedErrors.borrowedAmount}
@@ -536,21 +542,24 @@ export default function CustomerDetailsScreen() {
                   <DetailItem
                     icon="calendar"
                     label="Borrowed On"
-                    value={editedFields.borrowedOn || (details.borrowedOn ? new Date(details.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A')}
+                    value={editedFields.borrowedOn}
+                    finalValue={details.borrowedOn ? new Date(details.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('borrowedOn', value)}
                   />
                   <DetailItem
                     icon="clock-o"
                     label="Loan Tenure"
-                    value={`${editedFields.loanTenureInMonths || details.loanTenureInMonths ? `${details.loanTenureInMonths} months` : 'N/A'}`}
+                      value={editedFields.loanTenureInMonths}
+                    finalValue={details.loanTenureInMonths}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('loanTenureInMonths', value)}
                   />
                   <DetailItem
                     icon="money"
                     label="Total Amount Paid"
-                    value={`₹${editedFields.totalAmountPaid || details.totalAmountPaid}`}
+                    value={editedFields.totalAmountPaid}
+                    finalValue={details.totalAmountPaid}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('totalAmountPaid', value)}
                   />
@@ -558,6 +567,7 @@ export default function CustomerDetailsScreen() {
                     icon="money"
                     label="Remaining Amount"
                     value={`₹${(editedFields.borrowedAmount || details.borrowedAmount) - (editedFields.totalAmountPaid || details.totalAmountPaid)}`}
+                    finalValue={`₹${(details.borrowedAmount || 0) - (details.totalAmountPaid || 0)}`}
                     isEditing={false}
                   />
                 </DetailSection>
@@ -745,7 +755,7 @@ const DetailSection = ({
   </View>
 );
 
-const DetailItem = ({ icon, label, value, isEditing, onChangeText, error }: { icon: string, label: string, value: string, isEditing?: boolean, onChangeText?: (text: string) => void, error?: string }) => (
+const DetailItem = ({ icon, label, value, finalValue, isEditing, onChangeText, error }: { icon: string, label: string, value: string | number, finalValue: string | number, isEditing?: boolean, onChangeText?: (text: string) => void, error?: string }) => (
   <View style={styles.detailItem}>
     <FontAwesome name={icon} size={18} color="#4A90E2" style={styles.detailIcon} />
     <View style={styles.detailTextContainer}>
@@ -754,13 +764,15 @@ const DetailItem = ({ icon, label, value, isEditing, onChangeText, error }: { ic
         <>
           <TextInput
             style={[styles.detailInput, error ? { borderWidth: 1, borderColor: 'red', padding: 5, borderRadius: 5 } : null]}
-            value={value}
+            value={value?.toString() || ''}
             onChangeText={onChangeText}
+            placeholder={`Enter ${label.toLowerCase()}`}
+            keyboardType={label === 'Borrowed Amount' || label === 'Total Amount Paid' || label === 'Phone' ? 'numeric' : 'default'}
           />
           {error && <Text style={{ color: 'red' }}>{error}</Text>}
         </>
       ) : (
-        <Text style={styles.detailValue}>{value}</Text>
+          <Text style={styles.detailValue}>{finalValue || 'N/A'}</Text>
       )}
     </View>
   </View>
