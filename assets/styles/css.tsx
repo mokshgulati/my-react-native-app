@@ -174,6 +174,8 @@ export const customerDetailStyles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         color: '#333',
+        marginTop: 20,
+        marginBottom: 10,
       },
       editButton: {
         backgroundColor: '#4A90E2',
