@@ -14,7 +14,7 @@ import { useSession } from '@/providers/SessionProvider';
 import { getUserDetails, updateUserDetails, addTransaction, User, Payment } from '@/lib/appwrite';
 import { useCustomers } from '@/providers/CustomerProvider';
 import { ActivityIndicator } from 'react-native';
-import { validateEmail, validatePhone, validateAmount, validateLoanTenure } from '@/utils/validation';
+import { validateEmail, validatePhone, validateAmount, validateLoanTenure, validateDate } from '@/utils/validation';
 import { deleteUser } from '@/lib/appwrite';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -89,6 +89,16 @@ export default function CustomerDetailsScreen() {
     }
   }
 
+  const formatDateForDisplay = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+  };
+
+  const formatDateForDB = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('.')[0]; // Returns YYYY-MM-DDTHH:mm:ss
+  };
+
   const onDeleteCustomer = async () => {
     Alert.alert(
       "Delete Customer",
@@ -122,7 +132,13 @@ export default function CustomerDetailsScreen() {
   };
 
   const handleFieldChange = (field: keyof User, value: string) => {
-    setEditedFields(prev => ({ ...prev, [field]: value }));
+    let formattedValue: string | number = value;
+    if (field === 'borrowedAmount' || field === 'loanTenureInMonths') {
+      formattedValue = value === '' || isNaN(parseFloat(value)) ? '' : parseFloat(value);
+    } else if (field === 'borrowedOn') {
+      formattedValue = value === '' ? '' : formatDateForDB(value);
+    }
+    setEditedFields(prev => ({ ...prev, [field]: formattedValue }));
     validateField(field, value);
   };
 
@@ -140,6 +156,9 @@ export default function CustomerDetailsScreen() {
         break;
       case 'loanTenureInMonths':
         error = value.trim() === '' ? 'Loan tenure is required' : validateLoanTenure(value);
+        break;
+      case 'borrowedOn':
+        error = value.trim() === '' ? 'Borrowed date is required' : validateDate(value);
         break;
       // Add more validations for other fields as needed
     }
@@ -586,12 +605,13 @@ export default function CustomerDetailsScreen() {
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('borrowedAmount', value)}
                     error={editedErrors.borrowedAmount}
+                    keyboardType="decimal-pad"
                   />
                   <DetailItem
                     icon="calendar"
                     label="Borrowed On"
-                    value={editedFields.borrowedOn}
-                    finalValue={details.borrowedOn ? new Date(details.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
+                    value={editingSections['loan'] ? formatDateForDisplay(editedFields.borrowedOn || details.borrowedOn) : formatDateForDisplay(details.borrowedOn)}
+                    finalValue={formatDateForDisplay(details.borrowedOn)}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('borrowedOn', value)}
                     error={editedErrors.borrowedOn}
@@ -604,6 +624,7 @@ export default function CustomerDetailsScreen() {
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('loanTenureInMonths', value)}
                     error={editedErrors.loanTenureInMonths}
+                    keyboardType="decimal-pad"
                   />
                   <DetailItem
                     icon="money"
@@ -804,7 +825,16 @@ const DetailSection = ({
   </View>
 );
 
-const DetailItem = ({ icon, label, value, finalValue, isEditing, onChangeText, error }: { icon: string, label: string, value: string | number, finalValue: string | number, isEditing?: boolean, onChangeText?: (text: string) => void, error?: string }) => (
+const DetailItem = ({ icon, label, value, finalValue, isEditing, onChangeText, error, keyboardType }: {
+  icon: string,
+  label: string,
+  value: string | number,
+  finalValue: string | number,
+  isEditing?: boolean,
+  onChangeText?: (text: string) => void,
+  error?: string,
+  keyboardType?: 'default' | 'numeric' | 'email-address' | 'phone-pad' | 'number-pad' | 'decimal-pad'
+}) => (
   <View style={styles.detailItem}>
     <FontAwesome name={icon} size={18} color="#4A90E2" style={styles.detailIcon} />
     <View style={styles.detailTextContainer}>
@@ -816,7 +846,7 @@ const DetailItem = ({ icon, label, value, finalValue, isEditing, onChangeText, e
             value={value?.toString() || ''}
             onChangeText={onChangeText}
             placeholder={`Enter ${label.toLowerCase()}`}
-            keyboardType={label === 'Borrowed Amount' || label === 'Total Amount Paid' || label === 'Phone' || label === 'Loan Tenure' ? 'numeric' : 'default'}
+            keyboardType={keyboardType || 'default'}
           />
           {error && <Text style={{ color: 'red' }}>{error}</Text>}
         </>
