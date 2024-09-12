@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, StyleSheet } from 'react-native';
 import CustomModal from '@/components/Modal';
 import { Ionicons } from '@expo/vector-icons';
+import { useLoader } from '@/providers/LoaderProvider';
 
 interface TransactionModalProps {
   visible: boolean;
@@ -11,25 +12,50 @@ interface TransactionModalProps {
 
 const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, onSubmit }) => {
   const [amount, setAmount] = useState('');
-  const [date, setDate] = useState('');
+  const [dateString, setDateString] = useState('');
+  const { showLoader, hideLoader } = useLoader();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isFormValid()) {
+      showLoader();
       const transactionData = {
-        paymentId: Math.floor(Math.random() * 1000000), // Generate a random ID
+        paymentId: Math.floor(Math.random() * 1000000),
         paymentAmount: parseFloat(amount),
-        paymentDate: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+        paymentDate: dateString,
       };
-      onSubmit(transactionData);
+      await new Promise(resolve => resolve(onSubmit(transactionData)));
+      hideLoader();
       setAmount('');
+      setDateString('');
     }
   };
 
+  const getCurrentDate = () => {
+    const date = new Date();
+    return date.toISOString().split('T')[0];
+  };
+
+  useEffect(() => {
+    if (visible) {
+      setAmount('');
+      setDateString(getCurrentDate());
+    }
+  }, [visible]);
+
   const isFormValid = () => {
     const amountRegex = /^\d+(\.\d{1,2})?$/;
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-
-    return amountRegex.test(amount) && dateRegex.test(date);
+    const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+    
+    const isValidDate = (dateStr: string) => {
+      if (!dateRegex.test(dateStr)) return false;
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      return date.getFullYear() === year &&
+             date.getMonth() === month - 1 &&
+             date.getDate() === day;
+    };
+  
+    return amountRegex.test(amount) && isValidDate(dateString);
   };
 
   return (
@@ -57,8 +83,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
           <TextInput
             style={styles.input}
             placeholder="Date (YYYY-MM-DD)"
-            value={date}
-            onChangeText={setDate}
+            value={dateString}
+            onChangeText={setDateString}
+            keyboardType="numeric"
           />
         </View>
       </View>
