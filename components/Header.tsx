@@ -36,6 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     phone: '',
     email: '',
     borrowedAmount: '',
+    borrowedOn: '',
     loanTenureInMonths: '',
   });
 
@@ -45,6 +46,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
     fullName: /^[a-zA-Z\s]+$/,
     phone: /^[0-9]{10}$/,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    borrowedOn: /^[1-9][0-9][0-9]{2}-([0][1-9]|[1][0-2])-([1-2][0-9]|[0][1-9]|[3][0-1])$/,
     borrowedAmount: /^[0-9]*\.?[0-9]+$/,
     loanTenureInMonths: /^[0-9]+$/,
   };
@@ -72,12 +74,34 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
         ...prevErrors,
         [field]: `Invalid ${field}`,
       }));
+      return false;
     } else {
       setErrors((prevErrors) => ({
         ...prevErrors,
         [field]: '',
       }));
     }
+    if (field === 'borrowedOn') {
+      const selectedDate = new Date(value);
+      const currentDate = new Date();
+      if (isNaN(selectedDate.getTime())) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [field]: 'Invalid date format',
+        }));
+      } else if (selectedDate > currentDate) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [field]: 'Borrowed date cannot be in the future',
+        }));
+      } else {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [field]: '',
+        }));
+      }
+    }
+    return true;
   };
 
   // Handle input changes for the customer form
@@ -94,6 +118,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
         borrowedAmount: parseFloat(customerData.borrowedAmount),
         totalAmountPaid: parseFloat(customerData.totalAmountPaid),
         loanTenureInMonths: parseInt(customerData.loanTenureInMonths),
+        borrowedOn: new Date(customerData.borrowedOn).toISOString(), // Convert to ISO string
       };
       await addCustomer(newCustomer);
       resetCustomerForm();
@@ -149,6 +174,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
         customerData.phone &&
         customerData.email &&
         customerData.borrowedAmount &&
+        customerData.borrowedOn &&
         customerData.loanTenureInMonths &&
         customerData.address &&
         customerData.city &&
@@ -310,14 +336,15 @@ const Header: React.FC<HeaderProps> = ({ onSearch, addCustomer, handleFilterChan
             <View style={[styles.inputGroup, styles.halfWidth]}>
               <FontAwesome name="calendar" size={20} color="#555" style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
-                placeholder="Borrowed On"
+                style={[styles.input, errors.borrowedOn ? styles.inputError : null]}
+                placeholder="Borrowed On (YYYY-MM-DD)"
                 value={customerData.borrowedOn}
                 onChangeText={(text) => handleInputChange('borrowedOn', text)}
               />
             </View>
           </View>
           {errors.borrowedAmount && <Text style={styles.errorText}>{errors.borrowedAmount}</Text>}
+          {errors.borrowedOn && <Text style={styles.errorText}>{errors.borrowedOn}</Text>}
 
           <View style={styles.row}>
             <View style={[styles.inputGroup, styles.halfWidth]}>
