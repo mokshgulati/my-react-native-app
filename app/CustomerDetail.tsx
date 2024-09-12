@@ -106,6 +106,19 @@ export default function CustomerDetailsScreen() {
 
   const toggleSectionEditing = (section: string) => {
     setEditingSections(prev => ({ ...prev, [section]: !prev[section] }));
+    if (!editingSections[section]) {
+      // When entering edit mode, populate editedFields with current values
+      setEditedFields(prev => ({
+        ...prev,
+        ...Object.keys(details || {}).reduce((acc, key) => {
+          if (['email', 'phone', 'address', 'city', 'state', 'borrowedAmount', 'borrowedOn', 'loanTenureInMonths'].includes(key)) {
+            // @ts-ignore
+            acc[key as keyof User] = details[key as keyof User];
+          }
+          return acc;
+        }, {} as Partial<User>)
+      }));
+    }
   };
 
   const handleFieldChange = (field: keyof User, value: string) => {
@@ -133,6 +146,7 @@ export default function CustomerDetailsScreen() {
   const handleSaveSection = async (section: string) => {
     if (!details) return;
 
+    // function to check if the field is valid
     const sectionFields = Object.keys(editedFields).filter(key => {
       switch (section) {
         case 'personal':
@@ -164,6 +178,37 @@ export default function CustomerDetailsScreen() {
 
       if (Object.keys(updatedFields).length > 0) {
         const updatedUser = await updateUserDetails(details.$id, updatedFields);
+
+        await updateCustomer(details.$id, updatedUser);
+
+        if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
+          updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
+            if (paymentStr === null) {
+              return null;
+            }
+
+            try {
+              // Sanitize the string: Add double quotes to keys and remove trailing commas
+
+              const sanitizedPaymentStr = paymentStr
+                .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
+                .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
+
+
+              const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
+
+              const payment: Payment = JSON.parse(formattedPaymentStr);
+
+              return payment;
+            } catch (e) {
+              console.error("Error parsing payment history string:", e);
+              return null;
+            }
+          }).filter(Boolean)  // Filter out null values
+        } else {
+          updatedUser.paymentHistory = [];
+        }
+
         setDetails(updatedUser);
         showToast('Section updated successfully', 'success');
       }
@@ -550,7 +595,7 @@ export default function CustomerDetailsScreen() {
                   <DetailItem
                     icon="clock-o"
                     label="Loan Tenure"
-                      value={editedFields.loanTenureInMonths}
+                    value={editedFields.loanTenureInMonths}
                     finalValue={details.loanTenureInMonths}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('loanTenureInMonths', value)}
@@ -714,22 +759,22 @@ export default function CustomerDetailsScreen() {
   );
 }
 
-const DetailSection = ({ 
-  title = "TITLE", 
-  children = <></>, 
-  isEditing = false, 
-  onToggleEdit = () => { }, 
-  onSave = () => { }, 
+const DetailSection = ({
+  title = "TITLE",
+  children = <></>,
+  isEditing = false,
+  onToggleEdit = () => { },
+  onSave = () => { },
   onCancel = () => { },
-  isAdmin = false 
-}: { 
-  title: string, 
-  children: React.ReactNode, 
-  isEditing: boolean, 
-  onToggleEdit: () => void, 
-  onSave: () => void, 
+  isAdmin = false
+}: {
+  title: string,
+  children: React.ReactNode,
+  isEditing: boolean,
+  onToggleEdit: () => void,
+  onSave: () => void,
   onCancel: () => void,
-  isAdmin: boolean 
+  isAdmin: boolean
 }) => (
   <View style={styles.detailSection}>
     <View style={styles.sectionHeader}>
@@ -772,7 +817,7 @@ const DetailItem = ({ icon, label, value, finalValue, isEditing, onChangeText, e
           {error && <Text style={{ color: 'red' }}>{error}</Text>}
         </>
       ) : (
-          <Text style={styles.detailValue}>{finalValue || 'N/A'}</Text>
+        <Text style={styles.detailValue}>{finalValue || 'N/A'}</Text>
       )}
     </View>
   </View>
