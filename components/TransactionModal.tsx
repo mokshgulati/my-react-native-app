@@ -3,14 +3,17 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import CustomModal from '@/components/Modal';
 import { Ionicons } from '@expo/vector-icons';
 import { useLoader } from '@/providers/LoaderProvider';
+import { Payment } from '@/lib/appwrite';
 
 interface TransactionModalProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (transactionData: any) => void;
+  onSubmit: (transactionData: Payment) => void;
+  initialData?: Payment;
+  isEditing?: boolean;
 }
 
-const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, onSubmit }) => {
+const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, onSubmit, initialData, isEditing = false }) => {
   const [amount, setAmount] = useState('');
   const [dateTimeString, setDateTimeString] = useState('');
 
@@ -53,24 +56,27 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
 
   useEffect(() => {
     if (visible) {
-      setAmount('');
-      setDateTimeString(getCurrentDateTime());
+      if (initialData) {
+        setAmount(initialData.paymentAmount.toString());
+        setDateTimeString(formatDateTimeForDisplay(initialData.paymentDate));
+      } else {
+        setAmount('');
+        setDateTimeString(getCurrentDateTime());
+      }
     }
-  }, [visible]);
+  }, [visible, initialData]);
 
   const handleSubmit = async () => {
     if (isFormValid()) {
       showLoader();
-      const transactionData = {
-        paymentId: Math.floor(Math.random() * 1000000),
+      const transactionData: Payment = {
+        paymentId: initialData ? initialData.paymentId : Math.floor(Math.random() * 1000000),
         paymentAmount: parseFloat(amount),
         paymentDate: formatDateTimeForISO(dateTimeString),
       };
-      console.log("transactionData", transactionData);
       await new Promise(resolve => resolve(onSubmit(transactionData)));
       hideLoader();
-      setAmount('');
-      setDateTimeString('');
+      onClose();
     }
   };
 
@@ -97,8 +103,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ visible, onClose, o
       onClose={onClose}
       onSubmit={handleSubmit}
       isFormValid={isFormValid()}
-      submitButtonText="Add Transaction"
-      title="Add New Transaction"
+      submitButtonText={isEditing ? "Update Transaction" : "Add Transaction"}
+      title={isEditing ? "Edit Transaction" : "Add New Transaction"}
     >
       <View style={styles.modalContainer}>
         <View style={styles.inputContainer}>

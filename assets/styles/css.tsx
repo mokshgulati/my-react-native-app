@@ -79,6 +79,15 @@ export const loginStyles = StyleSheet.create({
 });
 
 export const customerDetailStyles = StyleSheet.create({
+    menuOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+      },
+      menuOptionText: {
+        marginLeft: 10,
+        fontSize: 16,
+      },
     deleteButton: {
         position: 'absolute',
         top: 0,
@@ -328,11 +337,6 @@ export const customerDetailStyles = StyleSheet.create({
       },
       menuTrigger: {
         padding: 8,
-      },
-      menuOptionText: {
-        marginLeft: 8,
-        fontSize: 14,
-        color: '#1F2937',
       },
     loanStatusContainer: {
         flexDirection: 'row',

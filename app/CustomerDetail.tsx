@@ -15,8 +15,8 @@ import { getUserDetails, updateUserDetails, addTransaction, User, Payment } from
 import { useCustomers } from '@/providers/CustomerProvider';
 import { ActivityIndicator } from 'react-native';
 import { validateEmail, validatePhone, validateAmount } from '@/utils/validation';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { deleteUser } from '@/lib/appwrite';
+import { Ionicons } from '@expo/vector-icons';
 
 
 export default function CustomerDetailsScreen() {
@@ -263,57 +263,57 @@ export default function CustomerDetailsScreen() {
     }
   };
 
-  const handlePaymentStatusToggle = async (id: number, newStatus: string) => {
-    if (!details) return;
+  // const handlePaymentStatusToggle = async (id: number, newStatus: string) => {
+  //   if (!details) return;
 
-    try {
-      const updatedPaymentHistory = details.paymentHistory?.map((payment: Payment | string) => {
-        let paymentObj: Payment = payment as Payment;
-        if (paymentObj.paymentId === id) {
-          paymentObj = { ...paymentObj, paymentStatus: newStatus };
-        }
-        return JSON.stringify(paymentObj);
-      });
+  //   try {
+  //     const updatedPaymentHistory = details.paymentHistory?.map((payment: Payment | string) => {
+  //       let paymentObj: Payment = payment as Payment;
+  //       if (paymentObj.paymentId === id) {
+  //         paymentObj = { ...paymentObj, paymentStatus: newStatus };
+  //       }
+  //       return JSON.stringify(paymentObj);
+  //     });
 
-      const updatedUser = await updateUserDetails(details.$id, {
-        paymentHistory: updatedPaymentHistory,
-      });
-
-
-      if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
-        updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
-          if (paymentStr === null) {
-            return null;
-          }
-
-          try {
-            // Sanitize the string: Add double quotes to keys and remove trailing commas
-
-            const sanitizedPaymentStr = paymentStr
-              .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
-              .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
+  //     const updatedUser = await updateUserDetails(details.$id, {
+  //       paymentHistory: updatedPaymentHistory,
+  //     });
 
 
-            const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
+  //     if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
+  //       updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
+  //         if (paymentStr === null) {
+  //           return null;
+  //         }
 
-            const payment: Payment = JSON.parse(formattedPaymentStr);
+  //         try {
+  //           // Sanitize the string: Add double quotes to keys and remove trailing commas
 
-            return payment;
-          } catch (e) {
-            console.error("Error parsing payment history string:", e);
-            return null;
-          }
-        }).filter(Boolean)  // Filter out null values
-      } else {
-        updatedUser.paymentHistory = [];
-      }
+  //           const sanitizedPaymentStr = paymentStr
+  //             .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
+  //             .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
 
-      setDetails(updatedUser);
-      showToast('Payment status updated successfully', 'success');
-    } catch (error: any) {
-      showToast(`Error updating payment status: ${error.message}`, 'error');
-    }
-  };
+
+  //           const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
+
+  //           const payment: Payment = JSON.parse(formattedPaymentStr);
+
+  //           return payment;
+  //         } catch (e) {
+  //           console.error("Error parsing payment history string:", e);
+  //           return null;
+  //         }
+  //       }).filter(Boolean)  // Filter out null values
+  //     } else {
+  //       updatedUser.paymentHistory = [];
+  //     }
+
+  //     setDetails(updatedUser);
+  //     showToast('Payment status updated successfully', 'success');
+  //   } catch (error: any) {
+  //     showToast(`Error updating payment status: ${error.message}`, 'error');
+  //   }
+  // };
 
   const handleAddTransaction = async (transactionData: Payment) => {
     if (!details) return;
@@ -377,35 +377,55 @@ export default function CustomerDetailsScreen() {
     ]);
   };
 
-  const handleEditTransaction = async (paymentId: number, newAmount: string) => {
+  const handleEditTransaction = async (paymentId: number, updatedTransaction: Payment) => {
     if (!details) return;
-
-    const amountError = validateAmount(newAmount);
-    if (amountError) {
-      showToast(amountError, 'error');
-      return;
-    }
 
     try {
       const updatedPaymentHistory = details.paymentHistory?.map((payment: Payment | string) => {
-        let paymentObj: Payment = payment as Payment;
-        if (paymentObj.paymentId === paymentId) {
-          paymentObj = { ...paymentObj, paymentAmount: parseFloat(newAmount) };
+        if (typeof payment === 'object' && payment.paymentId === paymentId) {
+          return updatedTransaction;
         }
-        return JSON.stringify(paymentObj);
+        return payment;
       });
 
       const updatedUser = await updateUserDetails(details.$id, {
-        paymentHistory: updatedPaymentHistory,
+        paymentHistory: updatedPaymentHistory?.map(payment => JSON.stringify(payment)),
+        // @ts-ignore
+        totalAmountPaid: details.totalAmountPaid - (details.paymentHistory?.find(p => p.paymentId === paymentId)?.paymentAmount || 0) + updatedTransaction.paymentAmount,
       });
 
-      // ... rest of the function to update the state ...
+      if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
+        updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => { 
+          if (paymentStr === null) {
+            return null;
+          }
 
-      showToast('Transaction amount updated successfully', 'success');
+          try {
+            const sanitizedPaymentStr = paymentStr
+              .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')
+              .replace(/,\s*}/g, '}');
+
+            const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
+
+            const payment: Payment = JSON.parse(formattedPaymentStr);
+
+            return payment;
+          } catch (e) {
+            console.error("Error parsing payment history string:", e);
+            return null;
+          }
+        }).filter(Boolean)
+      } else {
+        updatedUser.paymentHistory = [];
+      }
+
+      setDetails(updatedUser);
+      showToast('Transaction updated successfully', 'success');
     } catch (error: any) {
-      showToast(`Error updating transaction amount: ${error.message}`, 'error');
+      showToast(`Error updating transaction: ${error.message}`, 'error');
     }
   };
+
 
   if (error) {
     return <SomethingWentWrong onRetry={fetchUserDetails} />;
@@ -717,13 +737,12 @@ const DetailItem = ({ icon, label, value, isEditing, onChangeText, error }: { ic
   </View>
 );
 
-const PaymentCard = ({ payment, isAdmin, onEditAmount }: { payment: Payment, isAdmin: boolean, onEditAmount: (id: number, newAmount: string) => void }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedAmount, setEditedAmount] = useState(payment.paymentAmount.toString());
+const PaymentCard = ({ payment, isAdmin, onEditAmount }: { payment: Payment, isAdmin: boolean, onEditAmount: (id: number, newAmount: Payment) => void }) => {
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
-  const handleSaveEdit = () => {
-    onEditAmount(payment.paymentId, editedAmount);
-    setIsEditing(false);
+  const handleEditTransaction = (updatedTransaction: Payment) => {
+    onEditAmount(payment.paymentId, updatedTransaction);
+    setIsEditModalVisible(false);
   };
 
   return (
@@ -747,29 +766,30 @@ const PaymentCard = ({ payment, isAdmin, onEditAmount }: { payment: Payment, isA
         </View>
       </View>
       <View style={styles.paymentRightSection}>
-        {isEditing ? (
-          <>
-            <TextInput
-              style={{ borderWidth: 1, borderColor: 'gray', padding: 5, borderRadius: 5 }}
-              value={editedAmount}
-              onChangeText={setEditedAmount}
-              keyboardType="numeric"
-            />
-            <TouchableOpacity onPress={handleSaveEdit}>
-              <FontAwesome name="check" size={20} color="#4CAF50" />
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <StatusTag />
-            {isAdmin && (
-              <TouchableOpacity onPress={() => setIsEditing(true)}>
-                <FontAwesome name="edit" size={20} color="#4A90E2" />
-              </TouchableOpacity>
-            )}
-          </>
+        <StatusTag />
+        {isAdmin && (
+          <Menu>
+            <MenuTrigger>
+              <Ionicons name="ellipsis-vertical" size={24} color="#555" />
+            </MenuTrigger>
+            <MenuOptions>
+              <MenuOption onSelect={() => setIsEditModalVisible(true)}>
+                <View style={styles.menuOption}>
+                  <Ionicons name="pencil" size={18} color="#4A90E2" />
+                  <Text style={styles.menuOptionText}>Edit</Text>
+                </View>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
         )}
       </View>
+      <TransactionModal
+        visible={isEditModalVisible}
+        onClose={() => setIsEditModalVisible(false)}
+        onSubmit={handleEditTransaction}
+        initialData={payment}
+        isEditing={true}
+      />
     </View>
   );
 };
