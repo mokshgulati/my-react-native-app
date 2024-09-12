@@ -14,7 +14,7 @@ import { useSession } from '@/providers/SessionProvider';
 import { getUserDetails, updateUserDetails, addTransaction, User, Payment } from '@/lib/appwrite';
 import { useCustomers } from '@/providers/CustomerProvider';
 import { ActivityIndicator } from 'react-native';
-import { validateEmail, validatePhone, validateAmount } from '@/utils/validation';
+import { validateEmail, validatePhone, validateAmount, validateLoanTenure } from '@/utils/validation';
 import { deleteUser } from '@/lib/appwrite';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -137,6 +137,9 @@ export default function CustomerDetailsScreen() {
         break;
       case 'borrowedAmount':
         error = value.trim() === '' ? 'Borrowed amount is required' : validateAmount(value);
+        break;
+      case 'loanTenureInMonths':
+        error = value.trim() === '' ? 'Loan tenure is required' : validateLoanTenure(value);
         break;
       // Add more validations for other fields as needed
     }
@@ -591,6 +594,7 @@ export default function CustomerDetailsScreen() {
                     finalValue={details.borrowedOn ? new Date(details.borrowedOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('borrowedOn', value)}
+                    error={editedErrors.borrowedOn}
                   />
                   <DetailItem
                     icon="clock-o"
@@ -599,19 +603,19 @@ export default function CustomerDetailsScreen() {
                     finalValue={details.loanTenureInMonths}
                     isEditing={editingSections['loan']}
                     onChangeText={(value) => handleFieldChange('loanTenureInMonths', value)}
+                    error={editedErrors.loanTenureInMonths}
                   />
                   <DetailItem
                     icon="money"
                     label="Total Amount Paid"
-                    value={editedFields.totalAmountPaid}
+                    value={details.totalAmountPaid}
                     finalValue={details.totalAmountPaid}
-                    isEditing={editingSections['loan']}
-                    onChangeText={(value) => handleFieldChange('totalAmountPaid', value)}
+                    isEditing={false}
                   />
                   <DetailItem
                     icon="money"
                     label="Remaining Amount"
-                    value={`₹${(editedFields.borrowedAmount || details.borrowedAmount) - (editedFields.totalAmountPaid || details.totalAmountPaid)}`}
+                    value={`₹${(details.borrowedAmount || 0) - (details.totalAmountPaid || 0)}`}
                     finalValue={`₹${(details.borrowedAmount || 0) - (details.totalAmountPaid || 0)}`}
                     isEditing={false}
                   />
@@ -812,7 +816,7 @@ const DetailItem = ({ icon, label, value, finalValue, isEditing, onChangeText, e
             value={value?.toString() || ''}
             onChangeText={onChangeText}
             placeholder={`Enter ${label.toLowerCase()}`}
-            keyboardType={label === 'Borrowed Amount' || label === 'Total Amount Paid' || label === 'Phone' ? 'numeric' : 'default'}
+            keyboardType={label === 'Borrowed Amount' || label === 'Total Amount Paid' || label === 'Phone' || label === 'Loan Tenure' ? 'numeric' : 'default'}
           />
           {error && <Text style={{ color: 'red' }}>{error}</Text>}
         </>

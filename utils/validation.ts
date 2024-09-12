@@ -19,3 +19,11 @@ export const validateAmount = (amount: string): string => {
   if (parseFloat(amount) <= 0) return 'Amount must be greater than 0';
   return '';
 };
+
+export const validateLoanTenure = (tenure: string): string => {
+  const tenureRegex = /^\d+(\.\d{1,2})?$/;
+  if (!tenure.trim()) return 'Loan tenure is required';
+  if (!tenureRegex.test(tenure)) return 'Invalid loan tenure format';
+  if (parseFloat(tenure) <= 0) return 'Loan tenure must be greater than 0';
+  return '';
+};
