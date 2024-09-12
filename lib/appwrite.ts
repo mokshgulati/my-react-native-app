@@ -233,7 +233,7 @@ export async function getAllUsers() {
                         // Sanitize the string: Add double quotes to keys and remove trailing commas
 
                         const sanitizedPaymentStr = paymentStr
-                            .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
+                            .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
                             .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
 
 
@@ -358,8 +358,8 @@ export async function getUserDetails(userId: string): Promise<User> {
                     // Sanitize the string: Add double quotes to keys and remove trailing commas
 
                     const sanitizedPaymentStr = paymentStr
-                        .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
-                        .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
+                            .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
+                            .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
 
 
                     const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
@@ -404,12 +404,12 @@ export async function addTransaction(detailsOfUser: User, transactionData: Payme
         const updatedPaymentHistory = [...(detailsOfUser.paymentHistory || []), transactionData];
         const updatedPaymentHistoryString = updatedPaymentHistory.map(payment => JSON.stringify(payment));
         const updatedTotalAmountPaid = detailsOfUser.totalAmountPaid + transactionData.paymentAmount;
-
+        console.log("updatedPaymentHistoryString", updatedPaymentHistoryString);
         const updatedUser = await updateUserDetails(detailsOfUser.$id, {
             paymentHistory: updatedPaymentHistoryString as string[],
             totalAmountPaid: updatedTotalAmountPaid,
         });
-
+        console.log("updatedUser", updatedUser);
         return updatedUser;
     } catch (error: any) {
         throw new Error(`Failed to add transaction: ${error.message}`);

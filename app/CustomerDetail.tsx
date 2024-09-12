@@ -193,7 +193,7 @@ export default function CustomerDetailsScreen() {
             // Sanitize the string: Add double quotes to keys and remove trailing commas
 
             const sanitizedPaymentStr = paymentStr
-              .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
+              .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
               .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
 
 
@@ -238,7 +238,7 @@ export default function CustomerDetailsScreen() {
             // Sanitize the string: Add double quotes to keys and remove trailing commas
 
             const sanitizedPaymentStr = paymentStr
-              .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
+              .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
               .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
 
 
@@ -290,7 +290,7 @@ export default function CustomerDetailsScreen() {
             // Sanitize the string: Add double quotes to keys and remove trailing commas
 
             const sanitizedPaymentStr = paymentStr
-              .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
+              .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
               .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
 
 
@@ -320,7 +320,7 @@ export default function CustomerDetailsScreen() {
 
     try {
       const updatedUser = await addTransaction(details, transactionData);
-
+      console.log("updatedUserrrrrrrr", updatedUser);
       if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
         updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
           if (paymentStr === null) {
@@ -329,15 +329,17 @@ export default function CustomerDetailsScreen() {
 
           try {
             // Sanitize the string: Add double quotes to keys and remove trailing commas
-
+            console.log("paymentStr", paymentStr);
             const sanitizedPaymentStr = paymentStr
-              .replace(/([a-zA-Z0-9_]+):/g, '"$1":')  // Add quotes around keys
-              .replace(/,\s*}/g, '}');  // Remove trailing commas before closing braces
+              .replace(/(?<=\{|,)(\w+)(?=:)/g, '"$1"')  // Add quotes around keys
+              .replace(/,\s*}/g, '}')  // Remove trailing commas before closing braces
 
-
+            console.log("sanitizedPaymentStr", sanitizedPaymentStr);
             const formattedPaymentStr = sanitizedPaymentStr.replace(/'/g, '"');
 
+            console.log("formattedPaymentStr", formattedPaymentStr);
             const payment: Payment = JSON.parse(formattedPaymentStr);
+            console.log("payment", payment);
 
             return payment;
           } catch (e) {
@@ -425,11 +427,11 @@ export default function CustomerDetailsScreen() {
           <>
             <View style={styles.card}>
               <View style={styles.avatarContainer}>
-              {role === 'admin' ? (
-                <TouchableOpacity style={styles.deleteButton} onPress={onDeleteCustomer}>
-                  <FontAwesome name="trash" size={24} color="#C7253E" />
-                </TouchableOpacity>
-              ) : null}
+                {role === 'admin' ? (
+                  <TouchableOpacity style={styles.deleteButton} onPress={onDeleteCustomer}>
+                    <FontAwesome name="trash" size={24} color="#C7253E" />
+                  </TouchableOpacity>
+                ) : null}
                 <Image source={require('@/assets/images/profile.png')} style={styles.avatar} resizeMode="contain" />
                 <Text style={styles.name}>{details.fullName}</Text>
               </View>
@@ -579,7 +581,7 @@ export default function CustomerDetailsScreen() {
                       ) : (
                         <View style={styles.commentTextContainer}>
                           <Text style={styles.commentText}>{details.comments || 'No comments'}</Text>
-                          <TouchableOpacity onPress={() => {setComments(details.comments); setIsEditingComments(true);}}>
+                          <TouchableOpacity onPress={() => { setComments(details.comments); setIsEditingComments(true); }}>
                             <FontAwesome name="pencil" size={20} color="#4A90E2" />
                           </TouchableOpacity>
                         </View>
@@ -738,7 +740,8 @@ const PaymentCard = ({ payment, isAdmin, onEditAmount }: { payment: Payment, isA
               month: 'long',
               year: 'numeric',
               hour: '2-digit',
-              minute: '2-digit'
+              minute: '2-digit',
+              hour12: true
             })}
           </Text>
         </View>
@@ -771,7 +774,7 @@ const PaymentCard = ({ payment, isAdmin, onEditAmount }: { payment: Payment, isA
   );
 };
 
-const StatusTag = ({ status='paid' }: { status?: string }) => {
+const StatusTag = ({ status = 'paid' }: { status?: string }) => {
   const getStatusColor = () => {
     switch (status?.toLowerCase()) {
       case 'paid': return { bg: '#E6F4EA', text: '#1E8E3E' };
