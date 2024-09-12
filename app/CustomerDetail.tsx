@@ -34,13 +34,18 @@ export default function CustomerDetailsScreen() {
 
   const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
   const [editedFields, setEditedFields] = useState<Partial<User>>({});
+  const [editedErrors, setEditedErrors] = useState<Record<string, string>>({});
+
+  const handleCancelEdit = (section: string) => {
+    setEditingSections(prev => ({ ...prev, [section]: false }));
+    setEditedFields({});
+    setEditedErrors({});
+  };
 
   const [error, setError] = useState(false);
   const [isTransactionModalVisible, setIsTransactionModalVisible] = useState(false);
 
   const [details, setDetails] = useState<User | null>(null);
-
-  const [editedErrors, setEditedErrors] = useState<Record<string, string>>({});
 
   const id = customerId || user?.$id;
 
@@ -395,7 +400,7 @@ export default function CustomerDetailsScreen() {
       });
 
       if (Array.isArray(updatedUser.paymentHistory) && updatedUser.paymentHistory.length > 0) {
-        updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => { 
+        updatedUser.paymentHistory = updatedUser.paymentHistory.map((paymentStr) => {
           if (paymentStr === null) {
             return null;
           }
@@ -456,20 +461,20 @@ export default function CustomerDetailsScreen() {
                 <Text style={styles.name}>{details.fullName}</Text>
               </View>
               <View style={styles.detailsContainer}>
+
                 <DetailSection
                   title="Personal Information"
                   isEditing={editingSections['personal']}
                   onToggleEdit={() => toggleSectionEditing('personal')}
                   onSave={() => handleSaveSection('personal')}
+                  onCancel={() => handleCancelEdit('personal')}
                   isAdmin={role === 'admin'}
                 >
                   <DetailItem
                     icon="envelope"
                     label="Email"
-                    value={editedFields.email || details.email}
-                    isEditing={editingSections['personal']}
-                    onChangeText={(value) => handleFieldChange('email', value)}
-                    error={editedErrors.email}
+                    value={details.email}
+                    isEditing={false}
                   />
                   <DetailItem
                     icon="phone"
@@ -487,6 +492,7 @@ export default function CustomerDetailsScreen() {
                   onToggleEdit={() => toggleSectionEditing('address')}
                   onSave={() => handleSaveSection('address')}
                   isAdmin={role === 'admin'}
+                  onCancel={() => handleCancelEdit('address')}
                 >
                   <DetailItem
                     icon="home"
@@ -517,6 +523,7 @@ export default function CustomerDetailsScreen() {
                   onToggleEdit={() => toggleSectionEditing('loan')}
                   onSave={() => handleSaveSection('loan')}
                   isAdmin={role === 'admin'}
+                  onCancel={() => handleCancelEdit('loan')}
                 >
                   <DetailItem
                     icon="rupee"
@@ -562,6 +569,7 @@ export default function CustomerDetailsScreen() {
                     onToggleEdit={() => { }}
                     onSave={() => { }}
                     isAdmin={false}
+                    onCancel={() => { }}
                   >
                     <View style={styles.commentContainer}>
                       {isEditingComments ? (
@@ -696,15 +704,36 @@ export default function CustomerDetailsScreen() {
   );
 }
 
-const DetailSection = ({ title = "TITLE", children = <></>, isEditing = false, onToggleEdit = () => { }, onSave = () => { }, isAdmin = false }: { title: string, children: React.ReactNode, isEditing: boolean, onToggleEdit: () => void, onSave: () => void, isAdmin: boolean }) => (
+const DetailSection = ({ 
+  title = "TITLE", 
+  children = <></>, 
+  isEditing = false, 
+  onToggleEdit = () => { }, 
+  onSave = () => { }, 
+  onCancel = () => { },
+  isAdmin = false 
+}: { 
+  title: string, 
+  children: React.ReactNode, 
+  isEditing: boolean, 
+  onToggleEdit: () => void, 
+  onSave: () => void, 
+  onCancel: () => void,
+  isAdmin: boolean 
+}) => (
   <View style={styles.detailSection}>
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
       {isAdmin && (
         isEditing ? (
-          <TouchableOpacity onPress={onSave} style={styles.editButton}>
-            <Text style={styles.editButtonText}>Save</Text>
-          </TouchableOpacity>
+          <View style={styles.editButtonsContainer}>
+            <TouchableOpacity onPress={onCancel} style={styles.cancelButton}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onSave} style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           <TouchableOpacity onPress={onToggleEdit} style={styles.editButton}>
             <Text style={styles.editButtonText}>Edit</Text>

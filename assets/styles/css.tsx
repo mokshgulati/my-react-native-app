@@ -79,6 +79,26 @@ export const loginStyles = StyleSheet.create({
 });
 
 export const customerDetailStyles = StyleSheet.create({
+    editButtonsContainer: {
+        flexDirection: 'row',
+      },
+      cancelButton: {
+        marginRight: 10,
+        padding: 5,
+        borderRadius: 5,
+        backgroundColor: '#f0f0f0',
+      },
+      cancelButtonText: {
+        color: '#333',
+      },
+      saveButton: {
+        padding: 5,
+        borderRadius: 5,
+        backgroundColor: '#4A90E2',
+      },
+      saveButtonText: {
+        color: '#fff',
+      },
     menuOption: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -108,12 +128,6 @@ export const customerDetailStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 20,
-      },
-      cancelButton: {
-        backgroundColor: '#ccc',
-        padding: 10,
-        borderRadius: 5,
-        width: '45%',
       },
       submitButton: {
         backgroundColor: '#4A90E2',
@@ -476,18 +490,6 @@ export const customerDetailStyles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-    },
-    saveButton: {
-        fontSize: 16,
-        color: 'rgb(23,43,109)',
-        fontWeight: 'bold',
-        borderColor: 'rgb(23,43,109)',
-        borderWidth: 1,
-        borderRadius: 10,
-        paddingLeft: 10,
-        paddingRight: 10,
-        paddingTop: 5,
-        paddingBottom: 5
     },
 });
 
